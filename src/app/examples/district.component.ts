@@ -312,6 +312,7 @@ export class DistrictComponent implements OnInit {
   onBlockChange() {
     if (this.selectedBlock) {
       this.loadSectorData(this.selectedBlock);
+      this.loadDashboardData()
     }
   }
 
@@ -335,7 +336,7 @@ export class DistrictComponent implements OnInit {
     // Load state Api
     this.isLoading = true;
     this.service
-      .getDistrictWiseData(this.districtId,this.selectedYear, this.selectedMonth)
+      .getDistrictWiseData(this.districtId,this.selectedYear, this.selectedMonth,this.selectedBlock)
       .subscribe({
         next: (res) => {
           this.isLoading = false;
@@ -440,7 +441,10 @@ export class DistrictComponent implements OnInit {
 
   onFilterChange(): void {
     // Implement filter logic here
-    this.loadDashboardData();
+    if(this.selectedSector){
+      this.loadDashboardData();
+    }
+   
   }
 
   getObservationPercentage(): number {

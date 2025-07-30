@@ -134,16 +134,37 @@ export class CoursesService {
   }
 
   //State Api 
-  getDistrictWiseData(districtId,year, month): Observable<any> {
+  /* getDistrictWiseData(districtId,year, month,sectorId): Observable<any> {
     const token = localStorage.getItem('access_token');
-    const url = `${this.baseUrl}web-dashboard/district?district_id=${districtId}&month=${month}&year=${year}`;
+    const url = `${this.baseUrl}web-dashboard/district?district_id=${districtId}&month=${month}&year=${year}&sector_id=${sectorId}`;
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`, // Ensure `this.token` is set properly
     });
 
     return this.http.get(url, { headers });
   }
+ */
 
+  getDistrictWiseData(districtId?: string, year?: string, month?: string, sectorId?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+    const url = `${this.baseUrl}web-dashboard/district${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
+
+  
 
 
   //Masters 
