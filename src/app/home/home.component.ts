@@ -232,7 +232,7 @@ export class HomeComponent implements OnInit {
     this.isLoading = true;
     
     this.service
-      .getStatewiseData(this.selectedYear, this.selectedMonth)
+      .getStatewiseData(this.selectedYear, this.selectedMonth,this.selectedDistrict,this.selectedBlock,this.selectedSector)
       .subscribe({
         next: (res) => {
           this.isLoading = false;
@@ -316,7 +316,7 @@ export class HomeComponent implements OnInit {
         a.district_name.localeCompare(b.district_name)
       );
 
-        this;
+      
       },
       error: (err) => {
         this.isLoading = false;
@@ -328,14 +328,25 @@ export class HomeComponent implements OnInit {
   onDistrictChange() {
     if (this.selectedDistrict) {
       this.loadBlockData(this.selectedDistrict);
+      this.loadDashboardData();
     }
   }
 
   onBlockChange() {
     if (this.selectedBlock) {
       this.loadSectorData(this.selectedBlock);
+      this.loadDashboardData()
     }
   }
+
+  onFilterChange(): void {
+    // Implement filter logic here
+    if (this.selectedSector) {
+    this.loadDashboardData();
+    }
+  }
+
+
 
   loadBlockData(districtId): void {
     // Load state Api
@@ -377,11 +388,6 @@ export class HomeComponent implements OnInit {
     this.activeMenuItem = item;
   }
 
-  onFilterChange(): void {
-    // Implement filter logic here
-
-    this.loadDashboardData();
-  }
 
 
 

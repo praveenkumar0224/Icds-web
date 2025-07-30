@@ -103,16 +103,35 @@ export class CoursesService {
 
 
   //State Api 
-  getStatewiseData(year, month): Observable<any> {
+  /* getStatewiseData(year, month,districtId,blockId,sectortId): Observable<any> {
     const token = localStorage.getItem('access_token');
-    const url = `${this.baseUrl}web-dashboard/state?month=${month}&year=${year}`;
+    const url = `${this.baseUrl}web-dashboard/state?month=${month}&year=${year}&district_id=${districtId}&block_id=${blockId}&sector_id=${sectortId}`;
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`, // Ensure `this.token` is set properly
     });
 
     return this.http.get(url, { headers });
-  }
+  } */
 
+  getStatewiseData(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectortId) params.push(`sector_id=${sectortId}`);
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+    const url = `${this.baseUrl}web-dashboard/state${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
 
   //State Api 
   getDistrictWiseData(districtId,year, month): Observable<any> {
