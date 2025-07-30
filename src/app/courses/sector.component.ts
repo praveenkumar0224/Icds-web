@@ -225,6 +225,9 @@ public horizontalBarOptions: ChartOptions<'bar'> = {
     this.loadDashboardData();
   }
 
+  goBack() {
+    window.history.back();
+  }
   loadDashboardData(): void {
     // Replace with your actual API endpoint
     // this.http.get<DashboardData>('/api/dashboard-data').subscribe(

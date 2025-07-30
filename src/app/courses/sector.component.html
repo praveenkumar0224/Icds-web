@@ -5,13 +5,26 @@
   <!-- Main Content -->
   <main class="main-content" [class.expanded]="!sideMenuOpen">
     <!-- Header -->
-    <header class="content-header">
+    <!-- <header class="content-header">
       <h1 class="page-title">ICDS - Observation Overview (CDPO)</h1>
       <div class="header-actions">
         <button mat-icon-button class="notification-btn">
           <mat-icon [matBadge]="3" matBadgeColor="accent">notifications</mat-icon>
         </button>
       </div>
+    </header> -->
+    <header class="content-header">
+      <div class="header-left">
+        <button style="color: #fff;" mat-icon-button class="back-btn" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="page-title">ICDS - Observation Overview (CDPO)</h1>
+      </div>
+     <!--  <div class="header-actions">
+        <button mat-icon-button class="notification-btn">
+          <mat-icon [matBadge]="3" matBadgeColor="accent">notifications</mat-icon>
+        </button>
+      </div> -->
     </header>
 
     <!-- Filters -->

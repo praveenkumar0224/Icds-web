@@ -265,7 +265,10 @@ export class DistrictComponent implements OnInit {
 
     this.loadDashboardData();
   }
-
+  goBack() {
+    window.history.back();
+  }
+  
 
   updateBarChartData(awc_observed_by_month: any[]): void {
     const labels = awc_observed_by_month.map(item => item.name.toUpperCase());

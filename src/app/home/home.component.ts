@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
   sectorData: any[] = [];
   @ViewChild('chartCanvas') chartCanvas;
 
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatSort) sort!: MatSort;
   sortDirection: 'asc' | 'desc' = 'asc';
 
   toggleView() {
@@ -48,9 +48,28 @@ export class HomeComponent implements OnInit {
   displayedColumns: string[] = ['slNo', 'district', 'available', 'observed'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource([]);
 
+  goBack() {
+    window.history.back();
+  }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
+
+    this.dataSource.sortingDataAccessor = (data, sortHeaderId) => {
+      switch (sortHeaderId) {
+        case 'slNo':
+          return this.dataSource.data.indexOf(data) + 1;
+        case 'district':
+          return data.district;
+        case 'available':
+          return data.available;
+        case 'observed':
+          return data.observed;
+        default:
+          return data[sortHeaderId];
+      }
+    };
+    
   }
   // Line chart
   public observationTrendData: ChartData<'line'>;
@@ -291,6 +310,11 @@ export class HomeComponent implements OnInit {
         this.isLoading = false;
         console.log(res, 'district Data ');
         this.districtData = res?.data?.result;
+
+
+        this.districtData  =  res?.data?.result?.sort((a: any, b: any) =>
+        a.district_name.localeCompare(b.district_name)
+      );
 
         this;
       },

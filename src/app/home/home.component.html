@@ -13,12 +13,17 @@
   <main class="main-content" [class.expanded]="!sideMenuOpen">
     <!-- Header -->
     <header class="content-header">
-      <h1 class="page-title">ICDS - Observation Overview (State)</h1>
-      <div class="header-actions">
+      <div class="header-left">
+        <button style="color: #fff;" mat-icon-button class="back-btn" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="page-title">ICDS - Observation Overview (State)</h1>
+      </div>
+      <!-- <div class="header-actions">
         <button mat-icon-button class="notification-btn">
           <mat-icon [matBadge]="3" matBadgeColor="accent">notifications</mat-icon>
         </button>
-      </div>
+      </div> -->
     </header>
 
     <!-- Filters -->
@@ -101,7 +106,7 @@
           <div class="status-content">
             <div class="status-number">{{ stateLevelData?.in_progress }}</div>
             <div class="status-label">In Progress</div>
-            <mat-icon class="status-icon warning-icon">more_horiz</mat-icon>
+            <mat-icon class="status-icon warning-icon">hourglass_empty</mat-icon>
           </div>
         </mat-card>
       
@@ -166,7 +171,7 @@
 
       <mat-card class="chart-card full-width">
         <mat-card-header>
-          <mat-card-title>AWCs Observed This Month by Block</mat-card-title>
+          <mat-card-title>AWCs Observed This Month by District</mat-card-title>
 
           <span class="spacer"></span>
 
@@ -204,34 +209,36 @@
               </button>
             </div>
 
+            
             <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z2 full-width">
               <!-- Sl.No Column -->
               <ng-container matColumnDef="slNo">
-                <th mat-header-cell *matHeaderCellDef> Sl.No </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Sl.No </th>
                 <td mat-cell *matCellDef="let row; let i = index"> {{ i + 1 }} </td>
               </ng-container>
-
+            
               <!-- District Name -->
               <ng-container matColumnDef="district">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> District Name </th>
                 <td mat-cell *matCellDef="let row"> {{ row.district }} </td>
               </ng-container>
-
+            
               <!-- Centers Available -->
               <ng-container matColumnDef="available">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Centers Available </th>
                 <td mat-cell *matCellDef="let row"> {{ row.available }} </td>
               </ng-container>
-
+            
               <!-- Centers Observed -->
               <ng-container matColumnDef="observed">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Centers Observed </th>
                 <td mat-cell *matCellDef="let row"> {{ row.observed }} </td>
               </ng-container>
-
+            
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
+            
           </ng-template>
 
         </mat-card-content>
