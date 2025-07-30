@@ -386,7 +386,7 @@ export class DistrictComponent implements OnInit {
   setNotVisitedTrendData(lineChatdata: any): void {
 
     const labels = lineChatdata.map(item => item.month.toUpperCase());
-    const data = lineChatdata.map(item => item.setNotVisitedTrendData);
+    const data = lineChatdata.map(item => item.not_started);
 
     this.notVisitedTrendData = {
       labels,
