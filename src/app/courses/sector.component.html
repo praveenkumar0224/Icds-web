@@ -1,0 +1,194 @@
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+  <!-- Side Navigation -->
+  <app-side-menu></app-side-menu>
+  <!-- Main Content -->
+  <main class="main-content" [class.expanded]="!sideMenuOpen">
+    <!-- Header -->
+    <header class="content-header">
+      <h1 class="page-title">ICDS - Observation Overview (CDPO)</h1>
+      <div class="header-actions">
+        <button mat-icon-button class="notification-btn">
+          <mat-icon [matBadge]="3" matBadgeColor="accent">notifications</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <mat-card class="filters-card">
+        <div class="filters-row">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Year</mat-label>
+            <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
+              <mat-option value="2025">2025</mat-option>
+             
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Month</mat-label>
+            <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()">
+              <mat-option value="January">January</mat-option>
+              <mat-option value="February">February</mat-option>
+              <mat-option value="March">March</mat-option>
+              <mat-option value="April">April</mat-option>
+              <mat-option value="May">May</mat-option>
+              <mat-option value="June">June</mat-option>
+              <mat-option value="July">July</mat-option>
+              <mat-option value="August">August</mat-option>
+              <mat-option value="September">September</mat-option>
+              <mat-option value="October">October</mat-option>
+              <mat-option value="November">November</mat-option>
+              <mat-option value="December">December</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+         <!--  <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Block</mat-label>
+            <mat-select [(value)]="selectedBlock" (selectionChange)="onFilterChange()">
+              <mat-option value="All Blocks">All Blocks</mat-option>
+              <mat-option value="Andimadam">Andimadam</mat-option>
+              <mat-option value="Ariyalur">Ariyalur</mat-option>
+              <mat-option value="Jayankondam">Jayankondam</mat-option>
+              <mat-option value="Sendurai">Sendurai</mat-option>
+              <mat-option value="T.Palur">T.Palur</mat-option>
+              <mat-option value="Thirumanur">Thirumanur</mat-option>
+            </mat-select>
+          </mat-form-field> -->
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Sector</mat-label>
+            <mat-select [(value)]="selectedSector" (selectionChange)="onFilterChange()">
+              <mat-option value="All Sectors">All Sectors</mat-option>
+              <mat-option value="Urban">Urban</mat-option>
+              <mat-option value="Rural">Rural</mat-option>
+              <mat-option value="Tribal">Tribal</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <!-- Key Metrics Cards -->
+      <div class="metrics-row">
+        <mat-card class="metric-card observed">
+          <div class="metric-content">
+            <!-- <div class="metric-icon">
+              <mat-icon>visibility</mat-icon>
+            </div> -->
+            <div class="metric-details">
+              <h3 class="metric-value">{{ dashboardData.awcsObserved }}</h3>
+              <p class="metric-label">AWCs observed in Ariyalur this month</p>
+              <div class="metric-progress">
+                <div class="progress-bar" [style.width.%]="getObservationPercentage()"></div>
+              </div>
+            </div>
+          </div>
+        </mat-card>
+
+        <mat-card class="metric-card not-observed">
+          <div class="metric-content">
+            <!-- <div class="metric-icon">
+              <mat-icon>visibility_off</mat-icon>
+            </div> -->
+            <div class="metric-details">
+              <h3 class="metric-value">{{ dashboardData.awcsNotObserved }}</h3>
+              <p class="metric-label">AWCs not observed this month</p>
+              <div class="metric-progress">
+                <div class="progress-bar" [style.width.%]="100 - getObservationPercentage()"></div>
+              </div>
+            </div>
+          </div>
+        </mat-card>
+
+        <mat-card class="metric-card not-observed">
+          <div class="metric-content">
+            <!-- <div class="metric-icon">
+              <mat-icon>visibility_off</mat-icon>
+            </div> -->
+            <div class="metric-details">
+              <h3 class="metric-value">{{ dashboardData.awcsNotObserved }}</h3>
+              <p class="metric-label">AWCs not observed this month</p>
+              <div class="metric-progress">
+                <div class="progress-bar" [style.width.%]="100 - getObservationPercentage()"></div>
+              </div>
+            </div>
+          </div>
+        </mat-card>
+
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <!-- Observation Trends -->
+        <div class="chart-row">
+          <!-- AWC Observation Line Chart -->
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>AWC observation trends</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <canvas baseChart
+                      [data]="observationTrendData"
+                      [options]="lineChartOptions"
+                      [type]="'line'">
+              </canvas>
+            </mat-card-content>
+          </mat-card>
+        
+          <!-- AWCs Not Visited Line Chart -->
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>AWCs not visited trends</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <canvas baseChart
+                      [data]="notVisitedTrendData"
+                      [options]="lineChartOptions"
+                      [type]="'line'">
+              </canvas>
+            </mat-card-content>
+          </mat-card>
+        
+          <!-- Observations by Cadre Horizontal Bar -->
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>Observations by Cadre this month</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <canvas baseChart
+                      [data]="notCadreData"
+                      [options]="lineChartCadreOptions"
+                      [type]="'line'">
+              </canvas>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+     
+
+      <mat-card class="chart-card full-width">
+        <mat-card-header>
+          <mat-card-title>AWCs observed this month by block</mat-card-title>
+          <div class="chart-info">
+            <mat-icon matTooltip="When block is selected, show completion at sector level. Highlight selected block average in another color.">
+              info_outline
+            </mat-icon>
+          </div>
+        </mat-card-header>
+      
+        <mat-card-content>
+          <canvas baseChart
+                  [data]="barChartData"
+                  [options]="barChartOptions"
+                  [type]="'bar'">
+          </canvas>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </main>
+</div>

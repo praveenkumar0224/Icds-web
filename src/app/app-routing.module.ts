@@ -1,0 +1,57 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AdminPayrollComponent } from './examples/child-routes/admin-payroll/admin-payroll.component';
+import { AdminVacationComponent } from './examples/child-routes/admin-vacation/admin-vacation.component';
+import { AdminComponent } from './examples/child-routes/admin.component';
+import { SectorComponent } from './courses/sector.component';
+import { DynamicComponent } from './examples/dynamic-component/dynamic-component.component';
+import { CustomInputComponent } from './examples/custom-input/custom-input.component';
+import { DistrictComponent } from './examples/district.component';
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login.component';
+import { RouteParamsComponent } from './examples/route-params/route-params.component';
+import { AuthGuard } from './shared/guards/auth.guard';
+import { ProtectedComponent } from './examples/protected/protected.component';
+
+const routes: Routes = [
+  { path: 'home', component: HomeComponent },
+  { path: 'courses/:id', component: SectorComponent },
+  { path: 'login', component: LoginComponent },
+  {
+    path: 'examples/:id',
+    component: DistrictComponent,
+    children: [
+      { path: 'create', component: DynamicComponent },
+      { path: 'input', component: CustomInputComponent },
+      {
+        path: 'child',
+        component: AdminComponent,
+        children: [
+          { path: 'payroll', component: AdminPayrollComponent },
+          { path: 'vacation', component: AdminVacationComponent },
+        ],
+      },
+      {
+        path: 'lazy',
+        loadChildren: () =>
+          import('./examples/lazy-module/lazy-module.module').then(
+            (m) => m.LazyModule
+          ),
+      },
+      { path: 'params', component: RouteParamsComponent },
+      { path: 'params/:id', component: RouteParamsComponent },
+      {
+        path: 'protected',
+        component: ProtectedComponent,
+        canActivate: [AuthGuard],
+      },
+    ],
+  },
+  { path: '**', redirectTo: '/home' },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
