@@ -14,7 +14,7 @@ const BASE_URL = 'http://localhost:3000';
 })
 export class CoursesService {
   model = 'courses';
-  private baseUrl = 'http://3.109.233.193:5412/';
+  private baseUrl = 'http://3.109.233.193/api/';
 
   constructor(
     private http: HttpClient,
