@@ -1,0 +1,13 @@
+.spacer {
+    flex: 1 1 auto;
+  }
+  
+  mat-toolbar a {
+    color: white;
+    font-weight: 500;
+    text-transform: none;
+  }
+  
+  mat-toolbar a.active {
+    text-decoration: underline;
+  }

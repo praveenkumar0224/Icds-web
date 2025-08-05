@@ -1,12 +1,12 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
-    "analytics": "cbb6cedb-dcce-4cfb-b1b4-02c3fbf85505"
+    "analytics": "ec1a0157-5fd0-4433-8d62-bfdfc930cc3a"
   },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ICDS-web-dashboard": {
+    "angular13-fundamentals-workshop": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -23,7 +23,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ICDS-web-dashboard",
+            "outputPath": "dist/angular13-fundamentals-workshop",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -36,27 +36,20 @@
             "styles": [
               "src/styles.scss"
             ],
-       "scripts": ["node_modules/file-saver/dist/FileSaver.min.js"],
-       "budgets": [
-        {
-          "type": "inlineComponentStyles",
-          "maximumWarning": "6kb",
-          "maximumError": "8kb"
-        }
-      ]
+            "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1.5mb",
-                  "maximumError": "2mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "8kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
                 }
               ],
               "fileReplacements": [
@@ -68,12 +61,12 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": true,
-              "optimization": true,
-              "vendorChunk": false,
-              "extractLicenses": true,
-              "sourceMap": false,
-              "namedChunks": false
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
@@ -82,10 +75,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ICDS-web-dashboard:build:production"
+              "browserTarget": "angular13-fundamentals-workshop:build:production"
             },
             "development": {
-              "browserTarget": "ICDS-web-dashboard:build:development"
+              "browserTarget": "angular13-fundamentals-workshop:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -93,7 +86,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ICDS-web-dashboard:build"
+            "browserTarget": "angular13-fundamentals-workshop:build"
           }
         },
         "test": {
@@ -117,5 +110,5 @@
       }
     }
   },
-  "defaultProject": "ICDS-web-dashboard"
+  "defaultProject": "angular13-fundamentals-workshop"
 }

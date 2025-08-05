@@ -2,9 +2,6 @@ import { Component } from '@angular/core';
 import { shareReplay } from 'rxjs/operators';
 
 import { AuthService } from './shared/services/auth/auth.service';
-import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
-
-
 
 @Component({
   selector: 'app-root',
@@ -12,7 +9,7 @@ import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationErr
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'Angular 13 Fundamentals';
+  title = 'ICDS - Dashboard';
   links = [
     { path: '/home', icon: 'home', title: 'Home' },
     { path: '/courses', icon: 'view_list', title: 'Courses' },
@@ -26,6 +23,16 @@ export class AppComponent {
     { path: '/examples/create', icon: 'add_box', title: 'Dynamic Components' },
     { path: '/examples/input', icon: 'dashboard_customize', title: 'Custom Input' },
   ]
+
+  topMenuLinks = [
+    { title: 'Home', path: '/home' },
+    { title: 'Attendance', path: '/attendance' },
+    { title: 'Growth Monitoring', path: '/growth-monitoring' },
+    { title: 'HCM', path: '/hcm' },
+    { title: 'ECCE', path: '/ecce' },
+    { title: 'Report', path: '/report' }
+  ];
+  
 
   isAuthenticated$ = this.authService.isAuthenticated$.pipe(shareReplay(1));
 

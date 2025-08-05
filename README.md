@@ -14,8 +14,8 @@ This sample project includes an Angular web application generated with [Angular 
 ## Web: Getting Started
 
 ```
-git clone https://github.com/onehungrymind/ICDS-web-dashboard
-cd ICDS-web-dashboard
+git clone https://github.com/onehungrymind/angular13-fundamentals-workshop
+cd angular13-fundamentals-workshop
 npm i
 npm start
 ```

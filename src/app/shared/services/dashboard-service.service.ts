@@ -1,69 +1,24 @@
-//CoursesService
-
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Course } from '../../interfaces/course.interface';
-import { NotificationService } from '../notifications/notification.service';
+import { NotificationService } from './notifications/notification.service';
 import { filter, tap } from 'rxjs/operators';
+import * as CryptoJS from 'crypto-js';
 const BASE_URL = 'http://localhost:3000';
 
 
 @Injectable({
   providedIn: 'root',
 })
-export class CoursesService {
+export class DashboardServiceService {
   model = 'courses';
   private baseUrl = 'http://3.109.233.193:5412/';
 
+  xenovexUrl =  "https://icds.xenovex.com/awcmonitor/home?user_id=OdRwtt9rSR0rMc3aLLgYCMSTN6ksGFVY3x%2B9SluU0NY%3D" 
   constructor(
     private http: HttpClient,
     private notificationService: NotificationService
   ) { }
-
-  getAllCourses(displayNotification: boolean) {
-    if (displayNotification) {
-      this.notificationService.notify('Get All Courses HTTP Call');
-    }
-    return this.http.get<Course[]>(this.getUrl());
-  }
-
-  createCourse(course: Course) {
-    this.notificationService.notify('Create Course HTTP Call');
-    return this.http.post<Course>(this.getUrl(), course);
-  }
-
-  updateCourse(course: Course) {
-    this.notificationService.notify('Update Course HTTP Call');
-    return this.http.put<Course>(this.getUrlWithID(course.id), course);
-  }
-
-  deleteCourse(id: number) {
-    this.notificationService.notify('Delete Course HTTP Call');
-    return this.http.delete(this.getUrlWithID(id));
-  }
-
-  private getUrl() {
-    return `${BASE_URL}/${this.model}`;
-  }
-
-  private getUrlWithID(id) {
-    return `${this.getUrl()}/${id}`;
-  }
-
-
-
-
-  /* loginWithEmail(): Observable<any> {
-    const url = this.baseUrl + 'auth/loginWithEmail';
-
-    const user = {
-      email: 'admintechfes@madhifoundation.org',
-      password: 'User@123',
-    };
-
-    return this.http.post(url, user);
-  } */
 
   loginWithEmail(): Observable<any> {
     const url = this.baseUrl + 'auth/loginWithEmail';
@@ -102,16 +57,52 @@ export class CoursesService {
   }
 
 
-  //State Api 
-  /* getStatewiseData(year, month,districtId,blockId,sectortId): Observable<any> {
-    const token = localStorage.getItem('access_token');
-    const url = `${this.baseUrl}web-dashboard/state?month=${month}&year=${year}&district_id=${districtId}&block_id=${blockId}&sector_id=${sectortId}`;
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ensure `this.token` is set properly
-    });
+// Decript 
 
-    return this.http.get(url, { headers });
-  } */
+
+/* decryptUserId(encryptedUserId: string, secretKey: string): string {
+  // Decode the URL-encoded string
+  const decodedEncryptedUserId = decodeURIComponent(encryptedUserId);
+  // Decrypt using AES
+  const decrypted = CryptoJS.AES.decrypt(decodedEncryptedUserId, secretKey);
+  console.log(decrypted,'decrypted');
+  
+  const originalId = decrypted.toString(CryptoJS.enc.Utf8);
+
+  console.log('Decrypted User ID:', originalId);
+  return originalId;
+}
+ */
+decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKwMYje3Mn'): string {
+  try {
+    // Decode Base64 string into WordArray
+    const fullCipher = CryptoJS.enc.Base64.parse(cipherText);
+
+    // Extract IV (first 16 bytes) and cipher (next 16 bytes)
+    const iv = CryptoJS.lib.WordArray.create(fullCipher.words.slice(0, 4));  // 4 words = 16 bytes
+    const cipher = CryptoJS.lib.WordArray.create(fullCipher.words.slice(4, 8)); // next 16 bytes
+
+    // Convert key string to WordArray
+    const key = CryptoJS.enc.Utf8.parse(keyString);
+
+    // Decrypt using AES CBC mode with extracted IV
+    const decrypted = CryptoJS.AES.decrypt(
+      { ciphertext: cipher },
+      key,
+      { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+    );
+
+    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+    console.log('Decrypted User ID:', decryptedText);
+    return decryptedText;
+  } catch (error) {
+    console.error('Decryption failed:', error);
+    return '';
+  }
+}
+
+
+
 
   getStatewiseData(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
@@ -123,27 +114,54 @@ export class CoursesService {
   
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
-    if (districtId) params.push(`district_id=${districtId}`);
+
+   /*  if (districtId) params.push(`district_id=${districtId}`);
     if (blockId) params.push(`block_id=${blockId}`);
-    if (sectortId) params.push(`sector_id=${sectortId}`);
+    if (sectortId) params.push(`sector_id=${sectortId}`); */
+
+   /*  if (districtId && blockId && sectortId) {
+      params.push(`block_id=${blockId}`);
+    } else if (districtId && blockId) {
+      params.push(`district_id=${districtId}`);
+    } else if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+ */
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
   
     const queryString = params.length ? '?' + params.join('&') : '';
-    const url = `${this.baseUrl}web-dashboard/state${queryString}`;
+
+    
+    let url: string;
+
+    if (districtId && blockId ) {
+      url = `${this.baseUrl}web-dashboard/block${queryString}`;
+    }else if (districtId ) {
+      url = `${this.baseUrl}web-dashboard/district${queryString}`;
+    } else{
+      url = `${this.baseUrl}web-dashboard/state${queryString}`;
+    }
+
+   /*  if (districtId && blockId && sectortId) {
+      url = `${this.baseUrl}web-dashboard/block${queryString}`;
+    } else if (districtId && blockId) {
+      url = `${this.baseUrl}web-dashboard/district${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}web-dashboard/state${queryString}`;
+    }else{
+      url = `${this.baseUrl}web-dashboard/state${queryString}`;
+    } */
+
   
     return this.http.get(url, { headers });
   }
 
-  //State Api 
-  /* getDistrictWiseData(districtId,year, month,sectorId): Observable<any> {
-    const token = localStorage.getItem('access_token');
-    const url = `${this.baseUrl}web-dashboard/district?district_id=${districtId}&month=${month}&year=${year}&sector_id=${sectorId}`;
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ensure `this.token` is set properly
-    });
 
-    return this.http.get(url, { headers });
-  }
- */
 
   getDistrictWiseData(districtId?: string, year?: string, month?: string, sectorId?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
@@ -182,7 +200,7 @@ export class CoursesService {
   } */
   postDistrictData(): Observable<any> {
     const token = localStorage?.getItem('access_token');
-    console.log(token, 'token');
+   // console.log(token, 'token');
     const paylods = {
       filter: {}
     }
@@ -198,7 +216,7 @@ export class CoursesService {
 
   postBlockData(districtId): Observable<any> {
     const token = localStorage?.getItem('access_token');
-    console.log(token, 'token');
+    //console.log(token, 'token');
     const paylods = {
       filter: {"district_id":districtId}
     }
@@ -214,9 +232,9 @@ export class CoursesService {
 
   postSectorData(blockId): Observable<any> {
     const token = localStorage?.getItem('access_token');
-    console.log(token, 'token');
+    //console.log(token, 'token');
     const paylods = {
-      filter: {"block_id":blockId}
+      filter: {"sector_id":blockId}
     }
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -230,3 +248,4 @@ export class CoursesService {
 
  
 }
+
