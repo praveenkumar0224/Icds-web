@@ -36,6 +36,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('barChart') barChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart1') lineChartChart1Ref!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart2') lineChartChart2Ref!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('lineChartChart3') lineChartChart3Ref!: ElementRef<HTMLCanvasElement>;
 
   headerTitile: string = 'ICDS - Observation Overview (State)';
   lineChartLabels: string[] = [];
@@ -141,6 +142,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
     },
   ];
 
+  lineChartUserVisited = [
+    {
+      data: [],
+      label: 'Active User',
+      legend: 'Active User',
+      borderColor: '#0097F9',
+      backgroundColor: 'rgba(0, 151, 249, 0.1)',
+      fill: true,
+      tension: 0.4,
+    },
+  ];
 
 
   lineChartOptions: ChartConfiguration['options'] = {
@@ -223,6 +235,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
             this.setObservationTrendData(this.stateLevelData?.observation_visited_trend);
             this.setNotVisitedTrendData(this.stateLevelData?.observation_not_visited_trend);
+            this.setActiveUsertrendsdTrendData(this.stateLevelData?.active_users_trend);
+
 
             this.loadDistrictData();
 
@@ -267,6 +281,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.lineChartDataNotVisited[0].data = data
 
   }
+
+  setActiveUsertrendsdTrendData(lineChatdata: any): void {
+console.log(lineChatdata,'lineChatdata');
+
+
+    const labels = lineChatdata.map(item => item.month.toUpperCase());
+    const data = lineChatdata.map(item => item.active_users);
+
+    this.lineChartLabels = labels
+    this.lineChartUserVisited[0].data = data
+    console.log();
+    
+
+  }
+
 
   private createDistrictBarChart(awc_observed_by_month: any): void {
 
@@ -319,9 +348,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.showChart = !this.showChart;
   }
 
-  goBack(): void {
+ /*  goBack(): void {
     window.history.back();
-  }
+  } */
 
 
   applyFilter(event: Event): void {
@@ -433,6 +462,46 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const link = document.createElement('a');
     link.href = image;
     link.download = 'AWCs not visited trends.png';
+    link.click();
+  }
+
+
+  downloadline3Chart(): void {
+    const canvas = this.lineChartChart3Ref?.nativeElement;
+    const chart = Chart.getChart(canvas);
+
+    if (!chart) {
+      console.warn('Bar chart instance not found.');
+      return;
+    }
+
+    // Get canvas context
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Save chart image as base64 with white background
+    // 1. Create temporary canvas
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return;
+
+    // 2. Fill background with white
+    tempCtx.fillStyle = '#ffffff';
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // 3. Draw existing chart on top
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // 4. Convert to image
+    const image = tempCanvas.toDataURL('image/png');
+
+    // 5. Trigger download
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = 'Active user trends.png';
     link.click();
   }
 
