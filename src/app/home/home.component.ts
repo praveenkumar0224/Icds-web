@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import { Chart, ChartConfiguration, ChartType, ChartOptions, registerables, ChartData, ChartEvent } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 
@@ -174,7 +175,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   constructor(
     private service: DashboardServiceService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) {
 
   }
@@ -183,6 +185,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const url = 'https://icds.xenovex.com/awcmonitor/home?user_id=OdRwtt9rSR0rMc3aLLgYCMSTN6ksGFVY3x%2B9SluU0NY%3D';
     const params = new URLSearchParams(new URL(url).search);
     const encryptedId = params.get('user_id');
+console.log(params,'params');
 
     if (encryptedId) {
       const decrypted = this.service.decryptUserId(encryptedId);
@@ -191,25 +194,35 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   }
 
+  geIdFromUrl(){
+    
+  }
+
 
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
-
+    this.isLoading = true;
     this.service
       .loginWithEmail()
       .pipe(
         switchMap((loginRes) => {
+          this.isLoading = false;
+          this.openToast('success')
           console.log('Login Success:', loginRes);
           return this.service.fetchUser(); // call fetchUser only after login
         })
       )
       .subscribe({
         next: (userRes) => {
+          this.isLoading = false;
+          this.openToast('success')
           console.log('User Fetched:', userRes);
           this.loadDashboardData();
 
         },
         error: (err) => {
+          this.isLoading = false;
+          this.openToast('error')
           console.error('Error:', err);
         },
       });
@@ -566,6 +579,8 @@ console.log(lineChatdata,'lineChatdata');
 
   // Master Filter 
   loadDistrictData(): void {
+    console.log('Test1',);
+    
     // Load state Api
     this.isLoading = true;
     this.service.postDistrictData().subscribe({
@@ -613,7 +628,7 @@ console.log(lineChatdata,'lineChatdata');
       if (this.selectedDistrict) {
         this.labelChanges = {
           stateObserveBox: `AWC observed in ${districtName.district_name} this month`,
-          stateProgressBox: "AWC not observed this month ",
+          stateProgressBox: "Awc's progress this month",
           stateNotObserveBox: "Awc's not Observed this month",
           stateTotalBox: "Total AWCs",
           stateActiveUserBox: "Active users this month",
@@ -638,7 +653,7 @@ console.log(lineChatdata,'lineChatdata');
       if (this.selectedBlock) {
         this.labelChanges = {
           stateObserveBox: `AWC observed in ${blockName.block_name} this month`,
-          stateProgressBox: "AWC not observed this month ",
+          stateProgressBox: "Awc's progress this month ",
           stateNotObserveBox: "Awc's not Observed this month",
           stateTotalBox: "Total AWCs",
           stateActiveUserBox: "Active users this month",
@@ -746,5 +761,16 @@ console.log(lineChatdata,'lineChatdata');
   goFor() {
     this.router.navigate(['/courses', 123456]);
   }
-
+  openToast(type: 'success' | 'error') {
+    this.snackBar.open(
+      type === 'success' ? 'Login Successful ✅' : 'Something went wrong ❌',
+      'Close',
+      {
+        duration: 3000,
+        verticalPosition: 'top',
+        horizontalPosition: 'right',
+        panelClass: type === 'success' ? ['toast-success'] : ['toast-error'],
+      }
+    );
+  }
 }
