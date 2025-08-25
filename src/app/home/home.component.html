@@ -129,7 +129,7 @@
     <mat-card class="metric-card activeUser">
       <div class="status-content">
         <div class="status-info">
-          <div class="status-number">{{ stateLevelData?.observed + stateLevelData?.in_progress || 0 }}</div>
+          <div class="status-number">{{ stateLevelData?.active_users || 0 }}</div>
           <div class="status-label">{{labelChanges.stateActiveUserBox || '-'}}</div>
         </div>
         <mat-icon class="status-icon">groups</mat-icon>

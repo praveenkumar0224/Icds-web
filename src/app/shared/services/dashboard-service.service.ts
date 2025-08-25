@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { NotificationService } from './notifications/notification.service';
 import { filter, tap } from 'rxjs/operators';
 import * as CryptoJS from 'crypto-js';
-const BASE_URL = 'http://localhost:3000';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({
@@ -12,7 +12,7 @@ const BASE_URL = 'http://localhost:3000';
 })
 export class DashboardServiceService {
   model = 'courses';
-  private baseUrl = 'http://3.109.233.193:5412/';
+  private baseUrl = environment.apiUrl
 
   xenovexUrl =  "https://icds.xenovex.com/awcmonitor/home?user_id=OdRwtt9rSR0rMc3aLLgYCMSTN6ksGFVY3x%2B9SluU0NY%3D" 
   constructor(

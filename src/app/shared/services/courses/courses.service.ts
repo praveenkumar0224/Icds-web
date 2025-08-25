@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { Course } from '../../interfaces/course.interface';
 import { NotificationService } from '../notifications/notification.service';
 import { filter, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 const BASE_URL = 'http://localhost:3000';
 
 
@@ -14,7 +15,7 @@ const BASE_URL = 'http://localhost:3000';
 })
 export class CoursesService {
   model = 'courses';
-  private baseUrl = 'http://3.109.233.193:5412/';
+  private baseUrl = environment?.apiUrl;
 
   constructor(
     private http: HttpClient,
