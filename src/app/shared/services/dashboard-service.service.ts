@@ -49,7 +49,7 @@ export class DashboardServiceService {
 
     const payload = {
       filter: {
-        icds_user_id: 16279,
+       icds_user_id: 16279,
       },
     };
 

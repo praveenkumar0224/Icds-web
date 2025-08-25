@@ -1,5 +1,5 @@
 // home.component.ts
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit,ViewChildren,QueryList } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -8,8 +8,9 @@ import { DashboardServiceService } from '../shared/services/dashboard-service.se
 import { switchMap } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
-import { Chart, ChartConfiguration, ChartType, ChartOptions, registerables, ChartData ,ChartEvent} from 'chart.js';
+import { Chart, ChartConfiguration, ChartType, ChartOptions, registerables, ChartData, ChartEvent } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 
@@ -36,23 +37,25 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('barChart') barChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart1') lineChartChart1Ref!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart2') lineChartChart2Ref!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('lineChartChart3') lineChartChart3Ref!: ElementRef<HTMLCanvasElement>;
 
-  headerTitile :string =  'ICDS - Observation Overview (State)';
+  headerTitile: string = 'ICDS - Observation Overview (State)';
   lineChartLabels: string[] = [];
 
   lineChart = 'line'
   selectedTabIndex = 0;
-    labelChanges = {
-        stateObserveBox:"Awc's Observed acrross the State",
-        stateProgressBox:"Awc's progress this month",
-        stateNotObserveBox:"Awc's not Observed this month",
-        stateTotalBox:"Total AWCs",
-        stateActiveUserBox:"Active users this month",
-        stateObservTrendsChart:"AWC observation trends",
-        stateObservNotTrendsChart:"AWCs not visited trends ",
-        stateActiveUserChart:"Active User trends" ,
-        barchart:"AWCs Observed This Month by District"
-}
+  labelChanges = {
+    stateObserveBox: "Awc's Observed acrross the State",
+    stateProgressBox: "Awc's progress this month",
+    stateNotObserveBox: "Awc's not Observed this month",
+    stateTotalBox: "Total AWCs",
+    stateActiveUserBox: "Active users this month",
+    stateObservTrendsChart: "AWC observation trends",
+    stateObservNotTrendsChart: "AWCs not visited trends ",
+    stateActiveUserChart: "Active User trends",
+    barchart: "AWCs Observed This Month by District",
+    sectionType:"District"
+  }
 
 
   barChartLabels: string[] = [];
@@ -73,7 +76,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
 
   // Table data
-  displayedColumns: string[] = ['slNo', 'district', 'available', 'observed','centerNotObserved','observePercentage'];
+  displayedColumns: string[] = ['slNo', 'district', 'available', 'observed', 'centerNotObserved', 'observePercentage'];
   dataSource = new MatTableDataSource<any>();
 
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -140,6 +143,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
     },
   ];
 
+  lineChartUserVisited = [
+    {
+      data: [],
+      label: 'Active User',
+      legend: 'Active User',
+      borderColor: '#0097F9',
+      backgroundColor: 'rgba(0, 151, 249, 0.1)',
+      fill: true,
+      tension: 0.4,
+    },
+  ];
 
 
   lineChartOptions: ChartConfiguration['options'] = {
@@ -161,42 +175,54 @@ export class HomeComponent implements OnInit, AfterViewInit {
   constructor(
     private service: DashboardServiceService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) {
 
   }
 
   ngOnInit(): void {
     const url = 'https://icds.xenovex.com/awcmonitor/home?user_id=OdRwtt9rSR0rMc3aLLgYCMSTN6ksGFVY3x%2B9SluU0NY%3D';
-  const params = new URLSearchParams(new URL(url).search);
-  const encryptedId = params.get('user_id');
+    const params = new URLSearchParams(new URL(url).search);
+    const encryptedId = params.get('user_id');
+console.log(params,'params');
 
-  if (encryptedId) {
-    const decrypted = this.service.decryptUserId(encryptedId);
-    console.log('Decrypted ID:', decrypted);
+    if (encryptedId) {
+      const decrypted = this.service.decryptUserId(encryptedId);
+      console.log('Decrypted ID:', decrypted);
+    }
+
   }
 
+  geIdFromUrl(){
+    
   }
 
 
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
-
+    this.isLoading = true;
     this.service
       .loginWithEmail()
       .pipe(
         switchMap((loginRes) => {
+          this.isLoading = false;
+          this.openToast('success')
           console.log('Login Success:', loginRes);
           return this.service.fetchUser(); // call fetchUser only after login
         })
       )
       .subscribe({
         next: (userRes) => {
+          this.isLoading = false;
+          this.openToast('success')
           console.log('User Fetched:', userRes);
           this.loadDashboardData();
-         
+
         },
         error: (err) => {
+          this.isLoading = false;
+          this.openToast('error')
           console.error('Error:', err);
         },
       });
@@ -209,30 +235,32 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.showChart = true
 
     console.log(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector);
-    
+
     this.service
       .getStatewiseData(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector)
       .subscribe({
         next: (res) => {
           // Simulate API call
-          setTimeout(() => {
-            this.stateLevelData = res.data;
-            if (this.stateLevelData?.awc_observed_by_month?.length) {
-              this.createDistrictBarChart(this.stateLevelData?.awc_observed_by_month);
+          //setTimeout(() => {
+          this.stateLevelData = res.data;
+          if (this.stateLevelData?.awc_observed_by_month?.length) {
+            this.createDistrictBarChart(this.stateLevelData?.awc_observed_by_month);
 
-              this.setObservationTrendData(this.stateLevelData?.observation_visited_trend);
-              this.setNotVisitedTrendData(this.stateLevelData?.observation_not_visited_trend);
+            this.setObservationTrendData(this.stateLevelData?.observation_visited_trend);
+            this.setNotVisitedTrendData(this.stateLevelData?.observation_not_visited_trend);
+            this.setActiveUsertrendsdTrendData(this.stateLevelData?.active_users_trend);
 
-              this.loadDistrictData();
+
+            this.loadDistrictData();
 
 
-             
-              this.isLoading = false;
-
-            }
 
             this.isLoading = false;
-          }, 500);
+
+          }
+
+          this.isLoading = false;
+          //}, 10);
 
 
 
@@ -267,6 +295,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   }
 
+  setActiveUsertrendsdTrendData(lineChatdata: any): void {
+console.log(lineChatdata,'lineChatdata');
+
+
+    const labels = lineChatdata.map(item => item.month.toUpperCase());
+    const data = lineChatdata.map(item => item.active_users);
+
+    this.lineChartLabels = labels
+    this.lineChartUserVisited[0].data = data
+    console.log();
+    
+
+  }
+
+
   private createDistrictBarChart(awc_observed_by_month: any): void {
 
 
@@ -295,19 +338,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   }
 
-  getTableData(apiData){
-    if(apiData){
+  getTableData(apiData) {
+    if (apiData) {
       const formatted = apiData.map((item, index) => ({
         slNo: index + 1,
         district: item.name,
         available: item.total_observed + item.in_progress + item.not_started,
         observed: item.total_observed,
 
-        centerNotObserved : (item.not_started + item.in_progress)  - item.total_observed,
-        observePercentage : Math.round(item.total_observed / (item.not_started + item.in_progress))
+        centerNotObserved: (item.not_started + item.in_progress) - item.total_observed,
+        observePercentage: Math.round(
+          (item.total_observed / (item.total_observed + item.in_progress + item.not_started)) * 100)
 
       }));
-  
+
       this.dataSource.data = formatted;
     }
   }
@@ -317,9 +361,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.showChart = !this.showChart;
   }
 
-  goBack(): void {
+ /*  goBack(): void {
     window.history.back();
-  }
+  } */
 
 
   applyFilter(event: Event): void {
@@ -339,11 +383,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
- /*  navigateToDetailPage(districtDetails: any): void {
-    console.log('Navigate to detail page:', districtDetails);
-    // Implement navigation logic
-    // this.router.navigate(['/examples', districtDetails.id]);
-  } */
+  /*  navigateToDetailPage(districtDetails: any): void {
+     console.log('Navigate to detail page:', districtDetails);
+     // Implement navigation logic
+     // this.router.navigate(['/examples', districtDetails.id]);
+   } */
 
   navigateToDetailPage(event: ChartEvent, activeElements: any[]) { // Temp Not use 
     if (activeElements.length > 0) {
@@ -356,53 +400,38 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
 
-  /* downloadBarChart(): void {
-    const canvas = this.barChartRef?.nativeElement;
-    const chartInstance = Chart.getChart(canvas); // THIS gives exact chart tied to this canvas
-
-    if (!chartInstance) {
-      console.warn('Bar chart instance not found.');
-      return;
-    }
-
-    const image = chartInstance.toBase64Image();
-    const link = document.createElement('a');
-    link.href = image;
-    link.download = 'bar-chart.png';
-    link.click();
-  } */
   downloadLineChart(): void {
     const canvas = this.lineChartChart1Ref?.nativeElement;
     const chart = Chart.getChart(canvas);
-  
+
     if (!chart) {
       console.warn('Bar chart instance not found.');
       return;
     }
-  
+
     // Get canvas context
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-  
+
     // Save chart image as base64 with white background
     // 1. Create temporary canvas
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
-  
+
     const tempCtx = tempCanvas.getContext('2d');
     if (!tempCtx) return;
-  
+
     // 2. Fill background with white
     tempCtx.fillStyle = '#ffffff';
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
+
     // 3. Draw existing chart on top
     tempCtx.drawImage(canvas, 0, 0);
-  
+
     // 4. Convert to image
     const image = tempCanvas.toDataURL('image/png');
-  
+
     // 5. Trigger download
     const link = document.createElement('a');
     link.href = image;
@@ -413,35 +442,35 @@ export class HomeComponent implements OnInit, AfterViewInit {
   downloadline2Chart(): void {
     const canvas = this.lineChartChart2Ref?.nativeElement;
     const chart = Chart.getChart(canvas);
-  
+
     if (!chart) {
       console.warn('Bar chart instance not found.');
       return;
     }
-  
+
     // Get canvas context
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-  
+
     // Save chart image as base64 with white background
     // 1. Create temporary canvas
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
-  
+
     const tempCtx = tempCanvas.getContext('2d');
     if (!tempCtx) return;
-  
+
     // 2. Fill background with white
     tempCtx.fillStyle = '#ffffff';
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
+
     // 3. Draw existing chart on top
     tempCtx.drawImage(canvas, 0, 0);
-  
+
     // 4. Convert to image
     const image = tempCanvas.toDataURL('image/png');
-  
+
     // 5. Trigger download
     const link = document.createElement('a');
     link.href = image;
@@ -449,38 +478,78 @@ export class HomeComponent implements OnInit, AfterViewInit {
     link.click();
   }
 
-  downloadBarChart(): void {
-    const canvas = this.barChartRef?.nativeElement;
+
+  downloadline3Chart(): void {
+    const canvas = this.lineChartChart3Ref?.nativeElement;
     const chart = Chart.getChart(canvas);
-  
+
     if (!chart) {
       console.warn('Bar chart instance not found.');
       return;
     }
-  
+
     // Get canvas context
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-  
+
     // Save chart image as base64 with white background
     // 1. Create temporary canvas
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
-  
+
     const tempCtx = tempCanvas.getContext('2d');
     if (!tempCtx) return;
-  
+
     // 2. Fill background with white
     tempCtx.fillStyle = '#ffffff';
     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  
+
     // 3. Draw existing chart on top
     tempCtx.drawImage(canvas, 0, 0);
-  
+
     // 4. Convert to image
     const image = tempCanvas.toDataURL('image/png');
-  
+
+    // 5. Trigger download
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = 'Active user trends.png';
+    link.click();
+  }
+
+  downloadBarChart(): void {
+    const canvas = this.barChartRef?.nativeElement;
+    const chart = Chart.getChart(canvas);
+
+    if (!chart) {
+      console.warn('Bar chart instance not found.');
+      return;
+    }
+
+    // Get canvas context
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Save chart image as base64 with white background
+    // 1. Create temporary canvas
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return;
+
+    // 2. Fill background with white
+    tempCtx.fillStyle = '#ffffff';
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // 3. Draw existing chart on top
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // 4. Convert to image
+    const image = tempCanvas.toDataURL('image/png');
+
     // 5. Trigger download
     const link = document.createElement('a');
     link.href = image;
@@ -510,6 +579,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // Master Filter 
   loadDistrictData(): void {
+    console.log('Test1',);
+    
     // Load state Api
     this.isLoading = true;
     this.service.postDistrictData().subscribe({
@@ -536,86 +607,90 @@ export class HomeComponent implements OnInit, AfterViewInit {
   onFilterChange(): void {
     // Implement filter logic here
     this.headerTitile = 'ICDS - Observation Overview (CDPO)'
-    if (this.selectedSector || this.selectedSector =="") {
+    if (this.selectedSector || this.selectedSector == "") {
       this.loadDashboardData();
     }
   }
 
   onDistrictChange(val): void {
     console.log(val);
-    
-    this.headerTitile = 'ICDS - Observation Overview (DPO)';
- 
 
-    if (this.selectedDistrict || this.selectedDistrict=="") {
+    this.headerTitile = 'ICDS - Observation Overview (DPO)';
+
+
+    if (this.selectedDistrict || this.selectedDistrict == "") {
       this.loadBlockData(this.selectedDistrict);
 
-      const districtName = this.districtData.find(val=> {return val.district_id == this.selectedDistrict} )
-      console.log(districtName,'districtName');
-      
+      const districtName = this.districtData.find(val => { return val.district_id == this.selectedDistrict })
+      console.log(districtName, 'districtName');
 
-      if(this.selectedDistrict){
+
+      if (this.selectedDistrict) {
         this.labelChanges = {
-         stateObserveBox:`AWC observed in ${districtName.district_name} this month`,
-         stateProgressBox:"AWC not observed this month ",
-         stateNotObserveBox:"Awc's not Observed this month",
-         stateTotalBox:"Total AWCs",
-         stateActiveUserBox:"Active users this month",
-         stateObservTrendsChart:"AWC observation trends",
-         stateObservNotTrendsChart:"AWCs not visited trends ",
-         stateActiveUserChart:"Active User trends" ,
-         barchart:"AWCs Observed This Month by Block"}
+          stateObserveBox: `AWC observed in ${districtName.district_name} this month`,
+          stateProgressBox: "Awc's progress this month",
+          stateNotObserveBox: "Awc's not Observed this month",
+          stateTotalBox: "Total AWCs",
+          stateActiveUserBox: "Active users this month",
+          stateObservTrendsChart: "AWC observation trends",
+          stateObservNotTrendsChart: "AWCs not visited trends ",
+          stateActiveUserChart: "Active User trends",
+          barchart: "AWCs Observed This Month by Block",
+          sectionType:"Block"
+        }
       }
     }
   }
 
   onBlockChange(): void {
     this.headerTitile = 'ICDS - Observation Overview (DPO)';
-    if (this.selectedBlock  || this.selectedBlock=="") {
+    if (this.selectedBlock || this.selectedBlock == "") {
       this.loadSectorData(this.selectedBlock);
 
-      const blockName = this.blockData.find(val=> {return val.block_id == this.selectedBlock} )
-   
+      const blockName = this.blockData.find(val => { return val.block_id == this.selectedBlock })
 
-    if(this.selectedBlock){
-      this.labelChanges = {
-       stateObserveBox:`AWC observed in ${blockName.block_name} this month`,
-       stateProgressBox:"AWC not observed this month ",
-       stateNotObserveBox:"Awc's not Observed this month",
-       stateTotalBox:"Total AWCs",
-       stateActiveUserBox:"Active users this month",
-       stateObservTrendsChart:"Observation completion trends",
-       stateObservNotTrendsChart:"AWCs not visited trends ",
-       stateActiveUserChart:"Active User trends" ,
-       barchart:"AWCs Observed This Month by Sector"}
+
+      if (this.selectedBlock) {
+        this.labelChanges = {
+          stateObserveBox: `AWC observed in ${blockName.block_name} this month`,
+          stateProgressBox: "Awc's progress this month ",
+          stateNotObserveBox: "Awc's not Observed this month",
+          stateTotalBox: "Total AWCs",
+          stateActiveUserBox: "Active users this month",
+          stateObservTrendsChart: "Observation completion trends",
+          stateObservNotTrendsChart: "AWCs not visited trends ",
+          stateActiveUserChart: "Active User trends",
+          barchart: "AWCs Observed This Month by Sector",
+          sectionType:"Sector"
+        }
+      }
     }
-  }
 
   }
 
 
-  sortChartData(order: 'asc' | 'desc',type) {
+  sortChartData(order: 'asc' | 'desc', type) {
 
     let sorted = [];
 
-if (type === 'number') {
-  sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
-    return order === 'asc'
-      ? a.total_observed - b.total_observed
-      : b.total_observed - a.total_observed;
-  });
-} else {
-  sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
-    return order === 'asc'
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name);
-  });
-}
+    if (type === 'number') {
+      sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
+        return order === 'asc'
+          ? a.total_observed - b.total_observed
+          : b.total_observed - a.total_observed;
+      });
+    } else {
+      sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
+        return order === 'asc'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      });
+    }
 
-console.log(sorted, 'sorted');
-  
+    console.log(sorted, 'sorted');
+
     this.barChartLabels = sorted.map(item => item.name);
-  
+
     this.barChartData = {
       labels: this.barChartLabels,
       datasets: [
@@ -630,7 +705,7 @@ console.log(sorted, 'sorted');
       ]
     };
   }
-  
+
 
 
   loadBlockData(districtId): void {
@@ -642,7 +717,7 @@ console.log(sorted, 'sorted');
         console.log(res, 'Block Data ');
         this.blockData = res?.data?.result;
         this.loadDashboardData();
-         
+
       },
       error: (err) => {
         this.isLoading = false;
@@ -656,7 +731,7 @@ console.log(sorted, 'sorted');
     this.isLoading = true;
     this.service.postSectorData(blockId).subscribe({
       next: (res) => {
-        
+
         this.isLoading = false;
         console.log(res, 'Sector Data ');
         this.sectorData = res?.data?.result;
@@ -686,5 +761,16 @@ console.log(sorted, 'sorted');
   goFor() {
     this.router.navigate(['/courses', 123456]);
   }
-
+  openToast(type: 'success' | 'error') {
+    this.snackBar.open(
+      type === 'success' ? 'Login Successful ✅' : 'Something went wrong ❌',
+      'Close',
+      {
+        duration: 3000,
+        verticalPosition: 'top',
+        horizontalPosition: 'right',
+        panelClass: type === 'success' ? ['toast-success'] : ['toast-error'],
+      }
+    );
+  }
 }

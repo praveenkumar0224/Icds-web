@@ -12,9 +12,9 @@
   <!-- Header -->
   <header class="content-header">
     <div class="header-left">
-      <button mat-icon-button class="back-btn" (click)="goBack()">
+      <!-- <button mat-icon-button class="back-btn" (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
-      </button>
+      </button> -->
       <h1 class="page-title">{{headerTitile}}</h1>
     </div>
 
@@ -194,10 +194,14 @@
       <mat-card class="chart-card" *ngIf="!isLoading">
         <mat-card-header>
           <mat-card-title>{{labelChanges.stateActiveUserChart || '-'}}</mat-card-title>
+          <button class="toggle-btn" mat-icon-button (click)="downloadline3Chart()" matTooltip="Download Line Chart">
+            <mat-icon>image</mat-icon>
+          </button>
+
         </mat-card-header>
         <mat-card-content>
           <div class="chart-container">
-            <canvas baseChart [datasets]="lineChartDataNotVisited" [labels]="lineChartLabels"
+            <canvas #lineChartChart3 baseChart [datasets]="lineChartUserVisited" [labels]="lineChartLabels"
               [options]="lineChartOptions" [legend]="true" [type]="'line'"></canvas>
           </div>
         </mat-card-content>
@@ -235,7 +239,7 @@
               <button mat-stroked-button (click)="sortChartData('desc','number')" matTooltip="High to Low">
                 <mat-icon>north</mat-icon>
               </button>
-              <button mat-stroked-button (click)="sortChartData('asc','alpha')" matTooltip="Sort A-Z">
+              <button style="height: 44px;" mat-stroked-button (click)="sortChartData('asc','alpha')" matTooltip="Sort A-Z">
                 A-Z
               </button>
             </div>
@@ -262,7 +266,7 @@
         <mat-tab label="Table View">
           <div class="table-controls mt-3">
             <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Filter District</mat-label>
+              <mat-label>Filter {{labelChanges.sectionType || '-'}}</mat-label>
               <input matInput (keyup)="applyFilter($event)" placeholder="e.g. Chennai">
               <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
@@ -283,7 +287,7 @@
 
               <!-- District -->
               <ng-container matColumnDef="district">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>District Name</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{labelChanges.sectionType|| '-'}} Name</th>
                 <td mat-cell *matCellDef="let row">{{ row.district }}</td>
               </ng-container>
 
