@@ -14,7 +14,7 @@ export class DashboardServiceService {
   model = 'courses';
   private baseUrl = environment.apiUrl
 
-  xenovexUrl =  "https://icds.xenovex.com/awcmonitor/home?user_id=OdRwtt9rSR0rMc3aLLgYCMSTN6ksGFVY3x%2B9SluU0NY%3D" 
+  xenovexUrl = "https://icds.xenovex.com/awcmonitor/home?user_id=OdRwtt9rSR0rMc3aLLgYCMSTN6ksGFVY3x%2B9SluU0NY%3D"
   constructor(
     private http: HttpClient,
     private notificationService: NotificationService
@@ -38,10 +38,9 @@ export class DashboardServiceService {
   }
 
 
-  fetchUser(): Observable<any> {
+  fetchUser(id: any): Observable<any> {
     const url = this.baseUrl + 'user';
     const token = localStorage.getItem('access_token');
-    console.log(token, ';token');
 
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -49,7 +48,7 @@ export class DashboardServiceService {
 
     const payload = {
       filter: {
-       icds_user_id: 16279,
+        icds_user_id: id ? id : 16279,
       },
     };
 
@@ -57,49 +56,49 @@ export class DashboardServiceService {
   }
 
 
-// Decript 
+  // Decript 
 
 
-/* decryptUserId(encryptedUserId: string, secretKey: string): string {
-  // Decode the URL-encoded string
-  const decodedEncryptedUserId = decodeURIComponent(encryptedUserId);
-  // Decrypt using AES
-  const decrypted = CryptoJS.AES.decrypt(decodedEncryptedUserId, secretKey);
-  console.log(decrypted,'decrypted');
+  /* decryptUserId(encryptedUserId: string, secretKey: string): string {
+    // Decode the URL-encoded string
+    const decodedEncryptedUserId = decodeURIComponent(encryptedUserId);
+    // Decrypt using AES
+    const decrypted = CryptoJS.AES.decrypt(decodedEncryptedUserId, secretKey);
+    console.log(decrypted,'decrypted');
+    
+    const originalId = decrypted.toString(CryptoJS.enc.Utf8);
   
-  const originalId = decrypted.toString(CryptoJS.enc.Utf8);
-
-  console.log('Decrypted User ID:', originalId);
-  return originalId;
-}
- */
-decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKwMYje3Mn'): string {
-  try {
-    // Decode Base64 string into WordArray
-    const fullCipher = CryptoJS.enc.Base64.parse(cipherText);
-
-    // Extract IV (first 16 bytes) and cipher (next 16 bytes)
-    const iv = CryptoJS.lib.WordArray.create(fullCipher.words.slice(0, 4));  // 4 words = 16 bytes
-    const cipher = CryptoJS.lib.WordArray.create(fullCipher.words.slice(4, 8)); // next 16 bytes
-
-    // Convert key string to WordArray
-    const key = CryptoJS.enc.Utf8.parse(keyString);
-
-    // Decrypt using AES CBC mode with extracted IV
-    const decrypted = CryptoJS.AES.decrypt(
-      { ciphertext: cipher },
-      key,
-      { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
-    );
-
-    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-    console.log('Decrypted User ID:', decryptedText);
-    return decryptedText;
-  } catch (error) {
-    console.error('Decryption failed:', error);
-    return '';
+    console.log('Decrypted User ID:', originalId);
+    return originalId;
   }
-}
+   */
+  decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKwMYje3Mn'): string {
+    try {
+      // Decode Base64 string into WordArray
+      const fullCipher = CryptoJS.enc.Base64.parse(cipherText);
+
+      // Extract IV (first 16 bytes) and cipher (next 16 bytes)
+      const iv = CryptoJS.lib.WordArray.create(fullCipher.words.slice(0, 4));  // 4 words = 16 bytes
+      const cipher = CryptoJS.lib.WordArray.create(fullCipher.words.slice(4, 8)); // next 16 bytes
+
+      // Convert key string to WordArray
+      const key = CryptoJS.enc.Utf8.parse(keyString);
+
+      // Decrypt using AES CBC mode with extracted IV
+      const decrypted = CryptoJS.AES.decrypt(
+        { ciphertext: cipher },
+        key,
+        { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+      );
+
+      const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+      console.log('Decrypted User ID:', decryptedText);
+      return decryptedText;
+    } catch (error) {
+      console.error('Decryption failed:', error);
+      return '';
+    }
+  }
 
 
 
@@ -109,55 +108,55 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
 
-   /*  if (districtId) params.push(`district_id=${districtId}`);
-    if (blockId) params.push(`block_id=${blockId}`);
-    if (sectortId) params.push(`sector_id=${sectortId}`); */
+    /*  if (districtId) params.push(`district_id=${districtId}`);
+     if (blockId) params.push(`block_id=${blockId}`);
+     if (sectortId) params.push(`sector_id=${sectortId}`); */
 
-   /*  if (districtId && blockId && sectortId) {
+    /*  if (districtId && blockId && sectortId) {
+       params.push(`block_id=${blockId}`);
+     } else if (districtId && blockId) {
+       params.push(`district_id=${districtId}`);
+     } else if (districtId) {
+       params.push(`district_id=${districtId}`);
+     }
+  */
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } else if (districtId && blockId) {
-      params.push(`district_id=${districtId}`);
-    } else if (districtId) {
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
     }
- */
-    if(districtId && blockId ){
-      params.push(`block_id=${blockId}`);
-    } if(districtId){
-      params.push(`district_id=${districtId}`);
-}
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
 
-    if (districtId && blockId ) {
+    if (districtId && blockId) {
       url = `${this.baseUrl}web-dashboard/block${queryString}`;
-    }else if (districtId ) {
+    } else if (districtId) {
       url = `${this.baseUrl}web-dashboard/district${queryString}`;
-    } else{
+    } else {
       url = `${this.baseUrl}web-dashboard/state${queryString}`;
     }
 
-   /*  if (districtId && blockId && sectortId) {
-      url = `${this.baseUrl}web-dashboard/block${queryString}`;
-    } else if (districtId && blockId) {
-      url = `${this.baseUrl}web-dashboard/district${queryString}`;
-    } else if (districtId) {
-      url = `${this.baseUrl}web-dashboard/state${queryString}`;
-    }else{
-      url = `${this.baseUrl}web-dashboard/state${queryString}`;
-    } */
+    /*  if (districtId && blockId && sectortId) {
+       url = `${this.baseUrl}web-dashboard/block${queryString}`;
+     } else if (districtId && blockId) {
+       url = `${this.baseUrl}web-dashboard/district${queryString}`;
+     } else if (districtId) {
+       url = `${this.baseUrl}web-dashboard/state${queryString}`;
+     }else{
+       url = `${this.baseUrl}web-dashboard/state${queryString}`;
+     } */
 
-  
+
     return this.http.get(url, { headers });
   }
 
@@ -168,21 +167,21 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (districtId) params.push(`district_id=${districtId}`);
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (sectorId) params.push(`sector_id=${sectorId}`);
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
     const url = `${this.baseUrl}web-dashboard/district${queryString}`;
-  
+
     return this.http.get(url, { headers });
   }
 
-  
+
 
 
   //Masters 
@@ -200,7 +199,7 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
   } */
   postDistrictData(): Observable<any> {
     const token = localStorage?.getItem('access_token');
-   // console.log(token, 'token');
+    // console.log(token, 'token');
     const paylods = {
       filter: {}
     }
@@ -218,7 +217,7 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
     const token = localStorage?.getItem('access_token');
     //console.log(token, 'token');
     const paylods = {
-      filter: {"district_id":districtId}
+      filter: { "district_id": districtId }
     }
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -236,7 +235,7 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
     const token = localStorage?.getItem('access_token');
     //console.log(token, 'token');
     const paylods = {
-      filter: {"sector_id":blockId}
+      filter: { "sector_id": blockId }
     }
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -248,6 +247,6 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
   }
 
 
- 
+
 }
 
