@@ -35,22 +35,22 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="filter-field">
+         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Month</mat-label>
           <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()">
-            <mat-option value="7">July</mat-option>
-            <mat-option value="8">August</mat-option>
-            <mat-option value="9">September</mat-option>
-            <mat-option value="10">October</mat-option>
-            <mat-option value="11">November</mat-option>
-            <mat-option value="12">December</mat-option>
+            <mat-option *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]"
+                        [value]="month.toString()"
+                        [disabled]="selectedYear == currentYear && month > currentMonth">
+              {{ monthNames[month - 1] }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
+
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>District</mat-label>
           <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)">
-            <mat-option value="">All District</mat-option>
+            <!-- <mat-option value="" >All District</mat-option> -->
             <mat-option *ngFor="let district of districtData" [value]="district.district_id">
               {{ district.district_name }}
             </mat-option>
@@ -60,7 +60,7 @@
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Block</mat-label>
           <mat-select [(value)]="selectedBlock" (selectionChange)="onBlockChange()">
-            <mat-option value="">All Block</mat-option>
+            <!-- <mat-option value="" >All Block</mat-option> -->
             <mat-option *ngFor="let block of blockData" [value]="block.block_id">
               {{ block.block_name }}
             </mat-option>
@@ -70,12 +70,22 @@
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Sector</mat-label>
           <mat-select [(value)]="selectedSector" (selectionChange)="onFilterChange()">
-            <mat-option value="">All Sector</mat-option>
+            <!-- <mat-option value="" >All Sector</mat-option> -->
             <mat-option *ngFor="let sector of sectorData" [value]="sector.sector_id">
               {{ sector.sector_name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
+
+       
+            <!-- your existing filter fields here -->
+
+            <!-- Clear Filters Button -->
+            <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()"  *ngIf="selectedDistrict">
+              Clear Filters
+            </button>
+      
+     
       </div>
     </mat-card>
   </div>
@@ -266,59 +276,58 @@
         <mat-tab label="Table View">
           <div class="table-controls mt-3">
             <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Filter {{labelChanges.sectionType || '-'}}</mat-label>
-              <input matInput (keyup)="applyFilter($event)" placeholder="e.g. Chennai">
+              <mat-label>Search {{labelChanges.sectionType || '-'}}</mat-label>
+              <input matInput (keyup)="applyFilter($event)" placeholder="Search...">
               <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
-
-            <!--  <button mat-stroked-button (click)="toggleSort()" class="sort-button">
-              <mat-icon>{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-              Sort by Observed
-            </button> -->
           </div>
 
           <div class="table-container">
             <table mat-table [dataSource]="dataSource" matSort class="data-table mat-elevation-z2">
               <!-- Sl.No -->
               <ng-container matColumnDef="slNo">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Sl.No</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="slNo">Sl.No</th>
                 <td mat-cell *matCellDef="let row">{{ row.slNo }}</td>
               </ng-container>
 
-              <!-- District -->
+              <!-- District (Sortable) -->
               <ng-container matColumnDef="district">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{labelChanges.sectionType|| '-'}} Name</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="district">
+                  {{labelChanges.sectionType || '-'}} Name
+                </th>
                 <td mat-cell *matCellDef="let row">{{ row.district }}</td>
               </ng-container>
 
-              <!-- Available -->
+              <!-- Available (Sortable) -->
               <ng-container matColumnDef="available">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Centers Available</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="available">
+                  Centers Available
+                </th>
                 <td mat-cell *matCellDef="let row">{{ row.available }}</td>
               </ng-container>
 
-              <!-- Observed -->
+              <!-- Observed (Sortable) -->
               <ng-container matColumnDef="observed">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Centers Observed</th>
-                <td mat-cell *matCellDef="let row">
-                  {{ row.observed }}
-                </td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="observed">
+                  Centers Observed
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.observed }}</td>
               </ng-container>
 
-              <!-- Not Observed -->
+              <!-- Centers Not Observed - Pending (Sortable) -->
               <ng-container matColumnDef="centerNotObserved">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Centers Not Observed</th>
-                <td mat-cell *matCellDef="let row">
-                  {{ row.centerNotObserved }}
-                </td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="centerNotObserved">
+                  Centers Not Observed (Pending)
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.centerNotObserved }}</td>
               </ng-container>
 
-              <!-- Observed Percentage -->
+              <!-- Observed Percentage - Completion % (Sortable) -->
               <ng-container matColumnDef="observePercentage">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Centers Observed Percentage</th>
-                <td mat-cell *matCellDef="let row">
-                  {{ row.observePercentage }}
-                </td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="observePercentage">
+                  Completion %
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.observePercentage }}%</td>
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

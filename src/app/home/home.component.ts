@@ -77,7 +77,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // Table data
   displayedColumns: string[] = ['slNo', 'district', 'available', 'observed', 'centerNotObserved', 'observePercentage'];
-  dataSource = new MatTableDataSource<any>();
+    dataSource = new MatTableDataSource<any>([]);
 
   sortDirection: 'asc' | 'desc' = 'asc';
 
@@ -102,8 +102,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
   sectorData: any[] = [];
 
   // Filter properties
-  selectedYear = '2025';
-  selectedMonth = '8';
+  // selectedYear = '2025';
+  // selectedMonth = '8';
+   selectedYear: string = new Date().getFullYear().toString();
+selectedMonth: string = (new Date().getMonth() + 1).toString();
+currentYear: string = new Date().getFullYear().toString();
+  currentMonth: number = new Date().getMonth() + 1;
+
+ monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
   selectedDistrict = '';
   selectedBlock = '';
   selectedSector = '';
@@ -200,7 +209,26 @@ console.log(params,'params');
 
 
   ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
+  //   this.dataSource.sort = this.sort;
+
+  //     this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+  //   switch (sortHeaderId) {
+  //     case 'district':
+  //       return data.district.toLowerCase(); // Case-insensitive sorting for district names
+  //     case 'centerNotObserved':
+  //       return data.centerNotObserved; // Numeric sorting for pending centers
+  //     case 'observePercentage':
+  //       return data.observePercentage; // Numeric sorting for completion percentage
+  //     case 'available':
+  //       return data.available;
+  //     case 'observed':
+  //       return data.observed;
+  //     case 'slNo':
+  //       return data.slNo;
+  //     default:
+  //       return data[sortHeaderId];
+  //   }
+  // };
     this.isLoading = true;
     this.service
       .loginWithEmail()
@@ -234,7 +262,7 @@ console.log(params,'params');
     this.isLoading = true;
     this.showChart = true
 
-    console.log(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector);
+    console.log(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector,"dashboard data");
 
     this.service
       .getStatewiseData(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector)
@@ -244,6 +272,7 @@ console.log(params,'params');
           //setTimeout(() => {
           this.stateLevelData = res.data;
           if (this.stateLevelData?.awc_observed_by_month?.length) {
+            
             this.createDistrictBarChart(this.stateLevelData?.awc_observed_by_month);
 
             this.setObservationTrendData(this.stateLevelData?.observation_visited_trend);
@@ -338,23 +367,53 @@ console.log(lineChatdata,'lineChatdata');
 
   }
 
-  getTableData(apiData) {
-    if (apiData) {
-      const formatted = apiData.map((item, index) => ({
-        slNo: index + 1,
-        district: item.name,
-        available: item.total_observed + item.in_progress + item.not_started,
-        observed: item.total_observed,
-
-        centerNotObserved: (item.not_started + item.in_progress) - item.total_observed,
-        observePercentage: Math.round(
-          (item.total_observed / (item.total_observed + item.in_progress + item.not_started)) * 100)
-
-      }));
-
-      this.dataSource.data = formatted;
-    }
+  private setupTableSorting(): void {
+  if (this.sort && this.dataSource) {
+    this.dataSource.sort = this.sort;
+    
+    this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+      switch (sortHeaderId) {
+        case 'district':
+          return data.district.toLowerCase();
+        case 'centerNotObserved':
+          return Number(data.centerNotObserved);
+        case 'observePercentage':
+          return Number(data.observePercentage);
+        case 'available':
+          return Number(data.available);
+        case 'observed':
+          return Number(data.observed);
+        case 'slNo':
+          return Number(data.slNo);
+        default:
+          return data[sortHeaderId];
+      }
+    };
   }
+}
+
+  
+   getTableData(apiData: any) {
+  if (apiData) {
+    const formatted = apiData.map((item, index) => ({
+      slNo: index + 1,
+      district: item.name,
+      available: item.total_observed + item.in_progress + item.not_started,
+      observed: item.total_observed,
+      centerNotObserved: (item.total_observed + item.in_progress + item.not_started) - item.total_observed,
+      observePercentage: Math.round(
+        (item.total_observed / (item.total_observed + item.in_progress + item.not_started)) * 100
+      )
+    }));
+
+    this.dataSource.data = formatted;
+    
+    // Set up sorting after data is loaded
+    setTimeout(() => {
+      this.setupTableSorting();
+    }, 0);
+  }
+}
 
   // Event handlers
   toggleView(): void {
@@ -571,6 +630,7 @@ console.log(lineChatdata,'lineChatdata');
     });
     FileSaver.saveAs(new Blob([excelBuffer]), 'awc-observation.xlsx');
   }
+  
 
 
 
@@ -580,6 +640,7 @@ console.log(lineChatdata,'lineChatdata');
   // Master Filter 
   loadDistrictData(): void {
     console.log('Test1',);
+    // this.districtData = []
     
     // Load state Api
     this.isLoading = true;
@@ -612,6 +673,45 @@ console.log(lineChatdata,'lineChatdata');
     }
   }
 
+
+
+   clearFilters(): void {
+  // Check if any filter is currently selected
+  const filtersApplied = this.selectedDistrict || this.selectedBlock || this.selectedSector;
+  
+  // Reset filter variables
+  this.selectedDistrict = '';
+  this.selectedBlock = '';
+  this.selectedSector = '';
+
+  // Reset labelChanges to default state-level labels
+  this.labelChanges = {
+    stateObserveBox: "Awc's Observed acrross the State",
+    stateProgressBox: "Awc's progress this month",
+    stateNotObserveBox: "Awc's not Observed this month",
+    stateTotalBox: "Total AWCs",
+    stateActiveUserBox: "Active users this month",
+    stateObservTrendsChart: "AWC observation trends",
+    stateObservNotTrendsChart: "AWCs not visited trends ",
+    stateActiveUserChart: "Active User trends",
+    barchart: "AWCs Observed This Month by District",
+    sectionType: "District"
+  };
+
+  // Reset header title to state level
+  this.headerTitile = 'ICDS - Observation Overview (State)';
+
+  // If filters were applied, clear the data and reload the state-level data.
+  // This will also trigger the fetch for district data again.
+  if (filtersApplied) {
+    this.districtData = [];
+    this.blockData = [];
+    this.sectorData = [];
+    this.loadDashboardData();
+  }
+}
+
+
   onDistrictChange(val): void {
     console.log(val);
 
@@ -627,7 +727,7 @@ console.log(lineChatdata,'lineChatdata');
 
       if (this.selectedDistrict) {
         this.labelChanges = {
-          stateObserveBox: `AWC observed in ${districtName.district_name} this month`,
+          stateObserveBox: `AWC observed in ${districtName && districtName.district_name} this month`,
           stateProgressBox: "Awc's progress this month",
           stateNotObserveBox: "Awc's not Observed this month",
           stateTotalBox: "Total AWCs",
@@ -644,7 +744,7 @@ console.log(lineChatdata,'lineChatdata');
 
   onBlockChange(): void {
     this.headerTitile = 'ICDS - Observation Overview (DPO)';
-    if (this.selectedBlock || this.selectedBlock == "") {
+    if (this.selectedBlock ) {
       this.loadSectorData(this.selectedBlock);
 
       const blockName = this.blockData.find(val => { return val.block_id == this.selectedBlock })
@@ -652,7 +752,7 @@ console.log(lineChatdata,'lineChatdata');
 
       if (this.selectedBlock) {
         this.labelChanges = {
-          stateObserveBox: `AWC observed in ${blockName.block_name} this month`,
+          stateObserveBox: `AWC observed in ${blockName && blockName.block_name} this month`,
           stateProgressBox: "Awc's progress this month ",
           stateNotObserveBox: "Awc's not Observed this month",
           stateTotalBox: "Total AWCs",
@@ -664,6 +764,7 @@ console.log(lineChatdata,'lineChatdata');
           sectionType:"Sector"
         }
       }
+      // this.loadDashboardData();
     }
 
   }
@@ -728,12 +829,14 @@ console.log(lineChatdata,'lineChatdata');
 
   loadSectorData(blockId): void {
     // Load state Api
+    console.log(blockId,"black Id checking");
+    
     this.isLoading = true;
     this.service.postSectorData(blockId).subscribe({
       next: (res) => {
 
         this.isLoading = false;
-        console.log(res, 'Sector Data ');
+        console.log(res?.data?.result, 'Sector Data ');
         this.sectorData = res?.data?.result;
         this.loadDashboardData();
       },
