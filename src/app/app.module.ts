@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatSortModule } from '@angular/material/sort';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,6 +23,7 @@ import { NgChartsModule } from 'ng2-charts';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import {DashboardServiceService} from './shared/services/dashboard-service.service';
+import { AttendanceComponent } from './attendance/attendance.component';
 
 @NgModule({
   imports: [
@@ -33,6 +36,7 @@ import {DashboardServiceService} from './shared/services/dashboard-service.servi
     FormsModule,
     MaterialModule,
     HttpClientModule,
+     MatSortModule,
   ],
   declarations: [
     AppComponent,
@@ -41,6 +45,7 @@ import {DashboardServiceService} from './shared/services/dashboard-service.servi
     CourseDetailsComponent,
     CoursesListComponent,
     LoginComponent,
+    AttendanceComponent,
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService],

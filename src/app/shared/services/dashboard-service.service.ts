@@ -232,6 +232,8 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
 
 
   postSectorData(blockId): Observable<any> {
+    console.log(blockId, "inside api");
+    
     const token = localStorage?.getItem('access_token');
     //console.log(token, 'token');
     const paylods = {
