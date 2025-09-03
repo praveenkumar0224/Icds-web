@@ -263,6 +263,11 @@ currentYear: string = new Date().getFullYear().toString();
           this.isLoading = false;
           this.openToast('success')
           console.log('User Fetched:', userRes);
+          if (userRes?.data?.[0]?.icds_role_id == 4 && userRes?.data?.[0]?.district_id) {
+            this.selectedDistrict = userRes?.data?.[0]?.district_id.toString();
+            this.loadBlockData(this.selectedDistrict);
+            this.headerTitile = `ICDS - Observation Overview (DPO)`;
+          }
           this.loadDashboardData();
         },
         error: (err) => {
