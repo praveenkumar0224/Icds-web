@@ -45,7 +45,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   lineChart = 'line'
   selectedTabIndex = 0;
   labelChanges = {
-    stateObserveBox: "Awc's Observed acrross the State",
+    stateObserveBox: "Awc's Observed across the State",
     stateProgressBox: "Awc's progress this month",
     stateNotObserveBox: "Awc's not Observed this month",
     stateTotalBox: "Total AWCs",
@@ -100,6 +100,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   districtData: any[] = [];
   blockData: any[] = [];
   sectorData: any[] = [];
+
+  icdsRoleId: any;
 
   // Filter properties
   // selectedYear = '2025';
@@ -259,17 +261,54 @@ currentYear: string = new Date().getFullYear().toString();
         })
       )
       .subscribe({
-        next: (userRes) => {
+  next: (userRes) => {
+    this.isLoading = false;
+    this.openToast('success');
+    console.log('User Fetched:', userRes);
+
+    if (userRes?.data?.[0]?.icds_role_id == 4 && userRes?.data?.[0]?.district_id) {
+      this.selectedDistrict = userRes.data[0].district_id.toString();
+      this.icdsRoleId = userRes.data[0].icds_role_id;
+
+      this.service.postDistrictData().subscribe({
+        next: (res) => {
           this.isLoading = false;
-          this.openToast('success')
-          console.log('User Fetched:', userRes);
-          if (userRes?.data?.[0]?.icds_role_id == 4 && userRes?.data?.[0]?.district_id) {
-            this.selectedDistrict = userRes?.data?.[0]?.district_id.toString();
-            this.loadBlockData(this.selectedDistrict);
-            this.headerTitile = `ICDS - Observation Overview (DPO)`;
-          }
-          this.loadDashboardData();
+          console.log(res, 'district Data ');
+          this.districtData = res?.data?.result?.sort((a: any, b: any) =>
+            a.district_name.localeCompare(b.district_name)
+          );
+
+          const districtName = this.districtData.find(
+            (val: any) => val.district_id == this.selectedDistrict
+          );
+
+          this.labelChanges = {
+            stateObserveBox: `AWC observed in ${districtName?.district_name || ''} this month`,
+            stateProgressBox: "Awc's progress this month",
+            stateNotObserveBox: "Awc's not Observed this month",
+            stateTotalBox: "Total AWCs",
+            stateActiveUserBox: "Active users this month",
+            stateObservTrendsChart: "AWC observation trends",
+            stateObservNotTrendsChart: "AWCs not visited trends ",
+            stateActiveUserChart: "Active User trends",
+            barchart: "AWCs Observed This Month by Block",
+            sectionType: "Block"
+          };
+
+          // load block data AFTER district is set
+          this.loadBlockData(this.selectedDistrict);
         },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Statewise API Error:', err);
+        },
+      });
+
+      this.headerTitile = `ICDS - Observation Overview (DPO)`;
+    }
+
+    this.loadDashboardData();
+  },
         error: (err) => {
           this.isLoading = false;
           this.openToast('error')
@@ -712,7 +751,7 @@ currentYear: string = new Date().getFullYear().toString();
 
   // Reset labelChanges to default state-level labels
   this.labelChanges = {
-    stateObserveBox: "Awc's Observed acrross the State",
+    stateObserveBox: "Awc's Observed across the State",
     stateProgressBox: "Awc's progress this month",
     stateNotObserveBox: "Awc's not Observed this month",
     stateTotalBox: "Total AWCs",
