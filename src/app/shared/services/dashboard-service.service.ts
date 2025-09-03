@@ -162,6 +162,63 @@ decryptUserId(cipherText: string, keyString: string = 'wK79akQyH6ED2zebWes5OKAKw
     return this.http.get(url, { headers });
   }
 
+   getStatewiseDataForAttandance(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+
+   /*  if (districtId) params.push(`district_id=${districtId}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectortId) params.push(`sector_id=${sectortId}`); */
+
+   /*  if (districtId && blockId && sectortId) {
+      params.push(`block_id=${blockId}`);
+    } else if (districtId && blockId) {
+      params.push(`district_id=${districtId}`);
+    } else if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+ */
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+
+    if (districtId && blockId ) {
+      url = `${this.baseUrl}web-dashboard/attendance/block${queryString}`;
+    }else if (districtId ) {
+      url = `${this.baseUrl}web-dashboard/attendance/district${queryString}`;
+    } else{
+      url = `${this.baseUrl}web-dashboard/attendance/state${queryString}`;
+    }
+
+   /*  if (districtId && blockId && sectortId) {
+      url = `${this.baseUrl}web-dashboard/block${queryString}`;
+    } else if (districtId && blockId) {
+      url = `${this.baseUrl}web-dashboard/district${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}web-dashboard/state${queryString}`;
+    }else{
+      url = `${this.baseUrl}web-dashboard/state${queryString}`;
+    } */
+
+  
+    return this.http.get(url, { headers });
+  }
+
 
 
   getDistrictWiseData(districtId?: string, year?: string, month?: string, sectorId?: string): Observable<any> {

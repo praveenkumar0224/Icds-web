@@ -24,6 +24,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import {DashboardServiceService} from './shared/services/dashboard-service.service';
 import { AttendanceComponent } from './attendance/attendance.component';
+import { DistrictChartComponent } from './district-chart/district-chart.component';
+
 
 @NgModule({
   imports: [
@@ -46,6 +48,7 @@ import { AttendanceComponent } from './attendance/attendance.component';
     CoursesListComponent,
     LoginComponent,
     AttendanceComponent,
+     DistrictChartComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService],
