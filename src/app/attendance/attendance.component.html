@@ -301,7 +301,7 @@
               <!-- Available (Sortable) -->
               <ng-container matColumnDef="available">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header="available">
-                  Centers Available
+                  Children available 
                 </th>
                 <td mat-cell *matCellDef="let row">{{ row.available }}</td>
               </ng-container>
@@ -309,25 +309,25 @@
               <!-- Observed (Sortable) -->
               <ng-container matColumnDef="observed">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header="observed">
-                  Centers Observed
+                   Children Present 
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.observed }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.present }}</td>
               </ng-container>
 
               <!-- Centers Not Observed - Pending (Sortable) -->
               <ng-container matColumnDef="centerNotObserved">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header="centerNotObserved">
-                  Centers Not Observed (Pending)
+                   Children Absent 
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.centerNotObserved }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.absent }}</td>
               </ng-container>
 
               <!-- Observed Percentage - Completion % (Sortable) -->
               <ng-container matColumnDef="observePercentage">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header="observePercentage">
-                  Completion %
+                   Present %
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.observePercentage }}%</td>
+                <td mat-cell *matCellDef="let row">{{ row.attendancePercentage }}%</td>
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

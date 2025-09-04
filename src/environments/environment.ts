@@ -4,7 +4,7 @@
 
 export const environment = {
   production: true,
-  apiUrl: 'http://192.168.1.16:5412/',
+  apiUrl: 'http://192.168.1.10:5412/',
   appName: 'ICDS Web Dashboard'
 };
 

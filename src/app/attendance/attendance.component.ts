@@ -335,12 +335,12 @@ console.log(lineChatdata,'lineChatdata');
       switch (sortHeaderId) {
         case 'district':
           return data.district.toLowerCase();
-        case 'centerNotObserved':
-          return Number(data.centerNotObserved);
-        case 'observePercentage':
-          return Number(data.observePercentage);
-        case 'available':
-          return Number(data.available);
+        case 'absent':
+          return Number(data.absent);
+        case 'attendancePercentage':
+          return Number(data.attendancePercentage);
+        case 'present':
+          return Number(data.present);
         case 'observed':
           return Number(data.observed);
         case 'slNo':
@@ -357,12 +357,10 @@ console.log(lineChatdata,'lineChatdata');
     const formatted = apiData.map((item, index) => ({
       slNo: index + 1,
       district: item.name,
-      available: item.total_observed + item.in_progress + item.not_started,
+      present: item.total_observed + item.in_progress + item.not_started,
       observed: item.total_observed,
-      centerNotObserved: (item.total_observed + item.in_progress + item.not_started) - item.total_observed,
-      observePercentage: Math.round(
-        (item.total_observed / (item.total_observed + item.in_progress + item.not_started)) * 100
-      )
+      absent: (item.total_observed + item.in_progress + item.not_started) - item.total_observed,
+      attendancePercentage: item?.attendance_percentage,
     }));
 
     this.dataSource.data = formatted;
