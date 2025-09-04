@@ -341,8 +341,8 @@ console.log(lineChatdata,'lineChatdata');
           return Number(data.attendancePercentage);
         case 'present':
           return Number(data.present);
-        case 'observed':
-          return Number(data.observed);
+        case 'available':
+          return Number(data.available);
         case 'slNo':
           return Number(data.slNo);
         default:
@@ -357,9 +357,9 @@ console.log(lineChatdata,'lineChatdata');
     const formatted = apiData.map((item, index) => ({
       slNo: index + 1,
       district: item.name,
-      present: item.total_observed + item.in_progress + item.not_started,
-      observed: item.total_observed,
-      absent: (item.total_observed + item.in_progress + item.not_started) - item.total_observed,
+      present: item?.total_children_present,
+      available: item?.total_children_available,
+      absent: item?.total_children_absent,
       attendancePercentage: item?.attendance_percentage,
     }));
 
