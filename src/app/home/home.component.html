@@ -49,9 +49,9 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>District</mat-label>
-          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)">
+          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)"  [disabled]="icdsRoleId == 4">
             <!-- <mat-option value="" >All District</mat-option> -->
-            <mat-option *ngFor="let district of districtData" [value]="district.district_id">
+            <mat-option *ngFor="let district of districtData" [value]="district.district_id" >
               {{ district.district_name }}
             </mat-option>
           </mat-select>

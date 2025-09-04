@@ -45,7 +45,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   lineChart = 'line'
   selectedTabIndex = 0;
   labelChanges = {
-    stateObserveBox: "Awc's Observed acrross the State",
+    stateObserveBox: "Awc's Observed across the State",
     stateProgressBox: "Awc's progress this month",
     stateNotObserveBox: "Awc's not Observed this month",
     stateTotalBox: "Total AWCs",
@@ -54,7 +54,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     stateObservNotTrendsChart: "AWCs not visited trends ",
     stateActiveUserChart: "Active User trends",
     barchart: "AWCs Observed This Month by District",
-    sectionType:"District"
+    sectionType: "District"
   }
 
 
@@ -80,7 +80,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     dataSource = new MatTableDataSource<any>([]);
 
   sortDirection: 'asc' | 'desc' = 'asc';
-
+  deCryptedId: any
 
 
   // Chart ViewChild references
@@ -100,6 +100,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   districtData: any[] = [];
   blockData: any[] = [];
   sectorData: any[] = [];
+
+  icdsRoleId: any;
 
   // Filter properties
   // selectedYear = '2025';
@@ -164,7 +166,6 @@ currentYear: string = new Date().getFullYear().toString();
     },
   ];
 
-
   lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     plugins: {
@@ -178,6 +179,26 @@ currentYear: string = new Date().getFullYear().toString();
       },
     },
   };
+  lineChartOptionsDistricts: ChartConfiguration['options'] = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      // tooltip: {
+      //   callbacks: {
+      //     label: (context:any) => `${context.raw.toFixed(1)}%`
+      //   }
+      // }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          callback: (value) => `${value}%`
+        }
+      }
+    }
+  };
 
 
 
@@ -185,26 +206,25 @@ currentYear: string = new Date().getFullYear().toString();
     private service: DashboardServiceService,
     private router: Router,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
   ) {
 
   }
 
   ngOnInit(): void {
-    const url = 'https://icds.xenovex.com/awcmonitor/home?user_id=OdRwtt9rSR0rMc3aLLgYCMSTN6ksGFVY3x%2B9SluU0NY%3D';
-    const params = new URLSearchParams(new URL(url).search);
-    const encryptedId = params.get('user_id');
-console.log(params,'params');
-
-    if (encryptedId) {
-      const decrypted = this.service.decryptUserId(encryptedId);
-      console.log('Decrypted ID:', decrypted);
-    }
-
+    this.route.queryParams.subscribe(params => {
+      console.log(params);
+      
+      const encryptedId = params['user_id']; // fetch dynamically
+      if (encryptedId) {
+        this.deCryptedId = this.service.decryptUserId(encryptedId);
+        console.log(this.deCryptedId, 'decrypted user_id');
+      }
+    });
   }
 
-  geIdFromUrl(){
-    
+  geIdFromUrl() {
+
   }
 
 
@@ -237,17 +257,58 @@ console.log(params,'params');
           this.isLoading = false;
           this.openToast('success')
           console.log('Login Success:', loginRes);
-          return this.service.fetchUser(); // call fetchUser only after login
+          return this.service.fetchUser(this.deCryptedId); // call fetchUser only after login
         })
       )
       .subscribe({
-        next: (userRes) => {
-          this.isLoading = false;
-          this.openToast('success')
-          console.log('User Fetched:', userRes);
-          this.loadDashboardData();
+  next: (userRes) => {
+    this.isLoading = false;
+    this.openToast('success');
+    console.log('User Fetched:', userRes);
 
+    if (userRes?.data?.[0]?.icds_role_id == 4 && userRes?.data?.[0]?.district_id) {
+      this.selectedDistrict = userRes.data[0].district_id.toString();
+      this.icdsRoleId = userRes.data[0].icds_role_id;
+
+      this.service.postDistrictData().subscribe({
+        next: (res) => {
+          this.isLoading = false;
+          console.log(res, 'district Data ');
+          this.districtData = res?.data?.result?.sort((a: any, b: any) =>
+            a.district_name.localeCompare(b.district_name)
+          );
+
+          const districtName = this.districtData.find(
+            (val: any) => val.district_id == this.selectedDistrict
+          );
+
+          this.labelChanges = {
+            stateObserveBox: `AWC observed in ${districtName?.district_name || ''} this month`,
+            stateProgressBox: "Awc's progress this month",
+            stateNotObserveBox: "Awc's not Observed this month",
+            stateTotalBox: "Total AWCs",
+            stateActiveUserBox: "Active users this month",
+            stateObservTrendsChart: "AWC observation trends",
+            stateObservNotTrendsChart: "AWCs not visited trends ",
+            stateActiveUserChart: "Active User trends",
+            barchart: "AWCs Observed This Month by Block",
+            sectionType: "Block"
+          };
+
+          // load block data AFTER district is set
+          this.loadBlockData(this.selectedDistrict);
         },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Statewise API Error:', err);
+        },
+      });
+
+      this.headerTitile = `ICDS - Observation Overview (DPO)`;
+    }
+
+    this.loadDashboardData();
+  },
         error: (err) => {
           this.isLoading = false;
           this.openToast('error')
@@ -325,7 +386,7 @@ console.log(params,'params');
   }
 
   setActiveUsertrendsdTrendData(lineChatdata: any): void {
-console.log(lineChatdata,'lineChatdata');
+    console.log(lineChatdata, 'lineChatdata');
 
 
     const labels = lineChatdata.map(item => item.month.toUpperCase());
@@ -334,7 +395,7 @@ console.log(lineChatdata,'lineChatdata');
     this.lineChartLabels = labels
     this.lineChartUserVisited[0].data = data
     console.log();
-    
+
 
   }
 
@@ -350,7 +411,10 @@ console.log(lineChatdata,'lineChatdata');
         labels: awc_observed_by_month.map(item => item.name.toUpperCase()),
         datasets: [
           {
-            data: awc_observed_by_month.map(item => item.total_observed),
+            data: awc_observed_by_month.map(item => {
+              const total = item.total_observed + item.in_progress + item.not_started;
+              return total > 0 ? (item.total_observed / total) * 100 : 0;
+            }),
             label: 'Centers Observed',
             backgroundColor: '#5D87FF',
             hoverBackgroundColor: '#4a6cd8',
@@ -420,9 +484,9 @@ console.log(lineChatdata,'lineChatdata');
     this.showChart = !this.showChart;
   }
 
- /*  goBack(): void {
-    window.history.back();
-  } */
+  /*  goBack(): void {
+     window.history.back();
+   } */
 
 
   applyFilter(event: Event): void {
@@ -642,6 +706,7 @@ console.log(lineChatdata,'lineChatdata');
     console.log('Test1',);
     // this.districtData = []
     
+
     // Load state Api
     this.isLoading = true;
     this.service.postDistrictData().subscribe({
@@ -686,7 +751,7 @@ console.log(lineChatdata,'lineChatdata');
 
   // Reset labelChanges to default state-level labels
   this.labelChanges = {
-    stateObserveBox: "Awc's Observed acrross the State",
+    stateObserveBox: "Awc's Observed across the State",
     stateProgressBox: "Awc's progress this month",
     stateNotObserveBox: "Awc's not Observed this month",
     stateTotalBox: "Total AWCs",
@@ -736,7 +801,7 @@ console.log(lineChatdata,'lineChatdata');
           stateObservNotTrendsChart: "AWCs not visited trends ",
           stateActiveUserChart: "Active User trends",
           barchart: "AWCs Observed This Month by Block",
-          sectionType:"Block"
+          sectionType: "Block"
         }
       }
     }
@@ -761,7 +826,7 @@ console.log(lineChatdata,'lineChatdata');
           stateObservNotTrendsChart: "AWCs not visited trends ",
           stateActiveUserChart: "Active User trends",
           barchart: "AWCs Observed This Month by Sector",
-          sectionType:"Sector"
+          sectionType: "Sector"
         }
       }
       // this.loadDashboardData();
@@ -771,17 +836,25 @@ console.log(lineChatdata,'lineChatdata');
 
 
   sortChartData(order: 'asc' | 'desc', type) {
-
     let sorted = [];
 
+    // calculate % observed for each item before sorting
+    const dataWithPercent = (this.stateLevelData?.awc_observed_by_month || []).map(item => {
+      const total = item.total_observed + item.in_progress + item.not_started;
+      const observedPercent = total > 0 ? (item.total_observed / total) * 100 : 0;
+      return { ...item, observedPercent };
+    });
+
     if (type === 'number') {
-      sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
+      // sort by observed %
+      sorted = [...dataWithPercent].sort((a, b) => {
         return order === 'asc'
-          ? a.total_observed - b.total_observed
-          : b.total_observed - a.total_observed;
+          ? a.observedPercent - b.observedPercent
+          : b.observedPercent - a.observedPercent;
       });
     } else {
-      sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
+      // sort by district name
+      sorted = [...dataWithPercent].sort((a, b) => {
         return order === 'asc'
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
@@ -790,14 +863,14 @@ console.log(lineChatdata,'lineChatdata');
 
     console.log(sorted, 'sorted');
 
-    this.barChartLabels = sorted.map(item => item.name);
+    this.barChartLabels = sorted.map(item => item.name.toUpperCase());
 
     this.barChartData = {
       labels: this.barChartLabels,
       datasets: [
         {
-          data: sorted.map(item => item.total_observed),
-          label: 'Centers Observed',
+          data: sorted.map(item => item.observedPercent), // ✅ use % data
+          label: 'Observed %',
           backgroundColor: '#5D87FF',
           hoverBackgroundColor: '#4a6cd8',
           borderRadius: 6,
