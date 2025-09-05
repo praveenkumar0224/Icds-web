@@ -292,7 +292,8 @@ export class DashboardServiceService {
     const token = localStorage?.getItem('access_token');
     //console.log(token, 'token');
     const paylods = {
-      filter: { "sector_id": blockId }
+      filter: { "block_id": blockId },
+    
     }
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,

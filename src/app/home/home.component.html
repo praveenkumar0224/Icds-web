@@ -171,7 +171,7 @@
             <span class="spacer"></span>
 
             <button class="toggle-btn" mat-icon-button (click)="downloadLineChart()" matTooltip="Download Line Chart">
-              <mat-icon>image</mat-icon>
+              <mat-icon>download</mat-icon>
             </button>
           </div>
         </mat-card-header>
@@ -191,7 +191,7 @@
         <mat-card-header>
           <mat-card-title>{{labelChanges.stateObservNotTrendsChart || '-'}}</mat-card-title>
           <button class="toggle-btn" mat-icon-button (click)="downloadline2Chart()" matTooltip="Download Line Chart">
-            <mat-icon>image</mat-icon>
+            <mat-icon>download</mat-icon>
           </button>
 
         </mat-card-header>
@@ -207,7 +207,7 @@
         <mat-card-header>
           <mat-card-title>{{labelChanges.stateActiveUserChart || '-'}}</mat-card-title>
           <button class="toggle-btn" mat-icon-button (click)="downloadline3Chart()" matTooltip="Download Line Chart">
-            <mat-icon>image</mat-icon>
+            <mat-icon>download</mat-icon>
           </button>
 
         </mat-card-header>
@@ -232,7 +232,7 @@
           <!-- Download Buttons -->
           <ng-container *ngIf="selectedTabIndex === 0">
             <button mat-icon-button (click)="downloadBarChart()" matTooltip="Download Chart">
-              <mat-icon>image</mat-icon>
+              <mat-icon>download</mat-icon>
             </button>
           </ng-container>
     
@@ -243,7 +243,7 @@
           </ng-container>
     
           <!-- Sorting Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 0">
+          <ng-container *ngIf="selectedTabIndex === 1">
             <div class="button-group">
               <button mat-stroked-button (click)="sortChartData('asc','number')" matTooltip="Low to High">
                 <mat-icon>south</mat-icon>
@@ -262,19 +262,8 @@
 
     <mat-card-content class="bar-and-table">
       <mat-tab-group [(selectedIndex)]="selectedTabIndex">
-        <!-- Chart Tab -->
-        <!-- [options]="barChartOptions" -->
-        <mat-tab label="Chart View">
-          <div class="bar-chart-container" #barCanvasWrapper>
-            <canvas #barChart baseChart [data]="barChartData" [labels]="barChartLabels" [type]="'bar'" [legend]="true"
-              #barChartDirective>
-            </canvas>
 
-
-          </div>
-        </mat-tab>
-
-        <!-- Table Tab -->
+         <!-- Table Tab -->
         <mat-tab label="Table View">
           <div class="table-controls mt-3">
             <mat-form-field appearance="outline" class="search-field">
@@ -337,6 +326,21 @@
             </table>
           </div>
         </mat-tab>
+
+        
+        <!-- Chart Tab -->
+        <!-- [options]="barChartOptions" -->
+        <mat-tab label="Chart View">
+          <div class="bar-chart-container" #barCanvasWrapper>
+            <canvas #barChart baseChart [data]="barChartData" [labels]="barChartLabels" [type]="'bar'" [legend]="true"
+              #barChartDirective>
+            </canvas>
+
+
+          </div>
+        </mat-tab>
+
+       
       </mat-tab-group>
     </mat-card-content>
   </mat-card>
