@@ -48,7 +48,7 @@ export class DashboardServiceService {
 
     const payload = {
       filter: {
-        icds_user_id: id ? parseInt(id) : 63370,
+        icds_user_id: id ? parseInt(id) : 8812,
       },
     };
 
@@ -237,6 +237,43 @@ export class DashboardServiceService {
 
     return this.http.get(url, { headers });
   }
+
+   
+        lineTableExcelDownload(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-dashboard/blocks${queryString}`;
+        } else if (districtId) {
+          url = `${this.baseUrl}web-dashboard/districts${queryString}`;
+        } else {
+          url = `${this.baseUrl}web-dashboard${queryString}`;
+        }
+
+        return this.http.get(url, { headers, responseType: 'blob' });
+      }
+
+
 
 
 
