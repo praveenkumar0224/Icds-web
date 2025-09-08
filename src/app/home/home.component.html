@@ -146,9 +146,7 @@
 
   </div>
 
-  <div>
-     <app-district-chart></app-district-chart>
-  </div>
+  
 
 
 
@@ -160,67 +158,7 @@
 
 
   <!-- Charts Section -->
-  <div class="charts-section">
-    <div class="chart-row">
-      <!-- AWC Observation Trends -->
-      <mat-card class="chart-card" *ngIf="!isLoading">
-        <mat-card-header>
-          <div class="chart-header">
-            <mat-card-title>{{labelChanges.stateObservTrendsChart || '-'}}</mat-card-title>
-
-            <span class="spacer"></span>
-
-            <button class="toggle-btn" mat-icon-button (click)="downloadLineChart()" matTooltip="Download Line Chart">
-              <mat-icon>download</mat-icon>
-            </button>
-          </div>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="chart-container">
-            <canvas #lineChartChart1 baseChart [datasets]="lineChartDataVisited" [labels]="lineChartLabels"
-              [options]="lineChartOptions" [legend]="true" [type]="'line'">
-            </canvas>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-
-      <!-- AWCs Not Visited Trends -->
-      <mat-card class="chart-card" *ngIf="!isLoading">
-        <mat-card-header>
-          <mat-card-title>{{labelChanges.stateObservNotTrendsChart || '-'}}</mat-card-title>
-          <button class="toggle-btn" mat-icon-button (click)="downloadline2Chart()" matTooltip="Download Line Chart">
-            <mat-icon>download</mat-icon>
-          </button>
-
-        </mat-card-header>
-        <mat-card-content>
-          <div class="chart-container">
-            <canvas #lineChartChart2 baseChart [datasets]="lineChartDataNotVisited" [labels]="lineChartLabels"
-              [options]="lineChartOptions" [legend]="true" [type]="'line'"></canvas>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="chart-card" *ngIf="!isLoading">
-        <mat-card-header>
-          <mat-card-title>{{labelChanges.stateActiveUserChart || '-'}}</mat-card-title>
-          <button class="toggle-btn" mat-icon-button (click)="downloadline3Chart()" matTooltip="Download Line Chart">
-            <mat-icon>download</mat-icon>
-          </button>
-
-        </mat-card-header>
-        <mat-card-content>
-          <div class="chart-container">
-            <canvas #lineChartChart3 baseChart [datasets]="lineChartUserVisited" [labels]="lineChartLabels"
-              [options]="lineChartOptions" [legend]="true" [type]="'line'"></canvas>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-    </div>
-  </div>
+  
 
   <!-- District-wise Observations Chart/Table -->
   <mat-card class="chart-card full-width">
