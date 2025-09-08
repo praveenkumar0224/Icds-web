@@ -405,6 +405,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       const formatted = apiData.map((item, index) => ({
         slNo: index + 1,
         district: item.name,
+        id: item.id,
         available: item.total_observed + item.in_progress + item.not_started,
         observed: item.total_observed,
         centerNotObserved: (item.total_observed + item.in_progress + item.not_started) - item.total_observed,
@@ -622,6 +623,44 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
     FileSaver.saveAs(new Blob([excelBuffer]), 'awc-observation.xlsx');
   }
+
+     onDistrictOrBlockClick(row: any): void {
+  console.log(row, 'row data');
+
+  const year = this.selectedYear;
+  const month = this.selectedMonth;
+
+  if (this.blockData.length >= 1) {
+    this.service.lineTableExcelDownload(undefined, year, month, undefined, row)
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Block_Report_${row}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error('Block API error:', err)
+      });
+  } else if (this.districtData.length >= 1) {
+    this.service.lineTableExcelDownload(row, year, month)
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `District_Report_${row}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error('District API error:', err)
+      });
+  }
+}
+
+
+
 
   // Master Filter 
   loadDistrictData(): void {
