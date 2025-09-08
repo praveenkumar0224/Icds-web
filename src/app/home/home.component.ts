@@ -12,11 +12,8 @@ import { Chart, ChartConfiguration, ChartType, ChartOptions, registerables, Char
 import { BaseChartDirective } from 'ng2-charts';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-
-
 // Register Chart.js components
 Chart.register(...registerables);
-
 
 interface DashboardData {
   awcsObserved: number;
@@ -26,7 +23,6 @@ interface DashboardData {
   observationsByBlock: Array<{ block: string; count: number }>;
   observationsByCadre: Array<{ cadre: string; count: number }>;
 }
-
 
 @Component({
   selector: 'app-home',
@@ -57,7 +53,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     sectionType: "District"
   }
 
-
   barChartLabels: string[] = [];
 
   barChartData: ChartData<'bar'> = {
@@ -74,14 +69,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     ]
   }
 
-
   // Table data
   displayedColumns: string[] = ['slNo', 'district', 'available', 'observed', 'centerNotObserved', 'observePercentage'];
-    dataSource = new MatTableDataSource<any>([]);
+  dataSource = new MatTableDataSource<any>([]);
 
   sortDirection: 'asc' | 'desc' = 'asc';
   deCryptedId: any
-
 
   // Chart ViewChild references
   @ViewChild('observationTrendChart', { static: false })
@@ -94,7 +87,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   showChart = true;
   isLoading = false;
 
-
   // Data properties
   stateLevelData: any;
   districtData: any[] = [];
@@ -103,18 +95,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   icdsRoleId: any;
 
+  // 🔹 Added missing properties for user district info
+  userDistrictId: string = '';
+  userDistrictName: string = '';
+
   // Filter properties
-  // selectedYear = '2025';
-  // selectedMonth = '8';
-   selectedYear: string = new Date().getFullYear().toString();
-selectedMonth: string = (new Date().getMonth() + 1).toString();
-currentYear: string = new Date().getFullYear().toString();
+  selectedYear: string = new Date().getFullYear().toString();
+  selectedMonth: string = (new Date().getMonth() + 1).toString();
+  currentYear: string = new Date().getFullYear().toString();
   currentMonth: number = new Date().getMonth() + 1;
 
- monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
+  monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
   selectedDistrict = '';
   selectedBlock = '';
   selectedSector = '';
@@ -124,11 +118,9 @@ currentYear: string = new Date().getFullYear().toString();
   notVisitedTrendChart?: Chart;
   districtBarChart?: Chart;
 
-
   // Line chart
   public observationTrendData: ChartData<'line'>;
   public notVisitedTrendData: ChartData<'line'>;
-
 
   lineChartDataVisited = [
     {
@@ -179,15 +171,11 @@ currentYear: string = new Date().getFullYear().toString();
       },
     },
   };
+  
   lineChartOptionsDistricts: ChartConfiguration['options'] = {
     responsive: true,
     plugins: {
       legend: { position: 'top' },
-      // tooltip: {
-      //   callbacks: {
-      //     label: (context:any) => `${context.raw.toFixed(1)}%`
-      //   }
-      // }
     },
     scales: {
       y: {
@@ -199,8 +187,6 @@ currentYear: string = new Date().getFullYear().toString();
       }
     }
   };
-
-
 
   constructor(
     private service: DashboardServiceService,
@@ -227,28 +213,7 @@ currentYear: string = new Date().getFullYear().toString();
 
   }
 
-
   ngAfterViewInit(): void {
-  //   this.dataSource.sort = this.sort;
-
-  //     this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-  //   switch (sortHeaderId) {
-  //     case 'district':
-  //       return data.district.toLowerCase(); // Case-insensitive sorting for district names
-  //     case 'centerNotObserved':
-  //       return data.centerNotObserved; // Numeric sorting for pending centers
-  //     case 'observePercentage':
-  //       return data.observePercentage; // Numeric sorting for completion percentage
-  //     case 'available':
-  //       return data.available;
-  //     case 'observed':
-  //       return data.observed;
-  //     case 'slNo':
-  //       return data.slNo;
-  //     default:
-  //       return data[sortHeaderId];
-  //   }
-  // };
     this.isLoading = true;
     this.service
       .loginWithEmail()
@@ -261,54 +226,60 @@ currentYear: string = new Date().getFullYear().toString();
         })
       )
       .subscribe({
-  next: (userRes) => {
-    this.isLoading = false;
-    this.openToast('success');
-    console.log('User Fetched:', userRes);
-
-    if (userRes?.data?.[0]?.icds_role_id == 4 && userRes?.data?.[0]?.district_id) {
-      this.selectedDistrict = userRes.data[0].district_id.toString();
-      this.icdsRoleId = userRes.data[0].icds_role_id;
-
-      this.service.postDistrictData().subscribe({
-        next: (res) => {
+        next: (userRes) => {
           this.isLoading = false;
-          console.log(res, 'district Data ');
-          this.districtData = res?.data?.result?.sort((a: any, b: any) =>
-            a.district_name.localeCompare(b.district_name)
-          );
+          this.openToast('success');
+          console.log('User Fetched:', userRes);
 
-          const districtName = this.districtData.find(
-            (val: any) => val.district_id == this.selectedDistrict
-          );
+          if (userRes?.data?.[0]?.icds_role_id == 4 && userRes?.data?.[0]?.district_id) {
+            this.selectedDistrict = userRes.data[0].district_id.toString();
+            this.icdsRoleId = userRes.data[0].icds_role_id;
 
-          this.labelChanges = {
-            stateObserveBox: `AWC observed in ${districtName?.district_name || ''} this month`,
-            stateProgressBox: "Awc's progress this month",
-            stateNotObserveBox: "Awc's not Observed this month",
-            stateTotalBox: "Total AWCs",
-            stateActiveUserBox: "Active users this month",
-            stateObservTrendsChart: "AWC observation trends",
-            stateObservNotTrendsChart: "AWCs not visited trends ",
-            stateActiveUserChart: "Active User trends",
-            barchart: "AWCs Observed This Month by Block",
-            sectionType: "Block"
-          };
+            // 🔹 Store user's district info for later use
+            this.userDistrictId = userRes.data[0].district_id.toString();
 
-          // load block data AFTER district is set
-          this.loadBlockData(this.selectedDistrict);
+            this.service.postDistrictData().subscribe({
+              next: (res) => {
+                this.isLoading = false;
+                console.log(res, 'district Data ');
+                this.districtData = res?.data?.result?.sort((a: any, b: any) =>
+                  a.district_name.localeCompare(b.district_name)
+                );
+
+                const districtName = this.districtData.find(
+                  (val: any) => val.district_id == this.selectedDistrict
+                );
+
+                // 🔹 Store district name for later use
+                this.userDistrictName = districtName?.district_name || '';
+
+                this.labelChanges = {
+                  stateObserveBox: `AWC observed in ${districtName?.district_name || ''} this month`,
+                  stateProgressBox: "Awc's progress this month",
+                  stateNotObserveBox: "Awc's not Observed this month",
+                  stateTotalBox: "Total AWCs",
+                  stateActiveUserBox: "Active users this month",
+                  stateObservTrendsChart: "AWC observation trends",
+                  stateObservNotTrendsChart: "AWCs not visited trends ",
+                  stateActiveUserChart: "Active User trends",
+                  barchart: "AWCs Observed This Month by Block",
+                  sectionType: "Block"
+                };
+
+                // load block data AFTER district is set
+                this.loadBlockData(this.selectedDistrict);
+              },
+              error: (err) => {
+                this.isLoading = false;
+                console.error('Statewise API Error:', err);
+              },
+            });
+
+            this.headerTitile = `ICDS - Observation Overview (DPO)`;
+          }
+
+          this.loadDashboardData();
         },
-        error: (err) => {
-          this.isLoading = false;
-          console.error('Statewise API Error:', err);
-        },
-      });
-
-      this.headerTitile = `ICDS - Observation Overview (DPO)`;
-    }
-
-    this.loadDashboardData();
-  },
         error: (err) => {
           this.isLoading = false;
           this.openToast('error')
@@ -329,8 +300,6 @@ currentYear: string = new Date().getFullYear().toString();
       .getStatewiseData(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector)
       .subscribe({
         next: (res) => {
-          // Simulate API call
-          //setTimeout(() => {
           this.stateLevelData = res.data;
           if (this.stateLevelData?.awc_observed_by_month?.length) {
             
@@ -340,20 +309,12 @@ currentYear: string = new Date().getFullYear().toString();
             this.setNotVisitedTrendData(this.stateLevelData?.observation_not_visited_trend);
             this.setActiveUsertrendsdTrendData(this.stateLevelData?.active_users_trend);
 
-
             this.loadDistrictData();
 
-
-
             this.isLoading = false;
-
           }
 
           this.isLoading = false;
-          //}, 10);
-
-
-
         },
         error: (err) => {
           this.isLoading = false;
@@ -362,32 +323,24 @@ currentYear: string = new Date().getFullYear().toString();
       });
   }
 
-
-
   setObservationTrendData(lineChatdata: any): void {
-
     const labels = lineChatdata.map(item => item.month.toUpperCase());
     const data = lineChatdata.map(item => item.total_observed);
 
     this.lineChartLabels = labels
     this.lineChartDataVisited[0].data = data
-
   }
 
-
   setNotVisitedTrendData(lineChatdata: any): void {
-
     const labels = lineChatdata.map(item => item.month.toUpperCase());
     const data = lineChatdata.map(item => item.not_started);
 
     this.lineChartLabels = labels
     this.lineChartDataNotVisited[0].data = data
-
   }
 
   setActiveUsertrendsdTrendData(lineChatdata: any): void {
     console.log(lineChatdata, 'lineChatdata');
-
 
     const labels = lineChatdata.map(item => item.month.toUpperCase());
     const data = lineChatdata.map(item => item.active_users);
@@ -395,16 +348,10 @@ currentYear: string = new Date().getFullYear().toString();
     this.lineChartLabels = labels
     this.lineChartUserVisited[0].data = data
     console.log();
-
-
   }
 
-
   private createDistrictBarChart(awc_observed_by_month: any): void {
-
-
     if (awc_observed_by_month) {
-
       this.barChartLabels = awc_observed_by_month.map(item => item.name.toUpperCase())
 
       this.barChartData = {
@@ -425,69 +372,60 @@ currentYear: string = new Date().getFullYear().toString();
       }
 
       this.getTableData(awc_observed_by_month)
-
     }
-
-
   }
 
   private setupTableSorting(): void {
-  if (this.sort && this.dataSource) {
-    this.dataSource.sort = this.sort;
-    
-    this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-      switch (sortHeaderId) {
-        case 'district':
-          return data.district.toLowerCase();
-        case 'centerNotObserved':
-          return Number(data.centerNotObserved);
-        case 'observePercentage':
-          return Number(data.observePercentage);
-        case 'available':
-          return Number(data.available);
-        case 'observed':
-          return Number(data.observed);
-        case 'slNo':
-          return Number(data.slNo);
-        default:
-          return data[sortHeaderId];
-      }
-    };
+    if (this.sort && this.dataSource) {
+      this.dataSource.sort = this.sort;
+      
+      this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+        switch (sortHeaderId) {
+          case 'district':
+            return data.district.toLowerCase();
+          case 'centerNotObserved':
+            return Number(data.centerNotObserved);
+          case 'observePercentage':
+            return Number(data.observePercentage);
+          case 'available':
+            return Number(data.available);
+          case 'observed':
+            return Number(data.observed);
+          case 'slNo':
+            return Number(data.slNo);
+          default:
+            return data[sortHeaderId];
+        }
+      };
+    }
   }
-}
-
   
-   getTableData(apiData: any) {
-  if (apiData) {
-    const formatted = apiData.map((item, index) => ({
-      slNo: index + 1,
-      district: item.name,
-      available: item.total_observed + item.in_progress + item.not_started,
-      observed: item.total_observed,
-      centerNotObserved: (item.total_observed + item.in_progress + item.not_started) - item.total_observed,
-      observePercentage: Math.round(
-        (item.total_observed / (item.total_observed + item.in_progress + item.not_started)) * 100
-      )
-    }));
+  getTableData(apiData: any) {
+    if (apiData) {
+      const formatted = apiData.map((item, index) => ({
+        slNo: index + 1,
+        district: item.name,
+        available: item.total_observed + item.in_progress + item.not_started,
+        observed: item.total_observed,
+        centerNotObserved: (item.total_observed + item.in_progress + item.not_started) - item.total_observed,
+        observePercentage: Math.round(
+          (item.total_observed / (item.total_observed + item.in_progress + item.not_started)) * 100
+        )
+      }));
 
-    this.dataSource.data = formatted;
-    
-    // Set up sorting after data is loaded
-    setTimeout(() => {
-      this.setupTableSorting();
-    }, 0);
+      this.dataSource.data = formatted;
+      
+      // Set up sorting after data is loaded
+      setTimeout(() => {
+        this.setupTableSorting();
+      }, 0);
+    }
   }
-}
 
   // Event handlers
   toggleView(): void {
     this.showChart = !this.showChart;
   }
-
-  /*  goBack(): void {
-     window.history.back();
-   } */
-
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value
@@ -506,12 +444,6 @@ currentYear: string = new Date().getFullYear().toString();
     });
   }
 
-  /*  navigateToDetailPage(districtDetails: any): void {
-     console.log('Navigate to detail page:', districtDetails);
-     // Implement navigation logic
-     // this.router.navigate(['/examples', districtDetails.id]);
-   } */
-
   navigateToDetailPage(event: ChartEvent, activeElements: any[]) { // Temp Not use 
     if (activeElements.length > 0) {
       const index = (activeElements[0] as any).index;
@@ -521,7 +453,6 @@ currentYear: string = new Date().getFullYear().toString();
       // You can now route, filter table, show modal, etc.
     }
   }
-
 
   downloadLineChart(): void {
     const canvas = this.lineChartChart1Ref?.nativeElement;
@@ -601,7 +532,6 @@ currentYear: string = new Date().getFullYear().toString();
     link.click();
   }
 
-
   downloadline3Chart(): void {
     const canvas = this.lineChartChart3Ref?.nativeElement;
     const chart = Chart.getChart(canvas);
@@ -680,8 +610,6 @@ currentYear: string = new Date().getFullYear().toString();
     link.click();
   }
 
-
-
   downloadExcel(): void {
     const worksheet = XLSX.utils.json_to_sheet(this.dataSource.data);
     const workbook = {
@@ -694,19 +622,11 @@ currentYear: string = new Date().getFullYear().toString();
     });
     FileSaver.saveAs(new Blob([excelBuffer]), 'awc-observation.xlsx');
   }
-  
-
-
-
-
-
 
   // Master Filter 
   loadDistrictData(): void {
     console.log('Test1',);
-    // this.districtData = []
     
-
     // Load state Api
     this.isLoading = true;
     this.service.postDistrictData().subscribe({
@@ -715,12 +635,9 @@ currentYear: string = new Date().getFullYear().toString();
         console.log(res, 'district Data ');
         this.districtData = res?.data?.result;
 
-
         this.districtData = res?.data?.result?.sort((a: any, b: any) =>
           a.district_name.localeCompare(b.district_name)
         );
-
-
       },
       error: (err) => {
         this.isLoading = false;
@@ -728,7 +645,6 @@ currentYear: string = new Date().getFullYear().toString();
       },
     });
   }
-
 
   onFilterChange(): void {
     // Implement filter logic here
@@ -738,57 +654,84 @@ currentYear: string = new Date().getFullYear().toString();
     }
   }
 
+  // 🔹 Fixed clearFilters method
+  clearFilters(): void {
+    // Check if any filter is currently selected
+    const filtersApplied = this.selectedDistrict || this.selectedBlock || this.selectedSector;
 
+    // Reset filter variables
+    this.selectedDistrict = '';
+    this.selectedBlock = '';
+    this.selectedSector = '';
 
-   clearFilters(): void {
-  // Check if any filter is currently selected
-  const filtersApplied = this.selectedDistrict || this.selectedBlock || this.selectedSector;
-  
-  // Reset filter variables
-  this.selectedDistrict = '';
-  this.selectedBlock = '';
-  this.selectedSector = '';
-
-  // Reset labelChanges to default state-level labels
-  this.labelChanges = {
-    stateObserveBox: "Awc's Observed across the State",
-    stateProgressBox: "Awc's progress this month",
-    stateNotObserveBox: "Awc's not Observed this month",
-    stateTotalBox: "Total AWCs",
-    stateActiveUserBox: "Active users this month",
-    stateObservTrendsChart: "AWC observation trends",
-    stateObservNotTrendsChart: "AWCs not visited trends ",
-    stateActiveUserChart: "Active User trends",
-    barchart: "AWCs Observed This Month by District",
-    sectionType: "District"
-  };
-
-  // Reset header title to state level
-  this.headerTitile = 'ICDS - Observation Overview (State)';
-
-  // If filters were applied, clear the data and reload the state-level data.
-  // This will also trigger the fetch for district data again.
-  if (filtersApplied) {
-    this.districtData = [];
+    // Clear dependent data arrays
     this.blockData = [];
     this.sectorData = [];
-    this.loadDashboardData();
-  }
-}
 
+    if (this.icdsRoleId === 4) {
+      // 🔹 For role 4 users, reset to their district-level defaults
+      
+      // Find user's district info from the fetched district data
+      const userDistrict = this.districtData.find(
+        (district: any) => district.district_id.toString() === this.userDistrictId
+      );
+
+      if (userDistrict) {
+        this.selectedDistrict = userDistrict.district_id.toString();
+        
+        this.labelChanges = {
+          stateObserveBox: `AWC observed in ${userDistrict.district_name || ''} this month`,
+          stateProgressBox: "Awc's progress this month",
+          stateNotObserveBox: "Awc's not Observed this month",
+          stateTotalBox: "Total AWCs",
+          stateActiveUserBox: "Active users this month",
+          stateObservTrendsChart: "AWC observation trends",
+          stateObservNotTrendsChart: "AWCs not visited trends ",
+          stateActiveUserChart: "Active User trends",
+          barchart: "AWCs Observed This Month by Block",
+          sectionType: "Block"
+        };
+
+        this.headerTitile = `ICDS - Observation Overview (DPO)`;
+        
+        // Always reload block data for role 4 users
+        this.loadBlockData(this.selectedDistrict);
+      } else {
+        // Fallback if user district not found
+        this.loadDashboardData();
+      }
+    } else {
+      // 🔹 Reset to state-level defaults for other roles
+      this.labelChanges = {
+        stateObserveBox: "Awc's Observed across the State",
+        stateProgressBox: "Awc's progress this month",
+        stateNotObserveBox: "Awc's not Observed this month",
+        stateTotalBox: "Total AWCs",
+        stateActiveUserBox: "Active users this month",
+        stateObservTrendsChart: "AWC observation trends",
+        stateObservNotTrendsChart: "AWCs not visited trends ",
+        stateActiveUserChart: "Active User trends",
+        barchart: "AWCs Observed This Month by District",
+        sectionType: "District"
+      };
+
+      this.headerTitile = 'ICDS - Observation Overview (State)';
+      
+      // Always reload dashboard data for state-level view
+      this.loadDashboardData();
+    }
+  }
 
   onDistrictChange(val): void {
     console.log(val);
 
     this.headerTitile = 'ICDS - Observation Overview (DPO)';
 
-
     if (this.selectedDistrict || this.selectedDistrict == "") {
       this.loadBlockData(this.selectedDistrict);
 
       const districtName = this.districtData.find(val => { return val.district_id == this.selectedDistrict })
       console.log(districtName, 'districtName');
-
 
       if (this.selectedDistrict) {
         this.labelChanges = {
@@ -814,7 +757,6 @@ currentYear: string = new Date().getFullYear().toString();
 
       const blockName = this.blockData.find(val => { return val.block_id == this.selectedBlock })
 
-
       if (this.selectedBlock) {
         this.labelChanges = {
           stateObserveBox: `AWC observed in ${blockName && blockName.block_name} this month`,
@@ -829,11 +771,8 @@ currentYear: string = new Date().getFullYear().toString();
           sectionType: "Sector"
         }
       }
-      // this.loadDashboardData();
     }
-
   }
-
 
   sortChartData(order: 'asc' | 'desc', type) {
     let sorted = [];
@@ -880,8 +819,6 @@ currentYear: string = new Date().getFullYear().toString();
     };
   }
 
-
-
   loadBlockData(districtId): void {
     // Load state Api
     this.isLoading = true;
@@ -920,7 +857,6 @@ currentYear: string = new Date().getFullYear().toString();
     });
   }
 
-
   ngOnDestroy(): void {
     // Clean up chart instances
     if (this.observationTrendChart) {
@@ -937,6 +873,7 @@ currentYear: string = new Date().getFullYear().toString();
   goFor() {
     this.router.navigate(['/courses', 123456]);
   }
+  
   openToast(type: 'success' | 'error') {
     this.snackBar.open(
       type === 'success' ? 'Login Successful ✅' : 'Something went wrong ❌',
