@@ -1,0 +1,340 @@
+// Variables
+$primary-color: #5d87ff;
+$accent-color: #2bc161;
+$warn-color: #fb565a;
+$light-bg: #f9fbfc;
+$text-color: #2e3c53;
+$shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+// Spinner Overlay
+.component-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    .loading-text {
+      font-size: 16px;
+      color: $primary-color;
+    }
+  }
+}
+
+// Main Container
+.dashboard-container {
+  padding: 24px;
+  background: $light-bg;
+  min-height: 100vh;
+  color: $text-color;
+}
+
+// Header
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .back-btn {
+      color: $primary-color;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+}
+
+// Filters Section
+.filters-section {
+  margin-bottom: 24px;
+
+  .filters-card {
+    padding: 16px;
+    background: white;
+    box-shadow: $shadow;
+    border-radius: 8px;
+
+    .filters-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+
+      .filter-field {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Metric Cards
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .metric-card {
+    padding: 16px;
+    border-radius: 10px;
+    color: white;
+    box-shadow: $shadow;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+
+    &.completed {
+      background-color: $accent-color;
+    }
+
+    &.inprogress {
+      background-color: #f9a825;
+    }
+
+    &.notcompleted {
+      background-color: $warn-color;
+    }
+
+    &.equal {
+      background-color: $primary-color;
+    }
+
+    &.activeUser {
+      background-color: #3F51B5;
+    }
+
+    .status-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .status-info {
+        display: flex;
+        flex-direction: column;
+
+        .status-number {
+          font-size: 24px;
+          font-weight: bold;
+        }
+
+        .status-label {
+          font-size: 14px;
+          opacity: 0.9;
+        }
+      }
+
+      .status-icon {
+        font-size: 36px;
+        opacity: 0.8;
+        margin-left: auto;
+        text-align: right;
+      }
+    }
+  }
+}
+
+.clear-button{
+   height: 50px;
+   margin-top: 5px;
+}
+
+// Charts Section
+.charts-section {
+  .chart-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 24px;
+
+    .chart-card {
+      flex: 1 1 29%;
+      background: white;
+      box-shadow: $shadow;
+      border-radius: 10px;
+
+      mat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%; // Ensures it doesn't overflow
+        height: 200px;
+        overflow-x: auto;
+
+        .toggle-btn {
+          margin-left: auto;
+        }
+
+
+        canvas {
+          width: 100% !important; // Force canvas to obey container
+          height: 100% !important;
+          display: block;
+        }
+      }
+
+      mat-card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: $text-color;
+      }
+    }
+  }
+}
+
+// Full Width Chart/Table Card
+.full-width {
+  width: 100%;
+  background: white;
+  box-shadow: $shadow;
+  border-radius: 10px;
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 16px;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+
+      mat-card-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .view-toggle-buttons {
+        display: flex;
+        gap: 8px;
+
+        .toggle-btn {
+          color: $primary-color;
+        }
+
+        .sort-buttons {
+          display: flex;
+          justify-content: flex-end;
+
+        }
+
+
+      }
+    }
+  }
+
+  .chart-view,
+  .table-view {
+    padding: 16px;
+  }
+
+  .large-chart {
+    height: 350px;
+  }
+
+  .table-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .search-field {
+      flex: 1 1 250px;
+    }
+
+    .sort-button {
+      border-color: $primary-color;
+      color: $primary-color;
+
+      mat-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .data-table {
+    width: 100%;
+    font-size: 14px;
+
+    th {
+      background: #f1f4fa;
+      font-weight: 600;
+    }
+
+    .observed-count {
+      font-weight: 600;
+      color: $accent-color;
+    }
+  }
+
+
+  // New 
+
+  .bar-and-table {
+
+    .chart-container {
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    canvas {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+
+  }
+
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+.toast-success {
+  background-color: #2BC161 !important; /* green */
+  color: #fff !important;
+  font-weight: bold;
+}
+
+.toast-error {
+  background-color: #FB565A !important; /* red */
+  color: #fff !important;
+  font-weight: bold;
+}

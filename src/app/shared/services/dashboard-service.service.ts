@@ -48,7 +48,7 @@ export class DashboardServiceService {
 
     const payload = {
       filter: {
-        icds_user_id: id ? parseInt(id) : 63370,
+        icds_user_id: id ? parseInt(id) : 8812,
       },
     };
 
@@ -160,6 +160,63 @@ export class DashboardServiceService {
     return this.http.get(url, { headers });
   }
 
+   getStatewiseDataForAttandance(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+
+   /*  if (districtId) params.push(`district_id=${districtId}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectortId) params.push(`sector_id=${sectortId}`); */
+
+   /*  if (districtId && blockId && sectortId) {
+      params.push(`block_id=${blockId}`);
+    } else if (districtId && blockId) {
+      params.push(`district_id=${districtId}`);
+    } else if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+ */
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+
+    if (districtId && blockId ) {
+      url = `${this.baseUrl}web-dashboard/attendance/block${queryString}`;
+    }else if (districtId ) {
+      url = `${this.baseUrl}web-dashboard/attendance/district${queryString}`;
+    } else{
+      url = `${this.baseUrl}web-dashboard/attendance/state${queryString}`;
+    }
+
+   /*  if (districtId && blockId && sectortId) {
+      url = `${this.baseUrl}web-dashboard/block${queryString}`;
+    } else if (districtId && blockId) {
+      url = `${this.baseUrl}web-dashboard/district${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}web-dashboard/state${queryString}`;
+    }else{
+      url = `${this.baseUrl}web-dashboard/state${queryString}`;
+    } */
+
+  
+    return this.http.get(url, { headers });
+  }
+
 
 
   getDistrictWiseData(districtId?: string, year?: string, month?: string, sectorId?: string): Observable<any> {
@@ -180,6 +237,43 @@ export class DashboardServiceService {
 
     return this.http.get(url, { headers });
   }
+
+   
+        lineTableExcelDownload(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-dashboard/blocks${queryString}`;
+        } else if (districtId) {
+          url = `${this.baseUrl}web-dashboard/districts${queryString}`;
+        } else {
+          url = `${this.baseUrl}web-dashboard${queryString}`;
+        }
+
+        return this.http.get(url, { headers, responseType: 'blob' });
+      }
+
+
 
 
 
@@ -235,7 +329,8 @@ export class DashboardServiceService {
     const token = localStorage?.getItem('access_token');
     //console.log(token, 'token');
     const paylods = {
-      filter: { "sector_id": blockId }
+      filter: { "block_id": blockId },
+    
     }
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
