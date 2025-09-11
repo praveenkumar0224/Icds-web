@@ -9,7 +9,7 @@ import { AuthService } from './shared/services/auth/auth.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'ICDS - Dashboard';
+  title = 'ICDS Supervision - Dashboard';
   links = [
     { path: '/home', icon: 'home', title: 'Home' },
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },

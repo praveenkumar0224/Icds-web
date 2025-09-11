@@ -630,7 +630,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
   const year = this.selectedYear;
   const month = this.selectedMonth;
 
-  if (this.blockData.length >= 1) {
+  console.log(this.sectorData);
+  
+  if (this.sectorData.length >= 1) {
+    console.log("sector is working iiii");
+    
+    this.service.lineTableExcelDownload(undefined, year, month, row)
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Sector_Report_${row}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error('Sector API error:', err)
+      });
+  } else if (this.blockData.length >= 1) {
     this.service.lineTableExcelDownload(undefined, year, month, undefined, row)
       .subscribe({
         next: (res: Blob) => {
@@ -656,7 +673,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         },
         error: (err) => console.error('District API error:', err)
       });
-  }
+  } 
 }
 
 
@@ -763,6 +780,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   onDistrictChange(val): void {
     console.log(val);
+    this.blockData = [];
+    this.sectorData = [];
+    this.selectedBlock = '';
+    this.selectedSector = '';
 
     this.headerTitile = 'ICDS - Observation Overview (DPO)';
 
@@ -866,6 +887,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
         console.log(res, 'Block Data ');
         this.blockData = res?.data?.result;
+
+        this.blockData = res?.data?.result?.sort((a:any,b:any)=>(
+          a.block_name.localeCompare(b.block_name)
+        ))
         this.loadDashboardData();
 
       },

@@ -164,6 +164,70 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
    
   }
 
+  private clearAllData(): void {
+  // Clear state level data
+  this.stateLevelData = null;
+  
+  // Clear chart data
+  this.lineChartLabels = [];
+  this.lineChartDataVisited[0].data = [];
+  this.lineChartDataNotVisited = [
+    {
+      data: [],
+      label: '2–4 Years',
+      borderColor: '#5D87FF',
+      backgroundColor: 'rgba(93, 135, 255, 0.2)',
+      fill: false,
+      tension: 0.3
+    },
+    {
+      data: [],
+      label: '4–6 Years',
+      borderColor: '#FF6B6B',
+      backgroundColor: 'rgba(255, 107, 107, 0.2)',
+      fill: false,
+      tension: 0.3
+    }
+  ];
+  this.lineChartUserVisited = [
+    {
+      data: [],
+      label: "male",
+      borderColor: '#5D87FF',
+      backgroundColor: 'rgba(93, 135, 255, 0.2)',
+      fill: false,
+      tension: 0.3
+    },
+    {
+      data: [],
+      label: "female",
+      borderColor: '#FF6B6B',
+      backgroundColor: 'rgba(255, 107, 107, 0.2)',
+      fill: false,
+      tension: 0.3
+    }
+  ];
+  
+  // Clear bar chart data
+  this.barChartLabels = [];
+  this.barChartData = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'AWC\'s Attendance',
+        backgroundColor: '#5D87FF',
+        hoverBackgroundColor: '#4a6cd8',
+        borderRadius: 6,
+        barThickness: 30
+      }
+    ]
+  };
+  
+  // Clear table data
+  this.dataSource.data = [];
+}
+
 
  
 
@@ -171,47 +235,56 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
       this.loadDashboardData()
   }
 
-    loadDashboardData(): void {
-    // Load state Api
-    this.isLoading = true;
-    this.showChart = true
-    this.service
-      .getStatewiseDataForAttandance(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector)
-      .subscribe({
-        next: (res) => {
-        
-          this.stateLevelData = res.data;
-          if (this.stateLevelData?.attendence_by_month?.length) {
-
-            this.createDistrictBarChart(this.stateLevelData?.attendence_by_month);
-
-            this.setAttandanceData(this.stateLevelData?.attendece_trend);
-            this.setCategoryWiseAttendanceTrend(this.stateLevelData?.category_wise_attendece_trend);
-            this.setGenderWiseAttendanceTrend(this.stateLevelData?.gender_wise_attendece_trend);
-
-
-
-
-             this.isLoading = false;
-
-          }
-          console.log("lavuduuu");
-          
-
-          this.loadDistrictData();
-
-          this.isLoading = false;
+     loadDashboardData(): void {
+  // Clear previous data immediately
+  this.clearAllData();
   
+  // Load state Api
+  this.isLoading = true;
+  this.showChart = true;
+  
+  this.service
+    .getStatewiseDataForAttandance(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector)
+    .subscribe({
+      next: (res) => {
+        this.stateLevelData = res.data;
+        
+        // Check if we have attendance data
+        if (this.stateLevelData?.attendence_by_month?.length > 0) {
+          this.createDistrictBarChart(this.stateLevelData.attendence_by_month);
+        } else {
+          // Handle empty data case
+          console.log('No attendance data available for selected filters');
+          this.clearAllData(); // Ensure UI shows empty state
+        }
 
+        // Set chart data (these methods should handle empty arrays gracefully)
+        if (this.stateLevelData?.attendece_trend) {
+          this.setAttandanceData(this.stateLevelData.attendece_trend);
+        }
+        
+        if (this.stateLevelData?.category_wise_attendece_trend) {
+          this.setCategoryWiseAttendanceTrend(this.stateLevelData.category_wise_attendece_trend);
+        }
+        
+        if (this.stateLevelData?.gender_wise_attendece_trend) {
+          this.setGenderWiseAttendanceTrend(this.stateLevelData.gender_wise_attendece_trend);
+        }
 
+        this.isLoading = false;
 
-        },
-        error: (err) => {
-          this.isLoading = false;
-          console.error('Statewise API Error:', err);
-        },
-      });
-  }
+        // Only load district data if we're at state level
+        if (!this.selectedDistrict && !this.selectedBlock && !this.selectedSector) {
+          this.loadDistrictData();
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.clearAllData(); // Clear data on error too
+        console.error('Statewise API Error:', err);
+      },
+    });
+}
 
 
     setAttandanceData(lineChatdata: any): void {
@@ -297,35 +370,45 @@ console.log(lineChatdata,'lineChatdata');
   
 
      private createDistrictBarChart(attendence_by_month: any): void {
-      console.log(attendence_by_month);
-      
+  console.log('Creating bar chart with data:', attendence_by_month);
 
+  if (attendence_by_month && attendence_by_month.length > 0) {
+    this.barChartLabels = attendence_by_month.map(item => item.name.toUpperCase());
 
-    if (attendence_by_month) {
+    this.barChartData = {
+      labels: this.barChartLabels,
+      datasets: [
+        {
+          data: attendence_by_month.map(item => item.attendance_percentage.toString().replace('%', '')),
+          label: 'AWC\'s Attendance',
+          backgroundColor: '#5D87FF',
+          hoverBackgroundColor: '#4a6cd8',
+          borderRadius: 6,
+          barThickness: 30,
+        }
+      ]
+    };
 
-      this.barChartLabels = attendence_by_month.map(item => item.name.toUpperCase())
-
-      this.barChartData = {
-        labels: attendence_by_month.map(item => item.name.toUpperCase()),
-        datasets: [
-          {
-            data: attendence_by_month.map(item => item.attendance_percentage.toString().replace('%', '')),
-            label: 'AWC\'s Attendance',
-            backgroundColor: '#5D87FF',
-            hoverBackgroundColor: '#4a6cd8',
-            borderRadius: 6,
-            barThickness: 30,
-        
-          }
-        ]
-      }
-
-      this.getTableData(attendence_by_month)
-
-    }
-
-
+    this.getTableData(attendence_by_month);
+  } else {
+    // Handle empty data case
+    this.barChartLabels = [];
+    this.barChartData = {
+      labels: [],
+      datasets: [
+        {
+          data: [],
+          label: 'AWC\'s Attendance',
+          backgroundColor: '#5D87FF',
+          hoverBackgroundColor: '#4a6cd8',
+          borderRadius: 6,
+          barThickness: 30,
+        }
+      ]
+    };
+    this.dataSource.data = [];
   }
+}
 
    private setupTableSorting(): void {
   if (this.sort && this.dataSource) {
@@ -605,13 +688,26 @@ console.log(lineChatdata,'lineChatdata');
     });
   }
 
-  onFilterChange(): void {
-    // Implement filter logic here
-    this.headerTitile = 'ICDS - Observation Overview (CDPO)'
-    if (this.selectedSector || this.selectedSector == "") {
-      this.loadDashboardData();
-    }
+   onFilterChange(): void {
+  console.log('Filter changed - Year:', this.selectedYear, 'Month:', this.selectedMonth);
+  
+  // Clear current data
+  this.clearAllData();
+  
+  // Update header title based on current selection
+  if (this.selectedSector) {
+    this.headerTitile = 'ICDS - Attendance Overview (CDPO)';
+  } else if (this.selectedBlock) {
+    this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+  } else if (this.selectedDistrict) {
+    this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+  } else {
+    this.headerTitile = 'ICDS - Attendance Overview (State)';
   }
+  
+  // Load data with current filters
+  this.loadDashboardData();
+}
 
 
 
@@ -652,62 +748,84 @@ console.log(lineChatdata,'lineChatdata');
 }
 
 
-  onDistrictChange(val): void {
-    console.log(val);
+   onDistrictChange(val): void {
+  console.log('District changed to:', val);
 
-    this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+  // Clear dependent data immediately
+  this.blockData = [];
+  this.sectorData = [];
+  this.selectedBlock = '';
+  this.selectedSector = '';
+  
+  // Clear current dashboard data
+  this.clearAllData();
 
+  this.headerTitile = 'ICDS - Attendance Overview (DPO)';
 
-    if (this.selectedDistrict || this.selectedDistrict == "") {
-      this.loadBlockData(this.selectedDistrict);
+  if (this.selectedDistrict || this.selectedDistrict === "") {
+    // Load block data first
+    this.loadBlockData(this.selectedDistrict);
 
-      const districtName = this.districtData.find(val => { return val.district_id == this.selectedDistrict })
-      console.log(districtName, 'districtName');
+    const districtName = this.districtData.find(district => district.district_id == this.selectedDistrict);
+    console.log(districtName, 'districtName');
 
-
-      if (this.selectedDistrict) {
-        this.labelChanges = {
-          stateObserveBox: `Average Attendance in ${districtName && districtName.district_name} this month`,
-          stateProgressBox: "Male children",
-          stateNotObserveBox: "Female children",
-          stateTotalBox: "2-4 years children",
-          stateActiveUserBox: "4-6 years children",
-          stateObservTrendsChart: "Attendance trends",
-          stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
-          stateActiveUserChart: "Gender-wise Attendance trends",
-          barchart: "AWCs Observed This Month by Block",
-          sectionType:"Block"
-        }
-      }
+    if (this.selectedDistrict) {
+      this.labelChanges = {
+        stateObserveBox: `Average Attendance in ${districtName && districtName.district_name} this month`,
+        stateProgressBox: "Male children",
+        stateNotObserveBox: "Female children",
+        stateTotalBox: "2-4 years children",
+        stateActiveUserBox: "4-6 years children",
+        stateObservTrendsChart: "Attendance trends",
+        stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
+        stateActiveUserChart: "Gender-wise Attendance trends",
+        barchart: "AWCs Observed This Month by Block",
+        sectionType: "Block"
+      };
     }
+    
+    // Load dashboard data with new district
+    this.loadDashboardData();
   }
+}
 
-    onBlockChange(): void {
-    this.headerTitile = 'ICDS - Observation Overview (DPO)';
-    if (this.selectedBlock ) {
-      this.loadSectorData(this.selectedBlock);
+   onBlockChange(): void {
+  console.log('Block changed to:', this.selectedBlock);
+  
+  // Clear dependent data
+  this.sectorData = [];
+  this.selectedSector = '';
+  
+  // Clear current dashboard data
+  this.clearAllData();
 
-      const blockName = this.blockData.find(val => { return val.block_id == this.selectedBlock })
+  this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+  
+  if (this.selectedBlock) {
+    // Load sector data first
+    this.loadSectorData(this.selectedBlock);
 
+    const blockName = this.blockData.find(block => block.block_id == this.selectedBlock);
 
-      if (this.selectedBlock) {
-        this.labelChanges = {
-          stateObserveBox: `Average Attendance ${blockName && blockName.block_name} this month`,
-          stateProgressBox: "Awc's progress this month ",
-          stateNotObserveBox: "Female children",
-          stateTotalBox: "2-4 years children",
-          stateActiveUserBox: "4-6 years children",
-          stateObservTrendsChart: "Attendance trends",
-          stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
-          stateActiveUserChart: "Gender-wise Attendance trends",
-          barchart: "AWCs Observed This Month by Sector",
-          sectionType:"Sector"
-        }
-      }
-      // this.loadDashboardData();
+    if (this.selectedBlock) {
+      this.labelChanges = {
+        stateObserveBox: `Average Attendance ${blockName && blockName.block_name} this month`,
+        stateProgressBox: "Awc's progress this month ",
+        stateNotObserveBox: "Female children",
+        stateTotalBox: "2-4 years children",
+        stateActiveUserBox: "4-6 years children",
+        stateObservTrendsChart: "Attendance trends",
+        stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
+        stateActiveUserChart: "Gender-wise Attendance trends",
+        barchart: "AWCs Observed This Month by Sector",
+        sectionType: "Sector"
+      };
     }
-
+    
+    // Load dashboard data with new block
+    this.loadDashboardData();
   }
+}
 
 
 
@@ -757,6 +875,10 @@ console.log(lineChatdata,'lineChatdata');
         this.isLoading = false;
         console.log(res, 'Block Data ');
         this.blockData = res?.data?.result;
+
+        this.blockData = res?.data?.result?.sort((a:any,b:any)=>(
+          a.block_name.localeCompare(b.block_name)
+        ));
         this.loadDashboardData();
 
       },
