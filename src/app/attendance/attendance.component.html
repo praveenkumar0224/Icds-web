@@ -67,15 +67,14 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="filter-field">
+        <!-- <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Sector</mat-label>
           <mat-select [(value)]="selectedSector" (selectionChange)="onFilterChange()">
-            <!-- <mat-option value="" >All Sector</mat-option> -->
             <mat-option *ngFor="let sector of sectorData" [value]="sector.sector_id">
               {{ sector.sector_name }}
             </mat-option>
           </mat-select>
-        </mat-form-field>
+        </mat-form-field> -->
 
        
             <!-- your existing filter fields here -->
@@ -158,9 +157,8 @@
 
 
   <!-- Charts Section -->
-  <div class="charts-section">
+  <!-- <div class="charts-section">
     <div class="chart-row">
-      <!-- AWC Observation Trends -->
       <mat-card class="chart-card" *ngIf="!isLoading">
         <mat-card-header>
           <div class="chart-header">
@@ -184,7 +182,6 @@
       </mat-card>
 
 
-      <!-- AWCs Not Visited Trends -->
       <mat-card class="chart-card" *ngIf="!isLoading">
         <mat-card-header>
           <mat-card-title>{{labelChanges.stateObservNotTrendsChart || '-'}}</mat-card-title>
@@ -218,30 +215,30 @@
       </mat-card>
 
     </div>
-  </div>
+  </div> -->
 
   <!-- District-wise Observations Chart/Table -->
-  <mat-card class="chart-card full-width">
+  <mat-card class="chart-card full-width" style=" max-height: 80vh; overflow-x: scroll;">
     <mat-card-header class="chart-header">
       <div class="header-content">
         <mat-card-title>{{ labelChanges.barchart || '-' }}</mat-card-title>
     
         <div class="view-toggle-buttons" fxLayout="row" fxLayoutGap="8px">
           <!-- Download Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 0">
+          <ng-container *ngIf="selectedTabIndex === 1">
             <button mat-icon-button (click)="downloadBarChart()" matTooltip="Download Chart">
-              <mat-icon>image</mat-icon>
+              <mat-icon>download</mat-icon>
             </button>
           </ng-container>
     
-          <ng-container *ngIf="selectedTabIndex === 1">
+          <ng-container *ngIf="selectedTabIndex === 0">
             <button mat-icon-button (click)="downloadExcel()" matTooltip="Download Excel">
               <mat-icon>download</mat-icon>
             </button>
           </ng-container>
     
           <!-- Sorting Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 0">
+          <ng-container *ngIf="selectedTabIndex === 1">
             <div class="button-group">
               <button mat-stroked-button (click)="sortChartData('asc','number')" matTooltip="Low to High">
                 <mat-icon>south</mat-icon>
@@ -260,17 +257,6 @@
 
     <mat-card-content class="bar-and-table">
       <mat-tab-group [(selectedIndex)]="selectedTabIndex">
-        <!-- Chart Tab -->
-        <!-- [options]="barChartOptions" -->
-        <mat-tab label="Chart View">
-          <div class="bar-chart-container" #barCanvasWrapper>
-            <canvas #barChart baseChart [data]="barChartData" [labels]="barChartLabels" [type]="'bar'" [legend]="true"
-              #barChartDirective>
-            </canvas>
-
-
-          </div>
-        </mat-tab>
 
         <!-- Table Tab -->
         <mat-tab label="Table View">
@@ -335,6 +321,21 @@
             </table>
           </div>
         </mat-tab>
+
+
+        <!-- Chart Tab -->
+        <!-- [options]="barChartOptions" -->
+        <mat-tab label="Chart View">
+          <div class="bar-chart-container" #barCanvasWrapper>
+            <canvas #barChart baseChart [data]="barChartData" [labels]="barChartLabels" [type]="'bar'" [legend]="true"
+              #barChartDirective>
+            </canvas>
+
+
+          </div>
+        </mat-tab>
+
+        
       </mat-tab-group>
     </mat-card-content>
   </mat-card>

@@ -763,6 +763,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   onDistrictChange(val): void {
     console.log(val);
+    this.blockData = [];
+    this.sectorData = [];
+    this.selectedBlock = '';
+    this.selectedSector = '';
 
     this.headerTitile = 'ICDS - Observation Overview (DPO)';
 
@@ -866,6 +870,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
         console.log(res, 'Block Data ');
         this.blockData = res?.data?.result;
+
+        this.blockData = res?.data?.result?.sort((a:any,b:any)=>(
+          a.block_name.localeCompare(b.block_name)
+        ))
         this.loadDashboardData();
 
       },
