@@ -266,7 +266,10 @@ export class DashboardServiceService {
           url = `${this.baseUrl}web-dashboard/blocks${queryString}`;
         } else if (districtId) {
           url = `${this.baseUrl}web-dashboard/districts${queryString}`;
-        } else {
+        } else if (sectorId) {
+          url = `${this.baseUrl}web-dashboard/sector${queryString}`;
+        }
+         else {
           url = `${this.baseUrl}web-dashboard${queryString}`;
         }
 
