@@ -25,6 +25,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import {DashboardServiceService} from './shared/services/dashboard-service.service';
 import { AttendanceComponent } from './attendance/attendance.component';
 import { DistrictChartComponent } from './district-chart/district-chart.component';
+import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring.component';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { DistrictChartComponent } from './district-chart/district-chart.componen
     CoursesListComponent,
     LoginComponent,
     AttendanceComponent,
-     DistrictChartComponent
+     DistrictChartComponent,
+     GrowthMonitoringComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService],

@@ -13,6 +13,7 @@ export class AppComponent {
   links = [
     { path: '/home', icon: 'home', title: 'Home' },
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },
+    { path: '/growth-monitoring', icon: 'assessment', title: 'Growth Monitoring' },
   ];
 
 
