@@ -60,7 +60,7 @@
             (selectionChange)="onDistrictChange($event)"
             [disabled]="icdsRoleId == 4"
           >
-            <!-- <mat-option value="" >All District</mat-option> -->
+            <mat-option value="" >All District</mat-option>
             <mat-option
               *ngFor="let district of districtData"
               [value]="district.district_id"
@@ -76,7 +76,7 @@
             [(value)]="selectedBlock"
             (selectionChange)="onBlockChange()"
           >
-            <!-- <mat-option value="" >All Block</mat-option> -->
+            <mat-option value="" >All Block</mat-option>
             <mat-option
               *ngFor="let block of blockData"
               [value]="block.block_id"
@@ -213,32 +213,24 @@
           </ng-container>
 
           <!-- Sorting Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 1">
-            <div class="button-group">
-              <button
-                mat-stroked-button
-                (click)="sortChartData('asc', 'number')"
-                matTooltip="Low to High"
-              >
-                <mat-icon>south</mat-icon>
-              </button>
-              <button
-                mat-stroked-button
-                (click)="sortChartData('desc', 'number')"
-                matTooltip="High to Low"
-              >
-                <mat-icon>north</mat-icon>
-              </button>
-              <button
-                style="height: 44px"
-                mat-stroked-button
-                (click)="sortChartData('asc', 'alpha')"
-                matTooltip="Sort A-Z"
-              >
-                A-Z
-              </button>
-            </div>
-          </ng-container>
+             <ng-container *ngIf="selectedTabIndex === 1">
+  <div class="button-group" style="display: flex; flex-direction: row; gap: 8px;">
+    <button mat-stroked-button (click)="toggleChartSort('number')" 
+            title="{{ chartSortOrder === 'asc' ? 'Currently: Low to High - Click to sort High to Low' : 'Currently: High to Low - Click to sort Low to High' }}"
+            style="position: relative; padding: 10px;">
+      <div style="display: flex; flex-direction: row; align-items: center; line-height: 0.8;">
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px;" 
+                  [style.color]="chartSortOrder === 'desc' ? 'black' : '#ccc'">north</mat-icon>
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px" 
+                  [style.color]="chartSortOrder === 'asc' ? 'black' : '#ccc'">south</mat-icon>
+      </div>
+    </button>
+    <button style="height: 44px;" mat-stroked-button (click)="toggleChartSort('alpha')" 
+            title="Sort alphabetically {{ alphaSortOrder === 'asc' ? 'Z-A' : 'A-Z' }}">
+      {{ alphaSortOrder === 'asc' ? 'A-Z' : 'Z-A' }}
+    </button>
+  </div>
+</ng-container>
         </div>
       </div>
     </mat-card-header>
@@ -379,6 +371,7 @@
               baseChart
               [data]="barChartData"
               [labels]="barChartLabels"
+              [options]="barChartOptions"
               [type]="'bar'"
               [legend]="true"
               #barChartDirective

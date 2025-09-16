@@ -94,6 +94,9 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
           selectedBlock = '';
           selectedSector = '';
 
+           chartSortOrder: 'asc' | 'desc' = 'asc';
+  alphaSortOrder: 'asc' | 'desc' = 'asc';
+
      // Chart instances
        observationTrendChart?: Chart;
        notVisitedTrendChart?: Chart;
@@ -138,6 +141,31 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
            tension: 0.4,
          },
        ];
+
+       barChartOptions: ChartConfiguration['options'] = {
+  responsive: true,
+  maintainAspectRatio: false,  
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          let value = context.raw;
+          return `${context.dataset.label}: ${value}%`;
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        callback: function(value) {
+          return value + '%';
+        }
+      }
+    }
+  }
+};
      
      
        lineChartOptions: ChartConfiguration['options'] = {
@@ -215,7 +243,7 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
     datasets: [
       {
         data: [],
-        label: 'AWC\'s Attendance',
+        label: 'AWC\'s Attendance Percentage',
         backgroundColor: '#5D87FF',
         hoverBackgroundColor: '#4a6cd8',
         borderRadius: 6,
@@ -380,7 +408,7 @@ console.log(lineChatdata,'lineChatdata');
       datasets: [
         {
           data: attendence_by_month.map(item => item.attendance_percentage.toString().replace('%', '')),
-          label: 'AWC\'s Attendance',
+          label: 'AWC\'s Attendance Percentage',
           backgroundColor: '#5D87FF',
           hoverBackgroundColor: '#4a6cd8',
           borderRadius: 6,
@@ -760,9 +788,30 @@ console.log(lineChatdata,'lineChatdata');
   // Clear current dashboard data
   this.clearAllData();
 
+  if (!this.selectedDistrict) {
+    // Reset to state level
+    this.headerTitile = 'ICDS - Attendance Overview (State)';
+    this.labelChanges = {
+      stateObserveBox: "Average Attendance in state this month",
+      stateProgressBox: "Male children",
+      stateNotObserveBox: "Female children",
+      stateTotalBox: "2-4 years children",
+      stateActiveUserBox: "4-6 years children",
+      stateObservTrendsChart: "Attendance trends",
+      stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
+      stateActiveUserChart: "Gender-wise Attendance trends",
+      barchart: "AWCs Attendance This Month by District",
+      sectionType: "District"
+    };
+    // Load state-level data
+    this.loadDashboardData();
+    return;
+  }
+
   this.headerTitile = 'ICDS - Attendance Overview (DPO)';
 
-  if (this.selectedDistrict || this.selectedDistrict === "") {
+
+  if (this.selectedDistrict) {
     // Load block data first
     this.loadBlockData(this.selectedDistrict);
 
@@ -799,6 +848,30 @@ console.log(lineChatdata,'lineChatdata');
   // Clear current dashboard data
   this.clearAllData();
 
+   if (!this.selectedBlock) {
+    // Stay at district level if district is selected
+    if (this.selectedDistrict) {
+      this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+      const districtName = this.districtData.find(district => district.district_id == this.selectedDistrict);
+      
+      this.labelChanges = {
+        stateObserveBox: `Average Attendance in ${districtName && districtName.district_name} this month`,
+        stateProgressBox: "Male children",
+        stateNotObserveBox: "Female children",
+        stateTotalBox: "2-4 years children",
+        stateActiveUserBox: "4-6 years children",
+        stateObservTrendsChart: "Attendance trends",
+        stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
+        stateActiveUserChart: "Gender-wise Attendance trends",
+        barchart: "AWCs Attendance This Month by Block",
+        sectionType: "Block"
+      };
+    }
+    // Load dashboard data
+    this.loadDashboardData();
+    return;
+  }
+
   this.headerTitile = 'ICDS - Attendance Overview (DPO)';
   
   if (this.selectedBlock) {
@@ -810,7 +883,7 @@ console.log(lineChatdata,'lineChatdata');
     if (this.selectedBlock) {
       this.labelChanges = {
         stateObserveBox: `Average Attendance ${blockName && blockName.block_name} this month`,
-        stateProgressBox: "Awc's progress this month ",
+        stateProgressBox: "Male children",
         stateNotObserveBox: "Female children",
         stateTotalBox: "2-4 years children",
         stateActiveUserBox: "4-6 years children",
@@ -827,20 +900,33 @@ console.log(lineChatdata,'lineChatdata');
   }
 }
 
+  toggleChartSort(type: 'number' | 'alpha'): void {
+    if (type === 'number') {
+      // Toggle between asc and desc for numerical sorting
+      this.chartSortOrder = this.chartSortOrder === 'asc' ? 'desc' : 'asc';
+      this.sortChartData(this.chartSortOrder, 'number');
+    } else {
+      // Toggle between asc and desc for alphabetical sorting
+      this.alphaSortOrder = this.alphaSortOrder === 'asc' ? 'desc' : 'asc';
+      this.sortChartData(this.alphaSortOrder, 'alpha');
+    }
+  }
 
 
-   sortChartData(order: 'asc' | 'desc', type) {
 
+     sortChartData(order: 'asc' | 'desc', type: 'number' | 'alpha'): void {
     let sorted = [];
 
     if (type === 'number') {
-      sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
+      console.log(this.stateLevelData?.attendence_by_month, 'this.stateLevelData?.attendence_by_month');
+      
+      sorted = [...(this.stateLevelData?.attendence_by_month || [])].sort((a, b) => {
         return order === 'asc'
-          ? a.total_observed - b.total_observed
-          : b.total_observed - a.total_observed;
+          ? parseInt(a.attendance_percentage) - parseInt(b.attendance_percentage)
+          : parseInt(b.attendance_percentage) - parseInt(a.attendance_percentage);
       });
     } else {
-      sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
+      sorted = [...(this.stateLevelData?.attendence_by_month || [])].sort((a, b) => {
         return order === 'asc'
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
@@ -855,7 +941,7 @@ console.log(lineChatdata,'lineChatdata');
       labels: this.barChartLabels,
       datasets: [
         {
-          data: sorted.map(item => item.total_observed),
+          data: sorted.map(item => parseInt(item.attendance_percentage)),
           label: 'Centers Observed',
           backgroundColor: '#5D87FF',
           hoverBackgroundColor: '#4a6cd8',
@@ -864,7 +950,23 @@ console.log(lineChatdata,'lineChatdata');
         }
       ]
     };
+
+    this.barChartOptions = {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              let value = context.raw;
+              return `${context.dataset.label}: ${value}%`;
+            }
+          }
+        }
+      }
+    };
   }
+
+
 
 
    loadBlockData(districtId): void {
