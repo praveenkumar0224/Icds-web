@@ -11,7 +11,7 @@ import { AuthService } from './shared/services/auth/auth.service';
 export class AppComponent {
   title = 'ICDS Supervision - Dashboard';
   links = [
-    { path: '/home', icon: 'home', title: 'Home' },
+    { path: '/home', icon: 'visibility', title: 'Observation' },
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },
   ];
 
