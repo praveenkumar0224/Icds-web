@@ -25,6 +25,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import {DashboardServiceService} from './shared/services/dashboard-service.service';
 import { AttendanceComponent } from './attendance/attendance.component';
 import { DistrictChartComponent } from './district-chart/district-chart.component';
+import { MatTableModule } from '@angular/material/table';
 
 
 @NgModule({
@@ -39,6 +40,7 @@ import { DistrictChartComponent } from './district-chart/district-chart.componen
     MaterialModule,
     HttpClientModule,
      MatSortModule,
+     MatTableModule
   ],
   declarations: [
     AppComponent,
