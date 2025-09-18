@@ -954,7 +954,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       datasets: [
         {
           data: sorted.map(item => parseInt(item.observedPercent)), // ✅ use % data
-          label: 'Observed %',
+          label: 'Centers Observed Percentage',
           backgroundColor: '#5D87FF',
           hoverBackgroundColor: '#4a6cd8',
           borderRadius: 6,
