@@ -44,7 +44,7 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
       datasets: [
         {
           data: [],
-          label: 'Centers Observed',
+          label: 'AWC\'s Attendance Percentage',
           backgroundColor: '#5D87FF',
           hoverBackgroundColor: '#4a6cd8',
           borderRadius: 6,
@@ -54,7 +54,7 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
     }
   
   // Table data
-    displayedColumns: string[] = ['slNo', 'district', 'available', 'observed', 'centerNotObserved', 'observePercentage'];
+     displayedColumns: string[] = ['slNo', 'district', 'available', 'present', 'absent', 'attendancePercentage'];
       dataSource = new MatTableDataSource<any>([]);
   
     sortDirection: 'asc' | 'desc' = 'asc';
@@ -189,7 +189,7 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-   
+    
   }
 
   private clearAllData(): void {
@@ -261,6 +261,7 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
       this.loadDashboardData()
+
   }
 
      loadDashboardData(): void {
@@ -439,39 +440,45 @@ console.log(lineChatdata,'lineChatdata');
 }
 
    private setupTableSorting(): void {
+      console.log(this.sort,'this.sort');
+      console.log(this.dataSource,'this.dataSource');
+      
+      
   if (this.sort && this.dataSource) {
     this.dataSource.sort = this.sort;
     
-    this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-      switch (sortHeaderId) {
-        case 'district':
-          return data.district.toLowerCase();
-        case 'absent':
-          return Number(data.absent);
-        case 'attendancePercentage':
-          return Number(data.attendancePercentage);
-        case 'present':
-          return Number(data.present);
-        case 'available':
-          return Number(data.available);
-        case 'slNo':
-          return Number(data.slNo);
-        default:
-          return data[sortHeaderId];
-      }
-    };
+     this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+  switch (sortHeaderId) {
+    case 'district':
+      return data.district.toLowerCase();
+    case 'absent':
+      return Number(data.absent);
+    case 'attendancePercentage':
+      return Number(data.attendancePercentage?.toString().replace('%', '') || 0);
+    case 'present':
+      return Number(data.present);
+    case 'available':
+      return Number(data.available);
+    case 'slNo':
+      return Number(data.slNo);
+    default:
+      return data[sortHeaderId];
+  }
+};
+  }else {
+    console.error('Sort or DataSource is null:', { sort: this.sort, dataSource: this.dataSource });
   }
 }
 
  getTableData(apiData: any) {
   if (apiData) {
     const formatted = apiData.map((item, index) => ({
-      slNo: index + 1,
-      district: item.name,
-      present: item?.total_children_present,
-      available: item?.total_children_available,
-      absent: item?.total_children_absent,
-      attendancePercentage: item?.attendance_percentage,
+        slNo: index + 1,
+    district: item.name,
+    available: item?.total_children_available || 0,
+    present: item?.total_children_present || 0,        
+    absent: item?.total_children_absent || 0, 
+    attendancePercentage: item?.attendance_percentage || '0%',
     }));
 
     this.dataSource.data = formatted;
@@ -942,7 +949,7 @@ console.log(lineChatdata,'lineChatdata');
       datasets: [
         {
           data: sorted.map(item => parseInt(item.attendance_percentage)),
-          label: 'Centers Observed',
+          label: 'AWC\'s Attendance Percentage',
           backgroundColor: '#5D87FF',
           hoverBackgroundColor: '#4a6cd8',
           borderRadius: 6,
