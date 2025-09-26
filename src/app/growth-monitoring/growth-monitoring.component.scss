@@ -45,7 +45,7 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  // margin-bottom: 14px;
 
   .header-left {
     display: flex;
@@ -65,21 +65,25 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
 // Filters Section
 .filters-section {
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 
   .filters-card {
-    padding: 16px;
+    // padding: 16px;
     background: white;
     box-shadow: $shadow;
     border-radius: 8px;
 
     .filters-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 16px;
+      height: 50px;
 
       .filter-field {
         width: 100%;
+        padding: 0 !important;
+        // border: 2px solid green;
+        height: 20px;
       }
     }
   }
@@ -337,4 +341,23 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   background-color: #FB565A !important; /* red */
   color: #fff !important;
   font-weight: bold;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-flex {
+  height: 45px !important; /* reduce total height */
+  align-items: center;     /* vertically center content */
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
+  padding: 0 8px !important; /* reduce padding around label/input */
+  border-top: 0 !important;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-label {
+  top: 1.7em !important; /* adjust label position */
+  font-size: 12px !important; /* smaller label text */
+}
+
+::ng-deep .mat-select-arrow {
+  margin-top: 0 !important; /* keeps arrow aligned */
 }

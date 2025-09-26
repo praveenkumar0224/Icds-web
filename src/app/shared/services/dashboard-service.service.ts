@@ -219,6 +219,123 @@ export class DashboardServiceService {
 
 
 
+   getgmDashboardByobservation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+    url = `${this.baseUrl}webDashboard-gm/by-observation${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
+
+   getgmDashboardByawc(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+
+
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+    url = `${this.baseUrl}webDashboard-gm/by-awc${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
+
+   getgmBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+    url = `${this.baseUrl}webDashboard-gm/by-superviser${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
+
+  getgmTrendsBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+    url = `${this.baseUrl}webDashboard-gm/trends-by-superviser${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
+
+
+
+
+
+
+
   getDistrictWiseData(districtId?: string, year?: string, month?: string, sectorId?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({

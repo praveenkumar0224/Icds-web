@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { forkJoin } from 'rxjs';
 
 
 @Component({
@@ -20,23 +21,41 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
          @ViewChild('lineChartChart2') lineChartChart2Ref!: ElementRef<HTMLCanvasElement>;
          @ViewChild('lineChartChart3') lineChartChart3Ref!: ElementRef<HTMLCanvasElement>;
     
-       headerTitile: string = 'ICDS - Attendance Overview (State)';
+       headerTitile: string = 'ICDS - Growth Monitoring (State)';
        lineChartLabels: string[] = [];
     
        lineChart = 'line'
       selectedTabIndex = 0;
       labelChanges = {
-        stateObserveBox: "Average Attendance in state this month",
-        stateProgressBox: "Male children",
-        stateNotObserveBox: "Female children",
-        stateTotalBox: "2-4 years children",
-        stateActiveUserBox: "4-6 years children",
-        stateObservTrendsChart: "Attendance trends",
-        stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
-        stateActiveUserChart: "Gender-wise Attendance trends",
-        barchart: "AWCs Attendance This Month by District",
+        stateChildDeviation: "No.of children with deviation",
+        statePercentageChildDeviation: "% of children with deviation",
+        stateByAwcDeviationThisMonth: "% of AWCs with deviation this month",
+        stateBySupervisorNoDeviationThisMonth: "% reporting no deviations this month",
+        stateBySupervisor100DeviationThisMonth: "% reporting 100% deviations this month",
+        stateAWCDeviationTrendsChart: "Month-wise % AWc`s with deviation",
+        stateSupervisorDeviationTrendsChart: "% of supervisors reporting 100% deviation",
+        stateAgeGroupDeviationTrendsChart: "Age group wise deviation %",
+        barchart: "District wise % of AWC`s with deviation",
         sectionType:"District"
       }
+
+       barChartAWCDeviationLabels: string[] = [];
+      
+        barChartAWCDeviation: ChartData<'bar'> = {
+          labels: [],
+          datasets: [
+            {
+              data: [],
+              label: 'Centers Observed',
+              backgroundColor: '#5D87FF',
+              hoverBackgroundColor: '#4a6cd8',
+              borderRadius: 6,
+              barThickness: 40
+            }
+          ]
+        }
+
+
     
        barChartLabels: string[] = [];
       
@@ -94,6 +113,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
               selectedDistrict = '';
               selectedBlock = '';
               selectedSector = '';
+              selectedDeviationCategory = ""
     
          // Chart instances
            observationTrendChart?: Chart;
@@ -236,56 +256,89 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           this.loadDashboardData()
       }
     
-         loadDashboardData(): void {
-      // Clear previous data immediately
+        loadDashboardData(): void {
+  // Clear previous data immediately
+  this.clearAllData();
+
+  // Loading indicators
+  this.isLoading = true;
+  this.showChart = true;
+
+  // Run both API calls in parallel
+  forkJoin({
+    observation: this.service.getgmDashboardByobservation(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory
+    ),
+    awc: this.service.getgmDashboardByawc(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory
+    ),
+    // supervisor: this.service.getgmBySupervisor(
+    //    this.selectedYear,
+    //   this.selectedMonth,
+    //   this.selectedDistrict,
+    //   this.selectedBlock,
+    //   this.selectedSector,
+    //   this.selectedDeviationCategory
+    // ),
+    // trendsbysupervisor: this.service.getgmTrendsBySupervisor(
+    //      this.selectedYear,
+    //   this.selectedMonth,
+    //   this.selectedDistrict,
+    //   this.selectedBlock,
+    //   this.selectedSector,
+    //   this.selectedDeviationCategory
+    // )
+  }).subscribe({
+    next: (res) => {
+      this.stateLevelData = [
+            res.observation.data,
+            res.awc.data
+          ];
+      // const supervisorData = res.supervisor.data
+      // const trendsbysupervisorData = res.trendsbysupervisor.data
+
+      console.log(this.stateLevelData);
+      
+
+      if (this.stateLevelData?.[1]) {
+        this.createBarChartAWCDevaition(this.stateLevelData?.[1]);
+      } else {
+        console.log('No month wise % AWC with deviation');
+        this.clearAllData();
+      }
+      
+      console.log('observation data',res.observation.data);
+      
+      // console.log('AWC data:', awcData);
+      // console.log('supervisor data', supervisorData);
+      // console.log("trends supervisor data", trendsbysupervisorData);
+
+      
+      
+
+      this.isLoading = false;
+
+      if (!this.selectedDistrict && !this.selectedBlock && !this.selectedSector) {
+        this.loadDistrictData();
+      }
+    },
+    error: (err) => {
+      this.isLoading = false;
       this.clearAllData();
-      
-      // Load state Api
-      this.isLoading = true;
-      this.showChart = true;
-      
-      this.service
-        .getStatewiseDataForAttandance(this.selectedYear, this.selectedMonth, this.selectedDistrict, this.selectedBlock, this.selectedSector)
-        .subscribe({
-          next: (res) => {
-            this.stateLevelData = res.data;
-            
-            // Check if we have attendance data
-            if (this.stateLevelData?.attendence_by_month?.length > 0) {
-              this.createDistrictBarChart(this.stateLevelData.attendence_by_month);
-            } else {
-              // Handle empty data case
-              console.log('No attendance data available for selected filters');
-              this.clearAllData(); // Ensure UI shows empty state
-            }
-    
-            // Set chart data (these methods should handle empty arrays gracefully)
-            if (this.stateLevelData?.attendece_trend) {
-              this.setAttandanceData(this.stateLevelData.attendece_trend);
-            }
-            
-            if (this.stateLevelData?.category_wise_attendece_trend) {
-              this.setCategoryWiseAttendanceTrend(this.stateLevelData.category_wise_attendece_trend);
-            }
-            
-            if (this.stateLevelData?.gender_wise_attendece_trend) {
-              this.setGenderWiseAttendanceTrend(this.stateLevelData.gender_wise_attendece_trend);
-            }
-    
-            this.isLoading = false;
-    
-            // Only load district data if we're at state level
-            if (!this.selectedDistrict && !this.selectedBlock && !this.selectedSector) {
-              this.loadDistrictData();
-            }
-          },
-          error: (err) => {
-            this.isLoading = false;
-            this.clearAllData(); // Clear data on error too
-            console.error('Statewise API Error:', err);
-          },
-        });
+      console.error('Dashboard API Error:', err);
     }
+  });
+}
     
     
         setAttandanceData(lineChatdata: any): void {
@@ -409,6 +462,31 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         };
         this.dataSource.data = [];
       }
+    }
+
+    private createBarChartAWCDevaition(data: any): void {
+      console.log('Creating bar chart with data:', data);
+    
+      if (data && data.length > 0) {
+           this.barChartAWCDeviationLabels = data.map(item => {
+              const date = new Date(item.month);
+              return date.toLocaleString('en-US', { month: 'long' }); 
+            });
+    
+        this.barChartAWCDeviation = {
+          labels: this.barChartAWCDeviationLabels,
+          datasets: [
+            {
+              data: data.map(item => item.percent_non_zero_diff.toString().replace('%', '')),
+              label: 'Month-wise % AWC`s with deviation',
+              backgroundColor: '#5D87FF',
+              hoverBackgroundColor: '#4a6cd8',
+              borderRadius: 6,
+              barThickness: 30,
+            }
+          ]
+        };
+          } 
     }
     
        private setupTableSorting(): void {
@@ -697,13 +775,13 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       
       // Update header title based on current selection
       if (this.selectedSector) {
-        this.headerTitile = 'ICDS - Attendance Overview (CDPO)';
+        this.headerTitile = 'ICDS - Growth Monitoring (CDPO)';
       } else if (this.selectedBlock) {
-        this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+        this.headerTitile = 'ICDS - Growth Monitoring (DPO)';
       } else if (this.selectedDistrict) {
-        this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+        this.headerTitile = 'ICDS - Growth Monitoring (DPO)';
       } else {
-        this.headerTitile = 'ICDS - Attendance Overview (State)';
+        this.headerTitile = 'ICDS - Growth Monitoring (State)';
       }
       
       // Load data with current filters
@@ -723,14 +801,14 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
       // Reset labelChanges to default state-level labels
       this.labelChanges = {
-        stateObserveBox: "Average Attendance in state this month",
-        stateProgressBox: "Male children",
-        stateNotObserveBox: "Female children",
-        stateTotalBox: "2-4 years children",
-        stateActiveUserBox: "4-6 years children",
-        stateObservTrendsChart: "Attendance trends",
-        stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
-        stateActiveUserChart: "Gender-wise Attendance trends",
+        stateChildDeviation: "Average Attendance in state this month",
+        statePercentageChildDeviation: "Male children",
+        stateByAwcDeviationThisMonth: "Female children",
+        stateBySupervisorNoDeviationThisMonth: "2-4 years children",
+        stateBySupervisor100DeviationThisMonth: "4-6 years children",
+        stateAWCDeviationTrendsChart: "Attendance trends",
+        stateSupervisorDeviationTrendsChart: "Child Age Category-wise Attendance trends",
+        stateAgeGroupDeviationTrendsChart: "Gender-wise Attendance trends",
         barchart: "AWCs Observed This Month by District",
         sectionType: "District"
       };
@@ -761,7 +839,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       // Clear current dashboard data
       this.clearAllData();
     
-      this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+      this.headerTitile = 'ICDS - Growth Monitoring (DPO)';
     
       if (this.selectedDistrict || this.selectedDistrict === "") {
         // Load block data first
@@ -772,14 +850,14 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
         if (this.selectedDistrict) {
           this.labelChanges = {
-            stateObserveBox: `Average Attendance in ${districtName && districtName.district_name} this month`,
-            stateProgressBox: "Male children",
-            stateNotObserveBox: "Female children",
-            stateTotalBox: "2-4 years children",
-            stateActiveUserBox: "4-6 years children",
-            stateObservTrendsChart: "Attendance trends",
-            stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
-            stateActiveUserChart: "Gender-wise Attendance trends",
+            stateChildDeviation: `Average Attendance in ${districtName && districtName.district_name} this month`,
+            statePercentageChildDeviation: "Male children",
+            stateByAwcDeviationThisMonth: "Female children",
+            stateBySupervisorNoDeviationThisMonth: "2-4 years children",
+            stateBySupervisor100DeviationThisMonth: "4-6 years children",
+            stateAWCDeviationTrendsChart: "Attendance trends",
+            stateSupervisorDeviationTrendsChart: "Child Age Category-wise Attendance trends",
+            stateAgeGroupDeviationTrendsChart: "Gender-wise Attendance trends",
             barchart: "AWCs Observed This Month by Block",
             sectionType: "Block"
           };
@@ -800,7 +878,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       // Clear current dashboard data
       this.clearAllData();
     
-      this.headerTitile = 'ICDS - Attendance Overview (DPO)';
+      this.headerTitile = 'ICDS - Growth Monitoring (DPO)';
       
       if (this.selectedBlock) {
         // Load sector data first
@@ -810,14 +888,14 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
         if (this.selectedBlock) {
           this.labelChanges = {
-            stateObserveBox: `Average Attendance ${blockName && blockName.block_name} this month`,
-            stateProgressBox: "Awc's progress this month ",
-            stateNotObserveBox: "Female children",
-            stateTotalBox: "2-4 years children",
-            stateActiveUserBox: "4-6 years children",
-            stateObservTrendsChart: "Attendance trends",
-            stateObservNotTrendsChart: "Child Age Category-wise Attendance trends",
-            stateActiveUserChart: "Gender-wise Attendance trends",
+            stateChildDeviation: `Average Attendance ${blockName && blockName.block_name} this month`,
+            statePercentageChildDeviation: "Awc's progress this month ",
+            stateByAwcDeviationThisMonth: "Female children",
+            stateBySupervisorNoDeviationThisMonth: "2-4 years children",
+            stateBySupervisor100DeviationThisMonth: "4-6 years children",
+            stateAWCDeviationTrendsChart: "Attendance trends",
+            stateSupervisorDeviationTrendsChart: "Child Age Category-wise Attendance trends",
+            stateAgeGroupDeviationTrendsChart: "Gender-wise Attendance trends",
             barchart: "AWCs Observed This Month by Sector",
             sectionType: "Sector"
           };
@@ -827,6 +905,14 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         this.loadDashboardData();
       }
     }
+    
+
+     onDeviationChange(): void {
+        console.log("Selected Deviation:", this.selectedDeviationCategory);
+         this.loadDashboardData();
+      }
+
+
     
     
     
