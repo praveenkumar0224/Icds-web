@@ -26,6 +26,7 @@ import {DashboardServiceService} from './shared/services/dashboard-service.servi
 import { AttendanceComponent } from './attendance/attendance.component';
 import { DistrictChartComponent } from './district-chart/district-chart.component';
 import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring.component';
+import { MatTableModule } from '@angular/material/table';
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring
     MaterialModule,
     HttpClientModule,
      MatSortModule,
+     MatTableModule
   ],
   declarations: [
     AppComponent,

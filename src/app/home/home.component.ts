@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     datasets: [
       {
         data: [],
-        label: 'Centers Observed',
+        label: 'Centers Observed Percentage',
         backgroundColor: '#5D87FF',
         hoverBackgroundColor: '#4a6cd8',
         borderRadius: 6,
@@ -113,6 +113,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   selectedBlock = '';
   selectedSector = '';
 
+
+           chartSortOrder: 'asc' | 'desc' = 'asc';
+  alphaSortOrder: 'asc' | 'desc' = 'asc';
+
+
   // Chart instances
   observationTrendChart?: Chart;
   notVisitedTrendChart?: Chart;
@@ -157,6 +162,31 @@ export class HomeComponent implements OnInit, AfterViewInit {
       tension: 0.4,
     },
   ];
+
+  barChartOptions: ChartConfiguration['options'] = {
+  responsive: true,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          let value = context.raw;
+          return `${context.dataset.label}: ${Math.round(Number(value))}%`;
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      max: 100,
+      ticks: {
+        callback: function(value) {
+          return value + '%';
+        }
+      }
+    }
+  }
+};
 
   lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -362,7 +392,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
               const total = item.total_observed + item.in_progress + item.not_started;
               return total > 0 ? (item.total_observed / total) * 100 : 0;
             }),
-            label: 'Centers Observed',
+            label: 'Centers Observed Percentage',
             backgroundColor: '#5D87FF',
             hoverBackgroundColor: '#4a6cd8',
             borderRadius: 6,
@@ -785,9 +815,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.selectedBlock = '';
     this.selectedSector = '';
 
+    if(!this.selectedDistrict){
+            this.headerTitile = 'ICDS - Observation Overview (State)';
+        this.labelChanges = {
+        stateObserveBox: "Awc's Observed across the State",
+        stateProgressBox: "Awc's progress this month",
+        stateNotObserveBox: "Awc's not Observed this month",
+        stateTotalBox: "Total AWCs",
+        stateActiveUserBox: "Active users this month",
+        stateObservTrendsChart: "AWC observation trends",
+        stateObservNotTrendsChart: "AWCs not visited trends ",
+        stateActiveUserChart: "Active User trends",
+        barchart: "AWCs Observed This Month by District",
+        sectionType: "District"
+      };
+
+       this.loadDashboardData();
+    return;
+    }
+
     this.headerTitile = 'ICDS - Observation Overview (DPO)';
 
-    if (this.selectedDistrict || this.selectedDistrict == "") {
+    if (this.selectedDistrict) {
       this.loadBlockData(this.selectedDistrict);
 
       const districtName = this.districtData.find(val => { return val.district_id == this.selectedDistrict })
@@ -811,6 +860,29 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   onBlockChange(): void {
+     this.sectorData = [];
+  this.selectedSector = '';
+
+     if(!this.selectedBlock){
+            this.headerTitile = 'ICDS - Observation Overview (State)';
+        this.labelChanges = {
+        stateObserveBox: "Awc's Observed across the State",
+        stateProgressBox: "Awc's progress this month",
+        stateNotObserveBox: "Awc's not Observed this month",
+        stateTotalBox: "Total AWCs",
+        stateActiveUserBox: "Active users this month",
+        stateObservTrendsChart: "AWC observation trends",
+        stateObservNotTrendsChart: "AWCs not visited trends ",
+        stateActiveUserChart: "Active User trends",
+        barchart: "AWCs Observed This Month by District",
+        sectionType: "District"
+      };
+
+       this.loadDashboardData();
+    return;
+    }
+
+
     this.headerTitile = 'ICDS - Observation Overview (DPO)';
     if (this.selectedBlock ) {
       this.loadSectorData(this.selectedBlock);
@@ -833,6 +905,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     }
   }
+
+  toggleChartSort(type: 'number' | 'alpha'): void {
+    if (type === 'number') {
+      // Toggle between asc and desc for numerical sorting
+      this.chartSortOrder = this.chartSortOrder === 'asc' ? 'desc' : 'asc';
+      this.sortChartData(this.chartSortOrder, 'number');
+    } else {
+      // Toggle between asc and desc for alphabetical sorting
+      this.alphaSortOrder = this.alphaSortOrder === 'asc' ? 'desc' : 'asc';
+      this.sortChartData(this.alphaSortOrder, 'alpha');
+    }
+  }
+
 
   sortChartData(order: 'asc' | 'desc', type) {
     let sorted = [];
@@ -868,8 +953,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       labels: this.barChartLabels,
       datasets: [
         {
-          data: sorted.map(item => item.observedPercent), // ✅ use % data
-          label: 'Observed %',
+          data: sorted.map(item => parseInt(item.observedPercent)), // ✅ use % data
+          label: 'Centers Observed Percentage',
           backgroundColor: '#5D87FF',
           hoverBackgroundColor: '#4a6cd8',
           borderRadius: 6,
@@ -877,6 +962,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
         }
       ]
     };
+
+     this.barChartOptions = {
+  responsive: true,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          console.log(context, 'context');
+          
+          let value = context.raw; // dataset value
+          return `${context.dataset.label}: ${value}%`; 
+          // Example: "Centers Observed: 92%"
+        }
+      }
+    }
+  }
+};
   }
 
   loadBlockData(districtId): void {
