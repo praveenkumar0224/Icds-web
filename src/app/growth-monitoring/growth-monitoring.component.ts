@@ -55,6 +55,38 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           ]
         }
 
+         barChartSupervisorDeviationLabels: string[] = [];
+      
+        barChartSupervisorDeviation: ChartData<'bar'> = {
+          labels: [],
+          datasets: [
+            {
+              data: [],
+              label: 'Centers Observed',
+              backgroundColor: '#5D87FF',
+              hoverBackgroundColor: '#4a6cd8',
+              borderRadius: 6,
+              barThickness: 40
+            }
+          ]
+        }
+
+            barChartAgegroupDeviationLabels: string[] = [];
+      
+        barChartAgegroupDeviation: ChartData<'bar'> = {
+          labels: [],
+          datasets: [
+            {
+              data: [],
+              label: 'Centers Observed',
+              backgroundColor: '#5D87FF',
+              hoverBackgroundColor: '#4a6cd8',
+              borderRadius: 6,
+              barThickness: 40
+            }
+          ]
+        }
+
 
     
        barChartLabels: string[] = [];
@@ -74,7 +106,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         }
       
       // Table data
-        displayedColumns: string[] = ['slNo', 'district', 'available', 'observed', 'centerNotObserved', 'observePercentage'];
+        displayedColumns: string[] = ['slNo', 'district', 'totalChildrenPresent', 'childrenNoDeviation', 'childrenDeviationCount', 'deviationPercentage'];
           dataSource = new MatTableDataSource<any>([]);
       
         sortDirection: 'asc' | 'desc' = 'asc';
@@ -113,7 +145,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
               selectedDistrict = '';
               selectedBlock = '';
               selectedSector = '';
-              selectedDeviationCategory = ""
+              selectedDeviationCategory = "both"
     
          // Chart instances
            observationTrendChart?: Chart;
@@ -282,27 +314,47 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       this.selectedSector,
       this.selectedDeviationCategory
     ),
-    // supervisor: this.service.getgmBySupervisor(
-    //    this.selectedYear,
-    //   this.selectedMonth,
-    //   this.selectedDistrict,
-    //   this.selectedBlock,
-    //   this.selectedSector,
-    //   this.selectedDeviationCategory
-    // ),
-    // trendsbysupervisor: this.service.getgmTrendsBySupervisor(
-    //      this.selectedYear,
-    //   this.selectedMonth,
-    //   this.selectedDistrict,
-    //   this.selectedBlock,
-    //   this.selectedSector,
-    //   this.selectedDeviationCategory
-    // )
+    supervisor: this.service.getgmBySupervisor(
+       this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory
+    ),
+    trendsbysupervisor: this.service.getgmTrendsBySupervisor(
+         this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory
+    ),
+    ageGroup: this.service.getgmAgegroupDeviation(
+        this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory
+    ),
+    byHierarchical: this.service.getgmHierarchicalDeviation(
+        this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory
+    ),
   }).subscribe({
     next: (res) => {
       this.stateLevelData = [
             res.observation.data,
-            res.awc.data
+            res.awc.data,
+            res.supervisor.data,
+            res.trendsbysupervisor.data,
+            res.ageGroup.data,
+            res.byHierarchical.data
           ];
       // const supervisorData = res.supervisor.data
       // const trendsbysupervisorData = res.trendsbysupervisor.data
@@ -310,22 +362,19 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       console.log(this.stateLevelData);
       
 
-      if (this.stateLevelData?.[1]) {
+      if (this.stateLevelData) {
         this.createBarChartAWCDevaition(this.stateLevelData?.[1]);
+        this.createBarChartSupervisorDevaition(this.stateLevelData?.[3])
+        this.createBarChartAgegroupDevaition(this.stateLevelData?.[4])
+        this.createDistrictBarChart(this.stateLevelData?.[5])
       } else {
         console.log('No month wise % AWC with deviation');
         this.clearAllData();
       }
       
-      console.log('observation data',res.observation.data);
+      console.log('latell nnana check ',this.createBarChartAWCDevaition);
       
-      // console.log('AWC data:', awcData);
-      // console.log('supervisor data', supervisorData);
-      // console.log("trends supervisor data", trendsbysupervisorData);
-
-      
-      
-
+    
       this.isLoading = false;
 
       if (!this.selectedDistrict && !this.selectedBlock && !this.selectedSector) {
@@ -421,64 +470,96 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         
     
       }
-      
-    
-         private createDistrictBarChart(attendence_by_month: any): void {
-      console.log('Creating bar chart with data:', attendence_by_month);
-    
-      if (attendence_by_month && attendence_by_month.length > 0) {
-        this.barChartLabels = attendence_by_month.map(item => item.name.toUpperCase());
-    
-        this.barChartData = {
-          labels: this.barChartLabels,
-          datasets: [
-            {
-              data: attendence_by_month.map(item => item.attendance_percentage.toString().replace('%', '')),
-              label: 'AWC\'s Attendance',
-              backgroundColor: '#5D87FF',
-              hoverBackgroundColor: '#4a6cd8',
-              borderRadius: 6,
-              barThickness: 30,
-            }
-          ]
-        };
-    
-        this.getTableData(attendence_by_month);
-      } else {
-        // Handle empty data case
-        this.barChartLabels = [];
-        this.barChartData = {
-          labels: [],
-          datasets: [
-            {
-              data: [],
-              label: 'AWC\'s Attendance',
-              backgroundColor: '#5D87FF',
-              hoverBackgroundColor: '#4a6cd8',
-              borderRadius: 6,
-              barThickness: 30,
-            }
-          ]
-        };
-        this.dataSource.data = [];
-      }
-    }
+            
+          
+              private createDistrictBarChart(data: any): void {
+        console.log('Creating bar chart with data:', data);
 
-    private createBarChartAWCDevaition(data: any): void {
+        // Safely check if district_wise_deviation exists and has items
+        if (data && data.deviation && Array.isArray(data.deviation) && data.deviation.length > 0) {
+          this.barChartLabels = data.deviation.map(item => item.name.toUpperCase());
+
+          this.barChartData = {
+            labels: this.barChartLabels,
+            datasets: [
+              {
+                data: data.deviation.map(item => parseFloat(item.percentage.replace('%', ''))),
+                backgroundColor: '#5D87FF',
+                hoverBackgroundColor: '#4a6cd8',
+                borderRadius: 6,
+                barThickness: 30,
+              }
+            ]
+          };
+
+          this.getTableData(data);
+        } else {
+          // Handle empty data case
+          console.warn('No district_wise_deviation data available');
+          this.barChartLabels = [];
+          this.barChartData = {
+            labels: [],
+            datasets: [
+              {
+                data: [],
+                backgroundColor: '#5D87FF',
+                hoverBackgroundColor: '#4a6cd8',
+                borderRadius: 6,
+                barThickness: 30,
+              }
+            ]
+          };
+          this.dataSource.data = [];
+        }
+      }
+
+       private createBarChartAWCDevaition(data: any): void {
+          console.log('Creating AWC deviation chart with data:', data);
+          
+          // Check if data exists AND is an array with items
+          if (data && Array.isArray(data) && data.length > 0) {
+            this.barChartAWCDeviationLabels = data.map(item => item?.month.toUpperCase());
+            
+            this.barChartAWCDeviation = {
+              labels: [...this.barChartAWCDeviationLabels],
+              datasets: [{
+                data: data.map(item => parseFloat(item?.percent_non_zero_diff.toString().replace('%', ''))),
+                backgroundColor: '#5D87FF',
+                hoverBackgroundColor: '#4a6cd8',
+                borderRadius: 6,
+                barThickness: 30,
+              }]
+            };
+            
+            console.log('Updated barChartAWCDeviation:', this.barChartAWCDeviation);
+          } else {
+            // Clear chart if no valid data
+            console.warn('No valid AWC deviation data available');
+            this.barChartAWCDeviation = {
+              labels: [],
+              datasets: [{
+                data: [],
+                backgroundColor: '#5D87FF',
+                hoverBackgroundColor: '#4a6cd8',
+                borderRadius: 6,
+                barThickness: 30,
+              }]
+            };
+          }
+        }
+
+     private createBarChartSupervisorDevaition(data: any): void {
       console.log('Creating bar chart with data:', data);
+          
+      if (data?.deviation_supervisor_reporting?.length > 0) {
+           this.barChartSupervisorDeviationLabels = data?.deviation_supervisor_reporting?.map(item => item.month.toUpperCase());
     
-      if (data && data.length > 0) {
-           this.barChartAWCDeviationLabels = data.map(item => {
-              const date = new Date(item.month);
-              return date.toLocaleString('en-US', { month: 'long' }); 
-            });
-    
-        this.barChartAWCDeviation = {
-          labels: this.barChartAWCDeviationLabels,
+        this.barChartSupervisorDeviation = {
+          labels: this.barChartSupervisorDeviationLabels,
           datasets: [
             {
-              data: data.map(item => item.percent_non_zero_diff.toString().replace('%', '')),
-              label: 'Month-wise % AWC`s with deviation',
+              data: data?.deviation_supervisor_reporting?.map(item => item?.deviation),
+              // label: '% of supervisors reporting 100% deviation',
               backgroundColor: '#5D87FF',
               hoverBackgroundColor: '#4a6cd8',
               borderRadius: 6,
@@ -487,42 +568,85 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           ]
         };
           } 
+
     }
+
+      private createBarChartAgegroupDevaition(data: any): void {
+      console.log('Creating bar chart with data:', data?.age_wise_deviation);
+          
+      if (data?.age_wise_deviation?.length > 0) {
+           this.barChartAgegroupDeviationLabels = data?.age_wise_deviation?.map(item => item.age_group);
     
-       private setupTableSorting(): void {
-      if (this.sort && this.dataSource) {
-        this.dataSource.sort = this.sort;
-        
-        this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-          switch (sortHeaderId) {
-            case 'district':
-              return data.district.toLowerCase();
-            case 'absent':
-              return Number(data.absent);
-            case 'attendancePercentage':
-              return Number(data.attendancePercentage);
-            case 'present':
-              return Number(data.present);
-            case 'available':
-              return Number(data.available);
-            case 'slNo':
-              return Number(data.slNo);
-            default:
-              return data[sortHeaderId];
-          }
+        this.barChartAgegroupDeviation = {
+          labels: this.barChartAgegroupDeviationLabels,
+          datasets: [
+            {
+              data: data?.age_wise_deviation?.map(item => item?.percentage),
+              // label: 'Age group wise deviation %',
+              backgroundColor: '#5D87FF',
+              hoverBackgroundColor: '#4a6cd8',
+              borderRadius: 6,
+              barThickness: 30,
+            }
+          ]
         };
-      }
+
+         console.log(this.barChartAgegroupDeviation);
+          } 
+
+      
+       
     }
+
+    
+    
+        private setupTableSorting(): void {
+              if (!this.sort) {
+    console.warn('MatSort not available yet, retrying...');
+    setTimeout(() => this.setupTableSorting(), 100);
+    return;
+  }
+
+            if (!this.dataSource) {
+              console.warn('DataSource not available');
+              return;
+            }
+        if (this.sort && this.dataSource) {
+          this.dataSource.sort = this.sort;
+
+          this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+            switch (sortHeaderId) {
+              case 'district':
+                return data.district?.toLowerCase();
+              case 'slNo':
+                return Number(data.slNo);
+              case 'totalChildrenPresent':
+                return Number(data.totalChildrenPresent);
+              case 'childrenNoDeviation':
+                return Number(data.childrenNoDeviation);
+              case 'childrenDeviationCount':
+                return Number(data.childrenDeviationCount);
+              case 'deviationPercentage':
+                return Number(data.deviationPercentage);
+              default:
+                return data[sortHeaderId];
+            }
+          };
+        }
+}
+
     
      getTableData(apiData: any) {
       if (apiData) {
-        const formatted = apiData.map((item, index) => ({
+        const formatted = apiData?.deviation.map((item, index) => ({
           slNo: index + 1,
           district: item.name,
-          present: item?.total_children_present,
-          available: item?.total_children_available,
-          absent: item?.total_children_absent,
-          attendancePercentage: item?.attendance_percentage,
+          totalChildrenPresent: item?.total_count,
+          childrenNoDeviation: item?.total_count - item?.deviation_count,
+          childrenDeviationCount: item?.deviation_count,
+            deviationPercentage: typeof item?.percentage === 'string' 
+        ? parseFloat(item.percentage.replace('%', '')) 
+        : item?.percentage,
         }));
     
         this.dataSource.data = formatted;
@@ -530,7 +654,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         // Set up sorting after data is loaded
         setTimeout(() => {
           this.setupTableSorting();
-        }, 0);
+        });
       }
     }
     
@@ -755,7 +879,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
     
             this.districtData = res?.data?.result?.sort((a: any, b: any) =>
-              a.district_name.localeCompare(b.district_name)
+              a.name.localeCompare(b.district_name)
             );
     
     
@@ -850,17 +974,18 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
         if (this.selectedDistrict) {
           this.labelChanges = {
-            stateChildDeviation: `Average Attendance in ${districtName && districtName.district_name} this month`,
-            statePercentageChildDeviation: "Male children",
-            stateByAwcDeviationThisMonth: "Female children",
-            stateBySupervisorNoDeviationThisMonth: "2-4 years children",
-            stateBySupervisor100DeviationThisMonth: "4-6 years children",
-            stateAWCDeviationTrendsChart: "Attendance trends",
-            stateSupervisorDeviationTrendsChart: "Child Age Category-wise Attendance trends",
-            stateAgeGroupDeviationTrendsChart: "Gender-wise Attendance trends",
-            barchart: "AWCs Observed This Month by Block",
-            sectionType: "Block"
-          };
+        stateChildDeviation: "No.of children with deviation",
+        statePercentageChildDeviation: "% of children with deviation",
+        stateByAwcDeviationThisMonth: "% of AWCs with deviation this month",
+        stateBySupervisorNoDeviationThisMonth: "% reporting no deviations this month",
+        stateBySupervisor100DeviationThisMonth: "% reporting 100% deviations this month",
+        stateAWCDeviationTrendsChart: "Month-wise % AWc`s with deviation",
+        stateSupervisorDeviationTrendsChart: "% of supervisors reporting 100% deviation",
+        stateAgeGroupDeviationTrendsChart: "Age group wise deviation %",
+        barchart: "Block wise % of AWC`s with deviation",
+        sectionType:"Block"
+      }
+      
         }
         
         // Load dashboard data with new district
@@ -887,18 +1012,18 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         const blockName = this.blockData.find(block => block.block_id == this.selectedBlock);
     
         if (this.selectedBlock) {
-          this.labelChanges = {
-            stateChildDeviation: `Average Attendance ${blockName && blockName.block_name} this month`,
-            statePercentageChildDeviation: "Awc's progress this month ",
-            stateByAwcDeviationThisMonth: "Female children",
-            stateBySupervisorNoDeviationThisMonth: "2-4 years children",
-            stateBySupervisor100DeviationThisMonth: "4-6 years children",
-            stateAWCDeviationTrendsChart: "Attendance trends",
-            stateSupervisorDeviationTrendsChart: "Child Age Category-wise Attendance trends",
-            stateAgeGroupDeviationTrendsChart: "Gender-wise Attendance trends",
-            barchart: "AWCs Observed This Month by Sector",
-            sectionType: "Sector"
-          };
+              this.labelChanges = {
+        stateChildDeviation: "No.of children with deviation",
+        statePercentageChildDeviation: "% of children with deviation",
+        stateByAwcDeviationThisMonth: "% of AWCs with deviation this month",
+        stateBySupervisorNoDeviationThisMonth: "% reporting no deviations this month",
+        stateBySupervisor100DeviationThisMonth: "% reporting 100% deviations this month",
+        stateAWCDeviationTrendsChart: "Month-wise % AWc`s with deviation",
+        stateSupervisorDeviationTrendsChart: "% of supervisors reporting 100% deviation",
+        stateAgeGroupDeviationTrendsChart: "Age group wise deviation %",
+        barchart: "Sector wise % of AWC`s with deviation",
+        sectionType:"Sector"
+      }
         }
         
         // Load dashboard data with new block
@@ -916,42 +1041,43 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
     
     
-       sortChartData(order: 'asc' | 'desc', type) {
-    
-        let sorted = [];
-    
-        if (type === 'number') {
-          sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
-            return order === 'asc'
-              ? a.total_observed - b.total_observed
-              : b.total_observed - a.total_observed;
-          });
-        } else {
-          sorted = [...(this.stateLevelData?.awc_observed_by_month || [])].sort((a, b) => {
-            return order === 'asc'
-              ? a.name.localeCompare(b.name)
-              : b.name.localeCompare(a.name);
-          });
-        }
-    
-        console.log(sorted, 'sorted');
-    
-        this.barChartLabels = sorted.map(item => item.name);
-    
-        this.barChartData = {
-          labels: this.barChartLabels,
-          datasets: [
-            {
-              data: sorted.map(item => item.total_observed),
-              label: 'Centers Observed',
-              backgroundColor: '#5D87FF',
-              hoverBackgroundColor: '#4a6cd8',
-              borderRadius: 6,
-              barThickness: 30
+         sortChartData(order: 'asc' | 'desc', type: string) {
+              let sorted = [];
+
+              if (type === 'number') {
+                sorted = [...(this.stateLevelData?.[5]?.deviation || [])].sort((a, b) => {
+                  const percentA = parseFloat(a.percentage.toString().replace('%', ''));
+                  const percentB = parseFloat(b.percentage.toString().replace('%', ''));
+                  
+                  return order === 'asc'
+                    ? percentA - percentB
+                    : percentB - percentA;
+                });
+              } else {
+                sorted = [...(this.stateLevelData?.[5]?.deviation || [])].sort((a, b) => {
+                  return order === 'asc'
+                    ? a.name.localeCompare(b.name)
+                    : b.name.localeCompare(a.name);
+                });
+              }
+
+              console.log('Sorted data:', sorted);
+
+              this.barChartLabels = sorted.map(item => item.name);
+
+              this.barChartData = {
+                labels: this.barChartLabels,
+                datasets: [
+                  {
+                    data: sorted.map(item => parseFloat(item.percentage.toString().replace('%', ''))),
+                    backgroundColor: '#5D87FF',
+                    hoverBackgroundColor: '#4a6cd8',
+                    borderRadius: 6,
+                    barThickness: 30
+                  }
+                ]
+              };
             }
-          ]
-        };
-      }
     
     
        loadBlockData(districtId): void {

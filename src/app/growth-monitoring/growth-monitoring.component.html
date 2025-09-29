@@ -213,7 +213,7 @@
                  margin-bottom: 0px;
       "
     >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.twoToFourChild || 0 }}</div>
+      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.[2]?.percentage}}%</div>
       <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
         {{ labelChanges.stateBySupervisorNoDeviationThisMonth || "-" }}
       </div>
@@ -232,7 +232,9 @@
                  margin-bottom: 0px;
       "
     >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.active_users || 0 }}</div>
+      <div class="status-number" style="font-weight: 600; font-size: larger;">
+         {{ stateLevelData?.[3]?.deviation_supervisor_reporting?.[stateLevelData?.[3]?.deviation_supervisor_reporting?.length - 1]?.deviation }}%
+      </div>
       <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
         {{ labelChanges.stateBySupervisor100DeviationThisMonth || "-" }}
       </div>
@@ -266,13 +268,13 @@
       </mat-tab> -->
 
       <mat-card class="chart-card" *ngIf="!isLoading">
-        <mat-card-header>
-          <div class="chart-header">
+                  <mat-card-header style="min-height: 40px; width: 100%; display: flex; align-items: center; justify-content: center;">
+          <!-- <div class="chart-header"> -->
             <mat-card-title>{{
               labelChanges.stateAWCDeviationTrendsChart || "-"
             }}</mat-card-title>
 
-            <span class="spacer"></span>
+            <!-- <span class="spacer"></span> -->
 
             <!-- <button
               class="toggle-btn"
@@ -282,7 +284,7 @@
             >
               <mat-icon>image</mat-icon>
             </button> -->
-          </div>
+          <!-- </div> -->
         </mat-card-header>
 
         <mat-card-content>
@@ -293,7 +295,7 @@
               [data]="barChartAWCDeviation"
               [labels]="barChartAWCDeviationLabels"
               [type]="'bar'"
-              [legend]="true"
+              [legend]="false"
               #barChartDirective
             >
             </canvas>
@@ -302,7 +304,7 @@
       </mat-card>
 
       <mat-card class="chart-card" *ngIf="!isLoading">
-        <mat-card-header>
+         <mat-card-header style="min-height: 40px; width: 100%; display: flex; align-items: center; justify-content: center;">
           <mat-card-title>{{
             labelChanges.stateSupervisorDeviationTrendsChart || "-"
           }}</mat-card-title>
@@ -320,10 +322,10 @@
             <canvas
               #barChart
               baseChart
-              [data]="barChartData"
-              [labels]="barChartLabels"
+              [data]="barChartSupervisorDeviation"
+              [labels]="barChartSupervisorDeviationLabels"
               [type]="'bar'"
-              [legend]="true"
+              [legend]="false"
               #barChartDirective
             >
             </canvas>
@@ -368,7 +370,7 @@
 
 
       <mat-card class="chart-card" *ngIf="!isLoading">
-        <mat-card-header>
+        <mat-card-header style="min-height: 40px; width: 100%; display: flex; align-items: center; justify-content: center;">
           <mat-card-title>{{
             labelChanges.stateAgeGroupDeviationTrendsChart || "-"
           }}</mat-card-title>
@@ -386,10 +388,10 @@
             <canvas
               #barChart
               baseChart
-              [data]="barChartData"
-              [labels]="barChartLabels"
+              [data]="barChartAgegroupDeviation"
+              [labels]="barChartAgegroupDeviationLabels"
               [type]="'bar'"
-              [legend]="true"
+              [legend]="false"
               #barChartDirective
             >
             </canvas>
@@ -507,52 +509,52 @@
               </ng-container>
 
               <!-- Available (Sortable) -->
-              <ng-container matColumnDef="available">
+              <ng-container matColumnDef="totalChildrenPresent">
                 <th
                   mat-header-cell
                   *matHeaderCellDef
-                  mat-sort-header="available"
+                  mat-sort-header="totalChildrenPresent"
                 >
-                  Children available
+                 Total Children Sample
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.available }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.totalChildrenPresent }}</td>
               </ng-container>
 
               <!-- Observed (Sortable) -->
-              <ng-container matColumnDef="observed">
+              <ng-container matColumnDef="childrenNoDeviation">
                 <th
                   mat-header-cell
                   *matHeaderCellDef
-                  mat-sort-header="observed"
+                  mat-sort-header="childrenNoDeviation"
                 >
-                  Children Present
+                  Children with no deviation 
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.present }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.childrenNoDeviation }}</td>
               </ng-container>
 
               <!-- Centers Not Observed - Pending (Sortable) -->
-              <ng-container matColumnDef="centerNotObserved">
+              <ng-container matColumnDef="childrenDeviationCount">
                 <th
                   mat-header-cell
                   *matHeaderCellDef
-                  mat-sort-header="centerNotObserved"
+                  mat-sort-header="childrenDeviationCount"
                 >
-                  Children Absent
+                   Children deviation count
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.absent }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.childrenDeviationCount }}</td>
               </ng-container>
 
               <!-- Observed Percentage - Completion % (Sortable) -->
-              <ng-container matColumnDef="observePercentage">
+              <ng-container matColumnDef="deviationPercentage">
                 <th
                   mat-header-cell
                   *matHeaderCellDef
-                  mat-sort-header="observePercentage"
+                  mat-sort-header="deviationPercentage"
                 >
-                  Present %
+                  Deviation% 
                 </th>
                 <td mat-cell *matCellDef="let row">
-                  {{ row.attendancePercentage }}
+                  {{ row.deviationPercentage }}%
                 </td>
               </ng-container>
 
@@ -572,7 +574,7 @@
               [data]="barChartData"
               [labels]="barChartLabels"
               [type]="'bar'"
-              [legend]="true"
+              [legend]="false"
               #barChartDirective
             >
             </canvas>

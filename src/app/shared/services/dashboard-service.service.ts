@@ -286,6 +286,8 @@ export class DashboardServiceService {
   
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
+     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+
 
     if(districtId && blockId ){
       params.push(`block_id=${blockId}`);
@@ -313,6 +315,8 @@ export class DashboardServiceService {
   
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
+    if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+
 
     if(districtId && blockId ){
       params.push(`block_id=${blockId}`);
@@ -326,6 +330,64 @@ export class DashboardServiceService {
     
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/trends-by-superviser${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
+
+     getgmAgegroupDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+
+
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+    url = `${this.baseUrl}webDashboard-gm/by-age${queryString}`;
+  
+    return this.http.get(url, { headers });
+  }
+
+   getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    const params: string[] = [];
+  
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+
+
+    if(districtId && blockId ){
+      params.push(`block_id=${blockId}`);
+    } if(districtId){
+      params.push(`district_id=${districtId}`);
+}
+
+  
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    
+    let url: string;
+    url = `${this.baseUrl}webDashboard-gm/by-hierarchical${queryString}`;
   
     return this.http.get(url, { headers });
   }
