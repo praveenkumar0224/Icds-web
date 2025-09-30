@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://icds.xenovex.com/api/',
+  apiUrl: 'http://13.204.36.2:5412/',
   appName: 'ICDS Web Dashboard'
 };
