@@ -346,6 +346,14 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       this.selectedSector,
       this.selectedDeviationCategory
     ),
+    byAwwSuperviosrDeviation: this.service.getDeviationByAwwSuperviosr(
+           this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory
+    )
   }).subscribe({
     next: (res) => {
       this.stateLevelData = [
@@ -354,7 +362,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
             res.supervisor.data,
             res.trendsbysupervisor.data,
             res.ageGroup.data,
-            res.byHierarchical.data
+            res.byHierarchical.data,
+            res.byAwwSuperviosrDeviation?.data
           ];
       // const supervisorData = res.supervisor.data
       // const trendsbysupervisorData = res.trendsbysupervisor.data
@@ -879,7 +888,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
     
             this.districtData = res?.data?.result?.sort((a: any, b: any) =>
-              a.name.localeCompare(b.district_name)
+              a?.name?.localeCompare(b?.name)
             );
     
     
