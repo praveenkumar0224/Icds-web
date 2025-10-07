@@ -25,7 +25,10 @@ import { MatTabsModule } from '@angular/material/tabs';
 import {DashboardServiceService} from './shared/services/dashboard-service.service';
 import { AttendanceComponent } from './attendance/attendance.component';
 import { DistrictChartComponent } from './district-chart/district-chart.component';
+import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring.component';
 import { MatTableModule } from '@angular/material/table';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
 
 
 @NgModule({
@@ -40,7 +43,8 @@ import { MatTableModule } from '@angular/material/table';
     MaterialModule,
     HttpClientModule,
      MatSortModule,
-     MatTableModule
+     MatTableModule,
+     MatSlideToggleModule
   ],
   declarations: [
     AppComponent,
@@ -50,7 +54,8 @@ import { MatTableModule } from '@angular/material/table';
     CoursesListComponent,
     LoginComponent,
     AttendanceComponent,
-     DistrictChartComponent
+     DistrictChartComponent,
+     GrowthMonitoringComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService],

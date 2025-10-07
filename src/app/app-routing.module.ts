@@ -8,6 +8,7 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './shared/guards/auth.guard';
 import { AttendanceComponent } from './attendance/attendance.component';
+import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring.component';
 
 
 const routes: Routes = [
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'courses/:id', component: CoursesComponent },
   { path: 'login', component: LoginComponent },
   {path:'attendance', component: AttendanceComponent},
+  {path:"growth-monitoring", component: GrowthMonitoringComponent},
   
   { path: '**', redirectTo: '/home' },
 ];
