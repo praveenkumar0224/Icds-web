@@ -363,7 +363,7 @@ export class DashboardServiceService {
     return this.http.get(url, { headers });
   }
 
-   getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+   getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string,orderBy?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -374,6 +374,7 @@ export class DashboardServiceService {
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+    if (orderBy) params.push(`orderBy=${orderBy}`);
 
 
     if(districtId && blockId ){
