@@ -140,7 +140,7 @@
       "
     >
       <div class="status-number" style="font-weight: 600; font-size: larger;">
-        {{ stateLevelData?.[0]?.childDeviation || 0 }}
+        {{ stateLevelData?.[0]?.[2]?.count_non_zero_diff || 0 }}
       </div>
       <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
         {{ labelChanges.stateChildDeviation || "-" }}
@@ -160,7 +160,7 @@
                  margin-bottom: 0px;
       "
     >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.[0]?.percentageChildDevaition | number:'1.0-2' }}%</div>
+      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.[0]?.[2]?.percent_non_zero_diff | number:'1.0-2' }}%</div>
       <div class="status-label"  style="font-weight: 400; font-size: medium; text-align: center;">
         {{ labelChanges.statePercentageChildDeviation || "-" }}
       </div>
@@ -190,7 +190,7 @@
             {{ stateLevelData?.[1]?.[stateLevelData?.[1]?.length - 1]?.percent_non_zero_diff | number:'1.0-2' }}%
       </div>
       <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
-        {{ labelChanges.stateBySupervisorNoDeviationThisMonth || "-" }}
+        {{ labelChanges.stateByAwcDeviationThisMonth || "-" }}
       </div>
     </mat-card>
          
@@ -213,7 +213,7 @@
                  margin-bottom: 0px;
       "
     >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.[2]?.percentage}}%</div>
+      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.[2]?.deviation_supervisor_reporting?.[stateLevelData?.[2]?.deviation_supervisor_reporting?.length - 1]?.deviation }}%</div>
       <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
         {{ labelChanges.stateBySupervisorNoDeviationThisMonth || "-" }}
       </div>
@@ -268,24 +268,32 @@
       </mat-tab> -->
 
       <mat-card class="chart-card" *ngIf="!isLoading">
-                  <mat-card-header style="min-height: 40px; width: 100%; display: flex; align-items: center; justify-content: center;">
-          <!-- <div class="chart-header"> -->
+           <mat-card-header style="min-height: 40px; width: 100%; display: flex; align-items: center; justify-content: center;">
             <mat-card-title>{{
               labelChanges.stateAWCDeviationTrendsChart || "-"
             }}</mat-card-title>
+            <span class="spacer"></span>
+              <div style="display: flex; border: 1px solid #000; border-radius: 5px;">
+                <div 
+                  (click)="onToggleChangeForAWCDeviation(true)" 
+                  [style.background]="isToggleOn ? '#1976d2' : '#fff'"
+                  [style.color]="isToggleOn ? '#fff' : '#000'"
+                  style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;"
+                >
+                   Samples
+                </div>
 
-            <!-- <span class="spacer"></span> -->
+                <div 
+                  (click)="onToggleChangeForAWCDeviation(false)" 
+                  [style.background]="!isToggleOn ? '#1976d2' : '#fff'"
+                  [style.color]="!isToggleOn ? '#fff' : '#000'"
+                  style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;"
+                >
+                  AWC
+                </div>
+              </div>
 
-            <!-- <button
-              class="toggle-btn"
-              mat-icon-button
-              (click)="downloadLineChart()"
-              matTooltip="Download Line Chart"
-            >
-              <mat-icon>image</mat-icon>
-            </button> -->
-          <!-- </div> -->
-        </mat-card-header>
+          </mat-card-header>
 
         <mat-card-content>
           <div class="chart-container" #barCanvasWrapper>
@@ -308,14 +316,33 @@
           <mat-card-title>{{
             labelChanges.stateSupervisorDeviationTrendsChart || "-"
           }}</mat-card-title>
-          <!-- <button
-            class="toggle-btn"
-            mat-icon-button
-            (click)="downloadline2Chart()"
-            matTooltip="Download Line Chart"
-          >
-            <mat-icon>image</mat-icon>
-          </button> -->
+          <span class="spacer"></span>
+            <!-- <mat-slide-toggle
+               color="primary"
+              (change)="onToggleChangeForSupervisorDeviation($event.checked)"
+              matTooltip="Toggle Line Chart"
+              
+            >
+            </mat-slide-toggle> -->
+             <div style="display: flex; border: 1px solid #000; border-radius: 5px;">
+                <div 
+                  (click)="onToggleChangeForSupervisorDeviation(true)" 
+                  [style.background]="isToggleOnForSupervisor ? '#1976d2' : '#fff'"
+                  [style.color]="isToggleOnForSupervisor ? '#fff' : '#000'"
+                  style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;"
+                >
+                   0%
+                </div>
+
+                <div 
+                  (click)="onToggleChangeForSupervisorDeviation(false)" 
+                  [style.background]="!isToggleOnForSupervisor ? '#1976d2' : '#fff'"
+                  [style.color]="!isToggleOnForSupervisor ? '#fff' : '#000'"
+                  style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;"
+                >
+                  100%
+                </div>
+              </div>
         </mat-card-header>
         <mat-card-content>
           <div class="chart-container" #barCanvasWrapper>
@@ -411,8 +438,33 @@
     <mat-card-header class="chart-header">
       <div class="header-content">
         <mat-card-title>{{ labelChanges.barchart || "-" }}</mat-card-title>
+        <!-- <span class="spacer"></span> -->
+            <!-- <mat-slide-toggle
+               color="primary"
+              (change)="onToggleChangeForHierarchicalDeviation($event.checked)"
+              matTooltip="Toggle Line Chart"
+            >
+          </mat-slide-toggle> -->
+          <div style="display: flex; border: 1px solid #000; border-radius: 5px;">
+                <div 
+                  (click)="onToggleChangeForHierarchicalDeviation(true)" 
+                  [style.background]="isToggleOnForHierarchical ? '#1976d2' : '#fff'"
+                  [style.color]="isToggleOnForHierarchical ? '#fff' : '#000'"
+                  style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;"
+                >
+                   Samples
+                </div>
 
-        <div class="view-toggle-buttons" fxLayout="row" fxLayoutGap="8px">
+                <div 
+                  (click)="onToggleChangeForHierarchicalDeviation(false)" 
+                  [style.background]="!isToggleOnForHierarchical ? '#1976d2' : '#fff'"
+                  [style.color]="!isToggleOnForHierarchical ? '#fff' : '#000'"
+                  style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;"
+                >
+                  AWC
+                </div>
+              </div>
+     <div class="view-toggle-buttons" fxLayout="row" fxLayoutGap="8px">
           <!-- Download Buttons -->
           <ng-container *ngIf="selectedTabIndex === 1">
             <button

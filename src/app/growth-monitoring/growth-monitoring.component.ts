@@ -32,10 +32,10 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         stateByAwcDeviationThisMonth: "% of AWCs with deviation this month",
         stateBySupervisorNoDeviationThisMonth: "% reporting no deviations this month",
         stateBySupervisor100DeviationThisMonth: "% reporting 100% deviations this month",
-        stateAWCDeviationTrendsChart: "Month-wise % AWc`s with deviation",
+        stateAWCDeviationTrendsChart: "Month-wise % AWC's with deviation",
         stateSupervisorDeviationTrendsChart: "% of supervisors reporting 100% deviation",
         stateAgeGroupDeviationTrendsChart: "Age group wise deviation %",
-        barchart: "District wise % of AWC`s with deviation",
+        barchart: "District wise % of AWC's with deviation",
         sectionType:"District"
       }
 
@@ -146,6 +146,10 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
               selectedBlock = '';
               selectedSector = '';
               selectedDeviationCategory = "both"
+              orderBy = 'awc'
+              isToggleOn = false;
+              isToggleOnForSupervisor = false;
+              isToggleOnForHierarchical = false;
     
          // Chart instances
            observationTrendChart?: Chart;
@@ -344,7 +348,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       this.selectedDistrict,
       this.selectedBlock,
       this.selectedSector,
-      this.selectedDeviationCategory
+      this.selectedDeviationCategory,
+      this.orderBy
     ),
     byAwwSuperviosrDeviation: this.service.getDeviationByAwwSuperviosr(
            this.selectedYear,
@@ -920,8 +925,88 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
       // Load data with current filters
       this.loadDashboardData();
     }
+     
+     onToggleChangeForAWCDeviation(value: boolean): void {
+           this.isToggleOn = value;
+         if(value == true){
+            this.labelChanges.stateAWCDeviationTrendsChart = "Month-wise % samples with deviation"
+            this.createBarChartAWCDevaition(this.stateLevelData?.[0])
+         } else if (value == false){
+            this.labelChanges.stateAWCDeviationTrendsChart = "Month-wise % AWC's with deviation"
+            this.createBarChartAWCDevaition(this.stateLevelData?.[1])
+         }
+      }
     
-    
+      onToggleChangeForSupervisorDeviation(value: boolean): void {
+        this.isToggleOnForSupervisor = value;
+        if(value == true){
+            this.labelChanges.stateSupervisorDeviationTrendsChart = "% of supervisors reporting 0% deviation"
+            this.createBarChartSupervisorDevaition(this.stateLevelData?.[2])
+        }else if (value == false){
+            this.labelChanges.stateSupervisorDeviationTrendsChart = "% of supervisors reporting 100% deviation"
+            this.createBarChartSupervisorDevaition(this.stateLevelData?.[3])
+        }
+      }
+
+      
+      onToggleChangeForHierarchicalDeviation(value: boolean): void {
+        this.isToggleOnForHierarchical = value;
+        if (value === true) {
+          if(this.selectedDistrict && !this.selectedBlock){
+               this.labelChanges.barchart = "Block wise % samples with deviation";
+          } else if(this.selectedBlock && this.selectedDistrict){
+               this.labelChanges.barchart = "Sector wise % samples with deviation";
+          } else {
+               this.labelChanges.barchart = "District wise % samples with deviation";
+          }
+          
+
+          this.service.getgmHierarchicalDeviation(
+              this.selectedYear,
+              this.selectedMonth,
+              this.selectedDistrict,
+              this.selectedBlock,
+              this.selectedSector,
+              this.selectedDeviationCategory
+          ).subscribe({
+            next: (response) => {
+              console.log("Deviation data (Samples):", response);
+              this.createDistrictBarChart(response?.data || []);
+            },
+            error: (err) => {
+              console.error("Error fetching deviation data:", err);
+            },
+          });
+
+        } else {
+            if(this.selectedDistrict && !this.selectedBlock){
+               this.labelChanges.barchart = "Block wise % AWC's with deviation";
+          } else if(this.selectedBlock && this.selectedDistrict){
+               this.labelChanges.barchart = "Sector wise % AWC's with deviation";
+          } else {
+               this.labelChanges.barchart = "District wise % AWC's with deviation";
+          }
+
+           this.service.getgmHierarchicalDeviation(
+              this.selectedYear,
+              this.selectedMonth,
+              this.selectedDistrict,
+              this.selectedBlock,
+              this.selectedSector,
+              this.selectedDeviationCategory,
+              this.orderBy
+          ).subscribe({
+            next: (response) => {
+              console.log("Deviation data (AWCs):", response);
+              this.createDistrictBarChart(response?.data || []);
+            },
+            error: (err) => {
+              console.error("Error fetching deviation data:", err);
+            },
+          });
+        }
+      }
+
     
        clearFilters(): void {
       // Check if any filter is currently selected
@@ -934,16 +1019,16 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     
       // Reset labelChanges to default state-level labels
       this.labelChanges = {
-        stateChildDeviation: "Average Attendance in state this month",
-        statePercentageChildDeviation: "Male children",
-        stateByAwcDeviationThisMonth: "Female children",
-        stateBySupervisorNoDeviationThisMonth: "2-4 years children",
-        stateBySupervisor100DeviationThisMonth: "4-6 years children",
-        stateAWCDeviationTrendsChart: "Attendance trends",
-        stateSupervisorDeviationTrendsChart: "Child Age Category-wise Attendance trends",
-        stateAgeGroupDeviationTrendsChart: "Gender-wise Attendance trends",
-        barchart: "AWCs Observed This Month by District",
-        sectionType: "District"
+           stateChildDeviation: "No.of children with deviation",
+        statePercentageChildDeviation: "% of children with deviation",
+        stateByAwcDeviationThisMonth: "% of AWCs with deviation this month",
+        stateBySupervisorNoDeviationThisMonth: "% reporting no deviations this month",
+        stateBySupervisor100DeviationThisMonth: "% reporting 100% deviations this month",
+        stateAWCDeviationTrendsChart: "Month-wise % AWC's with deviation",
+        stateSupervisorDeviationTrendsChart: "% of supervisors reporting 100% deviation",
+        stateAgeGroupDeviationTrendsChart: "Age group wise deviation %",
+        barchart: "District wise % of AWC's with deviation",
+        sectionType:"District"
       };
     
       // Reset header title to state level
@@ -988,7 +1073,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         stateByAwcDeviationThisMonth: "% of AWCs with deviation this month",
         stateBySupervisorNoDeviationThisMonth: "% reporting no deviations this month",
         stateBySupervisor100DeviationThisMonth: "% reporting 100% deviations this month",
-        stateAWCDeviationTrendsChart: "Month-wise % AWc`s with deviation",
+        stateAWCDeviationTrendsChart: "Month-wise % AWC's with deviation",
         stateSupervisorDeviationTrendsChart: "% of supervisors reporting 100% deviation",
         stateAgeGroupDeviationTrendsChart: "Age group wise deviation %",
         barchart: "Block wise % of AWC`s with deviation",
@@ -1027,7 +1112,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         stateByAwcDeviationThisMonth: "% of AWCs with deviation this month",
         stateBySupervisorNoDeviationThisMonth: "% reporting no deviations this month",
         stateBySupervisor100DeviationThisMonth: "% reporting 100% deviations this month",
-        stateAWCDeviationTrendsChart: "Month-wise % AWc`s with deviation",
+        stateAWCDeviationTrendsChart: "Month-wise % AWC's with deviation",
         stateSupervisorDeviationTrendsChart: "% of supervisors reporting 100% deviation",
         stateAgeGroupDeviationTrendsChart: "Age group wise deviation %",
         barchart: "Sector wise % of AWC`s with deviation",
