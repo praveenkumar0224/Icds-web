@@ -474,6 +474,7 @@ console.log(lineChatdata,'lineChatdata');
   if (apiData) {
     const formatted = apiData.map((item, index) => ({
         slNo: index + 1,
+        id: item.id,
     district: item.name,
     available: item?.total_children_available || 0,
     present: item?.total_children_present || 0,        
@@ -694,6 +695,72 @@ console.log(lineChatdata,'lineChatdata');
       });
       FileSaver.saveAs(new Blob([excelBuffer]), 'awc-observation.xlsx');
     }
+
+     onDistrictOrBlockClick(row: any): void {
+    console.log(row, "row data");
+
+    const year = this.selectedYear;
+    const month = this.selectedMonth;
+
+    if (this.sectorData.length >= 1) {
+      console.log("sector is working");
+      this.service
+        .AttendancelineTableExcelDownload(
+          undefined,
+          year,
+          month,
+          row,
+          undefined
+        )
+        .subscribe({
+          next: (res: Blob) => {
+            const url = window.URL.createObjectURL(res);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Sector_Report_${row.sector_name}_${month}-${year}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          },
+          error: (err) => console.error("Sector API error:", err),
+        });
+    } else if (this.blockData.length >= 1) {
+      console.log("block is working");
+      this.service
+        .AttendancelineTableExcelDownload(
+          undefined,
+          year,
+          month,
+          undefined,
+          row
+        )
+        .subscribe({
+          next: (res: Blob) => {
+            const url = window.URL.createObjectURL(res);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Block_Report_${row.block_name}_${month}-${year}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          },
+          error: (err) => console.error("Block API error:", err),
+        });
+    } else if (this.districtData.length >= 1) {
+      console.log("district is working");
+      this.service
+        .AttendancelineTableExcelDownload(row, year, month,undefined, undefined)
+        .subscribe({
+          next: (res: Blob) => {
+            const url = window.URL.createObjectURL(res);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `District_Report_${row.district_name}_${month}-${year}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          },
+          error: (err) => console.error("District API error:", err),
+        });
+    }
+  }
 
 
       // Master Filter 

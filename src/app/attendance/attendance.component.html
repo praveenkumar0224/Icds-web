@@ -378,7 +378,7 @@
                 >
                   {{ labelChanges.sectionType || "-" }} Name
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.district }}</td>
+                <td mat-cell *matCellDef="let row" (click)="onDistrictOrBlockClick(row.id)">{{ row.district }}</td>
               </ng-container>
 
               <!-- Available (Sortable) -->
