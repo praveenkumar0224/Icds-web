@@ -3,8 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  apiUrl: 'https://icds.xenovex.com/api/',
-  // apiUrl: 'http://192.168.1.13:5412/',
+  // apiUrl: 'https://icds.xenovex.com/api/',
+  apiUrl: 'http://192.168.1.27:5412/',
   production: false,
   appName: 'ICDS Web Dashboard'
 };
