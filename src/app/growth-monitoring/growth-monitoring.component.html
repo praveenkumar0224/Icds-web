@@ -559,7 +559,11 @@
                 >
                   {{ labelChanges.sectionType || "-" }} Name
                 </th>
-                <td mat-cell *matCellDef="let row">{{ row.district }}</td>
+                <td mat-cell *matCellDef="let row"  (click)="onDistrictOrBlockClick(row.id)"  style="
+                    cursor: pointer;
+                    color: blue;
+                    text-decoration: underline;
+                  ">{{ row.district }}</td>
               </ng-container>
 
               <!-- Available (Sortable) -->

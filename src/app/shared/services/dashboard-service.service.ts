@@ -486,6 +486,79 @@ export class DashboardServiceService {
         return this.http.get(url, { headers, responseType: 'blob' });
       }
 
+        AttendancelineTableExcelDownload(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-dashboard/attendance-blockWiseReport-excel${queryString}`;
+          console.log(url,'block excel');
+        } else if (districtId) {
+          url = `${this.baseUrl}web-dashboard/attendance-report-excel${queryString}`;
+          console.log(url,'district excel');
+        } else if (sectorId) {
+          url = `${this.baseUrl}web-dashboard/attendance-sectorWiseReport-excel${queryString}`;
+        }
+         
+        return this.http.get(url, { headers, responseType: 'blob' });
+      }
+
+
+       GMlineTableExcelDownload(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}webDashboard-gm/gmblockWiseReport-excel${queryString}`;
+          console.log(url,'block excel');
+        } else if (districtId) {
+          url = `${this.baseUrl}webDashboard-gm/gmdistrictwise-report-excel${queryString}`;
+          console.log(url,'district excel');
+        } else if (sectorId) {
+          url = `${this.baseUrl}webDashboard-gm/gmsectorWiseReport-excel${queryString}`;
+        }
+         
+        return this.http.get(url, { headers, responseType: 'blob' });
+      }
+
 
 
 
