@@ -176,6 +176,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
   isToggleOn = false;
   isToggleOnForSupervisor = false;
   isToggleOnForHierarchical = false;
+  isLoadingForHirerarchical = false;
 
   // Chart instances
   observationTrendChart?: Chart;
@@ -1054,6 +1055,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
   }
 
   onToggleChangeForHierarchicalDeviation(value: boolean): void {
+    this.isLoadingForHirerarchical = true
     this.isToggleOnForHierarchical = value;
     if (value === true) {
       if (this.selectedDistrict && !this.selectedBlock) {
@@ -1077,6 +1079,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           next: (response) => {
             console.log("Deviation data (Samples):", response);
             this.createDistrictBarChart(response?.data || []);
+            this.isLoadingForHirerarchical = false
           },
           error: (err) => {
             console.error("Error fetching deviation data:", err);
@@ -1105,6 +1108,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           next: (response) => {
             console.log("Deviation data (AWCs):", response);
             this.createDistrictBarChart(response?.data || []);
+             this.isLoadingForHirerarchical = false
           },
           error: (err) => {
             console.error("Error fetching deviation data:", err);
