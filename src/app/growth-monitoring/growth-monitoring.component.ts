@@ -246,6 +246,10 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
   private clearAllData(): void {
     // Clear state level data
     this.stateLevelData = null;
+    this.isToggleOnForHierarchical = false;
+    this.isLoadingForHirerarchical = false;
+    this.isToggleOn = false;
+
 
     // Clear chart data
     this.lineChartLabels = [];
