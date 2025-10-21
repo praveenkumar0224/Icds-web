@@ -519,7 +519,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         datasets: [
           {
             data: data.deviation.map((item) =>
-              parseFloat(item.percentage.replace("%", ""))
+               item.percentage
             ),
             backgroundColor: "#5D87FF",
             hoverBackgroundColor: "#4a6cd8",
@@ -693,12 +693,9 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         district: item.name,
         id: item.id,
         totalChildrenPresent: item?.total_count,
-        childrenNoDeviation: item?.total_count - item?.deviation_count,
-        childrenDeviationCount: item?.deviation_count,
-        deviationPercentage:
-          typeof item?.percentage === "string"
-            ? parseFloat(item.percentage.replace("%", ""))
-            : item?.percentage,
+        childrenNoDeviation: item?.no_deviation_count,
+        childrenDeviationCount: item?.total_count - item?.no_deviation_count,
+        deviationPercentage: item?.percentage ,
       }));
 
       this.dataSource.data = formatted;
