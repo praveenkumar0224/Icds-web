@@ -20,11 +20,12 @@ export class DashboardServiceService {
     private notificationService: NotificationService
   ) { }
 
-  loginWithEmail(): Observable<any> {
+  loginWithEmail(id: any): Observable<any> {
     const url = this.baseUrl + 'auth/loginWithEmail';
     const user = {
       email: 'admintechfes@madhifoundation.org',
       password: 'User@123',
+      icds_user_id: id ? parseInt(id) : 8812,
     };
 
     return this.http.post(url, user).pipe(

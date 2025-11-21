@@ -246,15 +246,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.isLoading = true;
     this.service
-      .loginWithEmail()
-      .pipe(
-        switchMap((loginRes) => {
-          this.isLoading = false;
-          this.openToast('success')
-          console.log('Login Success:', loginRes);
-          return this.service.fetchUser(this.deCryptedId); // call fetchUser only after login
-        })
-      )
+      .loginWithEmail(this.deCryptedId)
+      // .pipe(
+      //   switchMap((loginRes) => {
+      //     this.isLoading = false;
+      //     this.openToast('success')
+      //     console.log('Login Success:', loginRes);
+      //     return this.service.fetchUser(this.deCryptedId); // call fetchUser only after login
+      //   })
+      // )
       .subscribe({
         next: (userRes) => {
           this.isLoading = false;
