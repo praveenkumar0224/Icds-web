@@ -993,7 +993,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         this.districtData = res?.data?.result;
 
         this.districtData = res?.data?.result?.sort((a: any, b: any) =>
-          a?.name?.localeCompare(b?.name)
+          a?.district_name?.localeCompare(b?.district_name)
         );
       },
       error: (err) => {
