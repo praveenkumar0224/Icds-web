@@ -34,6 +34,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
 
   lineChart = "line";
   selectedTabIndex = 0;
+  retryCount = 0;
+maxRetries = 20; 
   labelChanges = {
     stateChildDeviation: "No.of children with deviation",
     statePercentageChildDeviation: "% of children with deviation",
@@ -652,44 +654,49 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private setupTableSorting(): void {
-    if (!this.sort) {
-      console.warn("MatSort not available yet, retrying...");
-      setTimeout(() => this.setupTableSorting(), 100);
+     private setupTableSorting(): void {
+  if (!this.sort) {
+    this.retryCount++;
+
+    if (this.retryCount > this.maxRetries) {
+      console.warn("MatSort still not available. Stopping retries.");
       return;
     }
 
-    if (!this.dataSource) {
-      console.warn("DataSource not available");
-      return;
-    }
-    if (this.sort && this.dataSource) {
-      this.dataSource.sort = this.sort;
-
-      this.dataSource.sortingDataAccessor = (
-        data: any,
-        sortHeaderId: string
-      ) => {
-        switch (sortHeaderId) {
-          case "district":
-            return data.district?.toLowerCase();
-          case "slNo":
-            return Number(data.slNo);
-          case "totalChildrenPresent":
-            return Number(data.totalChildrenPresent);
-          case "childrenNoDeviation":
-            return Number(data.childrenNoDeviation);
-          case "childrenDeviationCount":
-            return Number(data.childrenDeviationCount);
-          case "deviationPercentage":
-            return Number(data.deviationPercentage);
-          default:
-            return data[sortHeaderId];
-        }
-      };
-    }
+    console.warn(`MatSort not available yet, retrying... (${this.retryCount})`);
+    setTimeout(() => this.setupTableSorting(), 100);
+    return;
   }
 
+  // Sorting is ready → reset retry counter
+  this.retryCount = 0;
+
+  if (!this.dataSource) {
+    console.warn("DataSource not available");
+    return;
+  }
+
+  this.dataSource.sort = this.sort;
+
+  this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+    switch (sortHeaderId) {
+      case "district":
+        return data.district?.toLowerCase();
+      case "slNo":
+        return Number(data.slNo);
+      case "totalChildrenPresent":
+        return Number(data.totalChildrenPresent);
+      case "childrenNoDeviation":
+        return Number(data.childrenNoDeviation);
+      case "childrenDeviationCount":
+        return Number(data.childrenDeviationCount);
+      case "deviationPercentage":
+        return Number(data.deviationPercentage);
+      default:
+        return data[sortHeaderId];
+    }
+  };
+}
   getTableData(apiData: any) {
     if (apiData) {
       const formatted = apiData?.deviation.map((item, index) => ({

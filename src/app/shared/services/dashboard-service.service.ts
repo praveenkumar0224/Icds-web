@@ -30,9 +30,12 @@ export class DashboardServiceService {
 
     return this.http.post(url, user).pipe(
       tap((res: any) => {
+        console.log(res, 'login response check by ram');
+        
         const token = res?.data?.token?.access?.token;
         if (token) {
           localStorage.setItem('access_token', token);
+          localStorage.setItem('user', JSON.stringify(res?.data?.user));
         }
       })
     );
