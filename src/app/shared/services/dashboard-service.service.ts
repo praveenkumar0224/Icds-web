@@ -161,7 +161,7 @@ export class DashboardServiceService {
      } */
 
 
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
    getStatewiseDataForAttandance(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
@@ -218,7 +218,7 @@ export class DashboardServiceService {
     } */
 
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
 
@@ -248,7 +248,7 @@ export class DashboardServiceService {
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-observation${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
    getgmDashboardByawc(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
@@ -277,7 +277,7 @@ export class DashboardServiceService {
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-awc${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
    getgmBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
@@ -306,7 +306,7 @@ export class DashboardServiceService {
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-superviser${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
   getgmTrendsBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
@@ -335,7 +335,7 @@ export class DashboardServiceService {
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/trends-by-superviser${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
      getgmAgegroupDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
@@ -364,7 +364,7 @@ export class DashboardServiceService {
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-age${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
    getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string,orderBy?: string): Observable<any> {
@@ -394,7 +394,7 @@ export class DashboardServiceService {
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-hierarchical${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
    getDeviationByAwwSuperviosr(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
@@ -423,7 +423,7 @@ export class DashboardServiceService {
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-compare-AWW-supervisor${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
 
@@ -449,7 +449,7 @@ export class DashboardServiceService {
     const queryString = params.length ? '?' + params.join('&') : '';
     const url = `${this.baseUrl}web-dashboard/district${queryString}`;
 
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
    
@@ -487,7 +487,7 @@ export class DashboardServiceService {
           url = `${this.baseUrl}web-dashboard${queryString}`;
         }
 
-        return this.http.get(url, { headers, responseType: 'blob' });
+        return this.http.get(url, { responseType: 'blob' });
       }
 
         AttendancelineTableExcelDownload(
@@ -523,7 +523,7 @@ export class DashboardServiceService {
           url = `${this.baseUrl}web-dashboard/attendance-sectorWiseReport-excel${queryString}`;
         }
          
-        return this.http.get(url, { headers, responseType: 'blob' });
+        return this.http.get(url, { responseType: 'blob' });
       }
 
 
@@ -560,7 +560,7 @@ export class DashboardServiceService {
           url = `${this.baseUrl}webDashboard-gm/gmsectorWiseReport-excel${queryString}`;
         }
          
-        return this.http.get(url, { headers, responseType: 'blob' });
+        return this.http.get(url, {responseType: 'blob' });
       }
 
 
@@ -593,7 +593,7 @@ export class DashboardServiceService {
     });
 
     // The second argument is the body (empty object here), third is the options
-    return this.http.post(`${this.baseUrl}district/paginate`, paylods, { headers });
+    return this.http.post(`${this.baseUrl}district/paginate`, paylods);
   }
 
 
@@ -609,7 +609,7 @@ export class DashboardServiceService {
     });
 
     // The second argument is the body (empty object here), third is the options
-    return this.http.post(`${this.baseUrl}block/paginate`, paylods, { headers });
+    return this.http.post(`${this.baseUrl}block/paginate`, paylods);
   }
 
 
@@ -628,7 +628,7 @@ export class DashboardServiceService {
     });
 
     // The second argument is the body (empty object here), third is the options
-    return this.http.post(`${this.baseUrl}sector/paginate`, paylods, { headers });
+    return this.http.post(`${this.baseUrl}sector/paginate`, paylods);
   }
 
 

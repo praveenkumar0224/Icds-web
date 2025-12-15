@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -28,6 +28,7 @@ import { DistrictChartComponent } from './district-chart/district-chart.componen
 import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { AuthInterceptor } from './auth.interceptor';
 
 
 
@@ -58,7 +59,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
      GrowthMonitoringComponent
    
   ],
-  providers: [AuthService, NotificationService,CoursesService,DashboardServiceService],
+  providers: [AuthService, NotificationService,CoursesService,DashboardServiceService,
+     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

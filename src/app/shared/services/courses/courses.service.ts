@@ -99,7 +99,7 @@ export class CoursesService {
       },
     };
 
-    return this.http.post(url, payload, { headers });
+    return this.http.post(url, payload);
   }
 
 
@@ -131,7 +131,7 @@ export class CoursesService {
     const queryString = params.length ? '?' + params.join('&') : '';
     const url = `${this.baseUrl}web-dashboard/state${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
   //State Api 
@@ -162,7 +162,7 @@ export class CoursesService {
     const queryString = params.length ? '?' + params.join('&') : '';
     const url = `${this.baseUrl}web-dashboard/district${queryString}`;
   
-    return this.http.get(url, { headers });
+    return this.http.get(url);
   }
 
   
@@ -193,7 +193,7 @@ export class CoursesService {
     });
 
     // The second argument is the body (empty object here), third is the options
-    return this.http.post(`${this.baseUrl}district/paginate`, paylods, { headers });
+    return this.http.post(`${this.baseUrl}district/paginate`, paylods);
   }
 
 
@@ -209,7 +209,7 @@ export class CoursesService {
     });
 
     // The second argument is the body (empty object here), third is the options
-    return this.http.post(`${this.baseUrl}block/paginate`, paylods, { headers });
+    return this.http.post(`${this.baseUrl}block/paginate`, paylods);
   }
 
 
@@ -225,7 +225,7 @@ export class CoursesService {
     });
 
     // The second argument is the body (empty object here), third is the options
-    return this.http.post(`${this.baseUrl}sector/paginate`, paylods, { headers });
+    return this.http.post(`${this.baseUrl}sector/paginate`, paylods);
   }
 
 
