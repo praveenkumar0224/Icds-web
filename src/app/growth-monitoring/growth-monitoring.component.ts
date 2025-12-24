@@ -170,7 +170,7 @@ maxRetries = 20;
     "November",
     "December",
   ];
-  selectedDistrict = "";
+  selectedDistrict = "a1f99804-065e-43b0-af24-559470a10327";
   selectedBlock = "";
   selectedSector = "";
   selectedDeviationCategory = "both";
@@ -243,7 +243,17 @@ maxRetries = 20;
     private snackBar: MatSnackBar
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+   this.staticcall()
+
+  }
+
+  staticcall(){
+    this.loadDistrictData();
+    // Promizse
+    this.onDistrictChange("a1f99804-065e-43b0-af24-559470a10327")
+  }
 
   private clearAllData(): void {
     // Clear state level data
@@ -384,8 +394,8 @@ maxRetries = 20;
         this.selectedSector,
         this.selectedDeviationCategory
       ),
-    }).subscribe({
-      next: (res) => {
+    }).subscribe({  
+      next: (res) => {   
         this.stateLevelData = [
           res.observation.data,
           res.awc.data,
@@ -398,8 +408,7 @@ maxRetries = 20;
         // const supervisorData = res.supervisor.data
         // const trendsbysupervisorData = res.trendsbysupervisor.data
 
-        console.log(this.stateLevelData);
-
+        console.log(this.stateLevelData); 
         if (this.stateLevelData) {
           this.createBarChartAWCDevaition(this.stateLevelData?.[1]);
           this.createBarChartSupervisorDevaition(this.stateLevelData?.[3]);
@@ -419,6 +428,7 @@ maxRetries = 20;
           !this.selectedBlock &&
           !this.selectedSector
         ) {
+          console.log('loadDistrictData3');
           this.loadDistrictData();
         }
       },
