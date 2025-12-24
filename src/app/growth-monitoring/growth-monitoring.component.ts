@@ -171,7 +171,7 @@ maxRetries = 20;
     "December",
   ];
   selectedDistrict = "a1f99804-065e-43b0-af24-559470a10327";
-  selectedBlock = "";
+  selectedBlock = "0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94";
   selectedSector = "";
   selectedDeviationCategory = "both";
   orderBy = "awc";
@@ -253,6 +253,12 @@ maxRetries = 20;
     this.loadDistrictData();
     // Promizse
     this.onDistrictChange("a1f99804-065e-43b0-af24-559470a10327")
+
+    
+    this.onBlockChange();
+    //this.loadBlockData("0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94")
+
+    //
   }
 
   private clearAllData(): void {
@@ -1181,7 +1187,7 @@ maxRetries = 20;
     // Clear dependent data immediately
     this.blockData = [];
     this.sectorData = [];
-    this.selectedBlock = "";
+    this.selectedBlock = "0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94";
     this.selectedSector = "";
 
     // Clear current dashboard data
