@@ -9,6 +9,7 @@ import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './shared/guards/auth.guard';
 import { AttendanceComponent } from './attendance/attendance.component';
 import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring.component';
+import { ObservationCompletionComponent } from './observation-completion/observation-completion.component';
 
 
 const routes: Routes = [
@@ -17,7 +18,8 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {path:'attendance', component: AttendanceComponent},
   {path:"growth-monitoring", component: GrowthMonitoringComponent},
-  
+  { path: 'observation-completion', component: ObservationCompletionComponent },
+
   { path: '**', redirectTo: '/home' },
 ];
 

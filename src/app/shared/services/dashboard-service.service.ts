@@ -564,6 +564,196 @@ export class DashboardServiceService {
       }
 
 
+        
+         supervisorObs(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+          console.log(url,'block excel');
+        } else if (districtId) {
+          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+          console.log(url,'district excel');
+        } else if (sectorId) {
+          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+        } else {
+          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+        }
+         
+           return this.http.get<any>(url, { headers });
+      }
+
+       CDPOObs(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+          console.log(url,'block excel');
+        } else if (districtId) {
+          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+          console.log(url,'district excel');
+        } else if (sectorId) {
+          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+        } else {
+          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+        }
+         
+           return this.http.get<any>(url, { headers });
+      }
+
+          supervisorActive(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+          console.log(url,'block excel');
+        } else if (districtId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+          console.log(url,'district excel');
+        } else if (sectorId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+        } else {
+          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+        }
+         
+         return this.http.get<any>(url, { headers });
+      }
+
+         CDPOActive(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+          console.log(url,'block excel');
+        } else if (districtId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+          console.log(url,'district excel');
+        } else if (sectorId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+        } else {
+          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+        }
+         
+         return this.http.get<any>(url, { headers });
+      }
+
+       DPOActive(
+        districtId?: string,
+        year?: string,
+        month?: string,
+        sectorId?: string,
+        blockId?: string
+      ): Observable<any> {
+        const token = localStorage.getItem('access_token');
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        const params: string[] = [];
+
+        if (districtId) params.push(`district_id=${districtId}`);
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (blockId) params.push(`block_id=${blockId}`);
+        if (sectorId) params.push(`sector_id=${sectorId}`);
+
+        const queryString = params.length ? '?' + params.join('&') : '';
+
+        let url = '';
+        if (blockId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
+          console.log(url,'block excel');
+        } else if (districtId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
+          console.log(url,'district excel');
+        } else if (sectorId) {
+          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
+        } else [
+          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`
+        ]
+         
+         return this.http.get<any>(url, { headers });
+      }
 
 
 

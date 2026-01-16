@@ -29,6 +29,7 @@ import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring
 import { MatTableModule } from '@angular/material/table';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AuthInterceptor } from './auth.interceptor';
+import { ObservationCompletionComponent } from './observation-completion/observation-completion.component';
 
 
 
@@ -56,7 +57,8 @@ import { AuthInterceptor } from './auth.interceptor';
     LoginComponent,
     AttendanceComponent,
      DistrictChartComponent,
-     GrowthMonitoringComponent
+     GrowthMonitoringComponent,
+     ObservationCompletionComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService,

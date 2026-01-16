@@ -17,6 +17,8 @@ export class AppComponent {
     { path: '/home', icon: 'visibility', title: 'Observation' },
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },
     { path: '/growth-monitoring', icon: 'assessment', title: 'Growth Monitoring' },
+    { path: '/observation-completion', icon: 'assessment', title: 'Observation Completion' },
+
   ];
   deCryptedId: any
 
