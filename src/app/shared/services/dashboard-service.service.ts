@@ -31,7 +31,7 @@ export class DashboardServiceService {
     return this.http.post(url, user).pipe(
       tap((res: any) => {
         console.log(res, 'login response check by ram');
-        
+
         const token = res?.data?.token?.access?.token;
         if (token) {
           localStorage.setItem('access_token', token);
@@ -164,265 +164,265 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-   getStatewiseDataForAttandance(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+  getStatewiseDataForAttandance(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
 
-   /*  if (districtId) params.push(`district_id=${districtId}`);
-    if (blockId) params.push(`block_id=${blockId}`);
-    if (sectortId) params.push(`sector_id=${sectortId}`); */
+    /*  if (districtId) params.push(`district_id=${districtId}`);
+     if (blockId) params.push(`block_id=${blockId}`);
+     if (sectortId) params.push(`sector_id=${sectortId}`); */
 
-   /*  if (districtId && blockId && sectortId) {
+    /*  if (districtId && blockId && sectortId) {
+       params.push(`block_id=${blockId}`);
+     } else if (districtId && blockId) {
+       params.push(`district_id=${districtId}`);
+     } else if (districtId) {
+       params.push(`district_id=${districtId}`);
+     }
+  */
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } else if (districtId && blockId) {
-      params.push(`district_id=${districtId}`);
-    } else if (districtId) {
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
     }
- */
-    if(districtId && blockId ){
-      params.push(`block_id=${blockId}`);
-    } if(districtId){
-      params.push(`district_id=${districtId}`);
-}
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
 
-    if (districtId && blockId ) {
+    if (districtId && blockId) {
       url = `${this.baseUrl}web-dashboard/attendance/block${queryString}`;
-    }else if (districtId ) {
+    } else if (districtId) {
       url = `${this.baseUrl}web-dashboard/attendance/district${queryString}`;
-    } else{
+    } else {
       url = `${this.baseUrl}web-dashboard/attendance/state${queryString}`;
     }
 
-   /*  if (districtId && blockId && sectortId) {
-      url = `${this.baseUrl}web-dashboard/block${queryString}`;
-    } else if (districtId && blockId) {
-      url = `${this.baseUrl}web-dashboard/district${queryString}`;
-    } else if (districtId) {
-      url = `${this.baseUrl}web-dashboard/state${queryString}`;
-    }else{
-      url = `${this.baseUrl}web-dashboard/state${queryString}`;
-    } */
+    /*  if (districtId && blockId && sectortId) {
+       url = `${this.baseUrl}web-dashboard/block${queryString}`;
+     } else if (districtId && blockId) {
+       url = `${this.baseUrl}web-dashboard/district${queryString}`;
+     } else if (districtId) {
+       url = `${this.baseUrl}web-dashboard/state${queryString}`;
+     }else{
+       url = `${this.baseUrl}web-dashboard/state${queryString}`;
+     } */
 
-  
+
     return this.http.get(url);
   }
 
 
 
-   getgmDashboardByobservation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+  getgmDashboardByobservation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
 
-    if(districtId && blockId ){
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } if(districtId){
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
-}
+    }
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-observation${queryString}`;
-  
+
     return this.http.get(url);
   }
 
-   getgmDashboardByawc(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+  getgmDashboardByawc(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
 
 
-    if(districtId && blockId ){
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } if(districtId){
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
-}
+    }
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-awc${queryString}`;
-  
+
     return this.http.get(url);
   }
 
-   getgmBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+  getgmBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
-     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+    if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
 
 
-    if(districtId && blockId ){
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } if(districtId){
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
-}
+    }
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-superviser${queryString}`;
-  
+
     return this.http.get(url);
   }
 
-  getgmTrendsBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+  getgmTrendsBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
 
 
-    if(districtId && blockId ){
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } if(districtId){
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
-}
+    }
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/trends-by-superviser${queryString}`;
-  
+
     return this.http.get(url);
   }
 
-     getgmAgegroupDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+  getgmAgegroupDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
 
 
-    if(districtId && blockId ){
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } if(districtId){
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
-}
+    }
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-age${queryString}`;
-  
+
     return this.http.get(url);
   }
 
-   getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string,orderBy?: string): Observable<any> {
+  getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string, orderBy?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
     if (orderBy) params.push(`orderBy=${orderBy}`);
 
 
-    if(districtId && blockId ){
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } if(districtId){
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
-}
+    }
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-hierarchical${queryString}`;
-  
+
     return this.http.get(url);
   }
 
-   getDeviationByAwwSuperviosr(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string,deviationCategory?: string): Observable<any> {
+  getDeviationByAwwSuperviosr(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-  
+
     const params: string[] = [];
-  
+
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
 
 
-    if(districtId && blockId ){
+    if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
-    } if(districtId){
+    } if (districtId) {
       params.push(`district_id=${districtId}`);
     }
 
-  
+
     const queryString = params.length ? '?' + params.join('&') : '';
 
-    
+
     let url: string;
     url = `${this.baseUrl}webDashboard-gm/by-compare-AWW-supervisor${queryString}`;
-  
+
     return this.http.get(url);
   }
 
@@ -452,309 +452,650 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
+
+  lineTableExcelDownload(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    sectorId?: string,
+    blockId?: string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-dashboard/blocks${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}web-dashboard/districts${queryString}`;
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-dashboard/sector${queryString}`;
+    }
+    else {
+      url = `${this.baseUrl}web-dashboard${queryString}`;
+    }
+
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
+  AttendancelineTableExcelDownload(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    sectorId?: string,
+    blockId?: string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-dashboard/attendance-blockWiseReport-excel${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-dashboard/attendance-report-excel${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-dashboard/attendance-sectorWiseReport-excel${queryString}`;
+    }
+
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
+
+  GMlineTableExcelDownload(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    sectorId?: string,
+    blockId?: string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}webDashboard-gm/gmblockWiseReport-excel${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}webDashboard-gm/gmdistrictwise-report-excel${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}webDashboard-gm/gmsectorWiseReport-excel${queryString}`;
+    }
+
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
+
+
+  supervisorObs(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+    } else {
+      url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
+    }
+
+    return this.http.get<any>(url, { headers });
+  }
+
+  CDPOObs(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+    } else {
+      url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
+    }
+
+    return this.http.get<any>(url, { headers });
+  }
+
+  supervisorActive(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+    } else {
+      url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
+    }
+
+    return this.http.get<any>(url, { headers });
+  }
+
+  CDPOActive(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+    } else {
+      url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
+    }
+
+    return this.http.get<any>(url, { headers });
+  }
+
+  DPOActive(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
+    } else[
+      url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`
+    ]
+
+    return this.http.get<any>(url, { headers });
+  }
+
+  awcObservedBySupervisor(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-by-supervisor${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-by-supervisor${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-by-supervisor${queryString}`;
+    } else[
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-by-supervisor${queryString}`
+    ]
+
+    return this.http.get<any>(url, { headers });
+  }
+
+  awcObservedQuarterByDPO(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-dpo${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-dpo${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-dpo${queryString}`;
+    } else[
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-dpo${queryString}`
+    ]
+
+    return this.http.get<any>(url, { headers });
+  }
+
+  awcObservedQuarterByCDPO(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-cdpo${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-cdpo${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-cdpo${queryString}`;
+    } else[
+      url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-cdpo${queryString}`
+    ]
+
+    return this.http.get<any>(url, { headers });
+  }
+
+
+  getSectorsObservedByDPO(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
    
-        lineTableExcelDownload(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
 
-        const params: string[] = [];
+    const params: string[] = [];
 
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
 
-        const queryString = params.length ? '?' + params.join('&') : '';
+    const queryString = params.length ? '?' + params.join('&') : '';
 
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}web-dashboard/blocks${queryString}`;
-        } else if (districtId) {
-          url = `${this.baseUrl}web-dashboard/districts${queryString}`;
-        } else if (sectorId) {
-          url = `${this.baseUrl}web-dashboard/sector${queryString}`;
-        }
-         else {
-          url = `${this.baseUrl}web-dashboard${queryString}`;
-        }
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/get-sectors-observed-by-dpo${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/get-sectors-observed-by-dpo${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/get-sectors-observed-by-dpo${queryString}`;
+    } else[
+      url = `${this.baseUrl}web-observation-completion/get-sectors-observed-by-dpo${queryString}`
+    ]
 
-        return this.http.get(url, { responseType: 'blob' });
-      }
+    return this.http.get<any>(url, { headers });
+  }
 
-        AttendancelineTableExcelDownload(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
+ 
 
-        const params: string[] = [];
+  getObservationCompletionForSupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
 
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
+    const params: string[] = [];
 
-        const queryString = params.length ? '?' + params.join('&') : '';
-
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}web-dashboard/attendance-blockWiseReport-excel${queryString}`;
-          console.log(url,'block excel');
-        } else if (districtId) {
-          url = `${this.baseUrl}web-dashboard/attendance-report-excel${queryString}`;
-          console.log(url,'district excel');
-        } else if (sectorId) {
-          url = `${this.baseUrl}web-dashboard/attendance-sectorWiseReport-excel${queryString}`;
-        }
-         
-        return this.http.get(url, { responseType: 'blob' });
-      }
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
 
 
-       GMlineTableExcelDownload(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
-
-        const params: string[] = [];
-
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
-
-        const queryString = params.length ? '?' + params.join('&') : '';
-
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}webDashboard-gm/gmblockWiseReport-excel${queryString}`;
-          console.log(url,'block excel');
-        } else if (districtId) {
-          url = `${this.baseUrl}webDashboard-gm/gmdistrictwise-report-excel${queryString}`;
-          console.log(url,'district excel');
-        } else if (sectorId) {
-          url = `${this.baseUrl}webDashboard-gm/gmsectorWiseReport-excel${queryString}`;
-        }
-         
-        return this.http.get(url, {responseType: 'blob' });
-      }
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    } if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
 
 
-        
-         supervisorObs(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
+    const queryString = params.length ? '?' + params.join('&') : '';
 
-        const params: string[] = [];
 
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
+    let url: string;
 
-        const queryString = params.length ? '?' + params.join('&') : '';
+    if (districtId && blockId) {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-supervisor${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-supervisor${queryString}`;
+    } else {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-supervisor${queryString}`;
+    }
 
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
-          console.log(url,'block excel');
-        } else if (districtId) {
-          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
-          console.log(url,'district excel');
-        } else if (sectorId) {
-          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
-        } else {
-          url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
-        }
-         
-           return this.http.get<any>(url, { headers });
-      }
+    return this.http.get(url);
+  }
 
-       CDPOObs(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
+  getObservationCompletionForDPO(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
 
-        const params: string[] = [];
+    const params: string[] = [];
 
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
 
-        const queryString = params.length ? '?' + params.join('&') : '';
 
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
-          console.log(url,'block excel');
-        } else if (districtId) {
-          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
-          console.log(url,'district excel');
-        } else if (sectorId) {
-          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
-        } else {
-          url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
-        }
-         
-           return this.http.get<any>(url, { headers });
-      }
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    } if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
 
-          supervisorActive(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
 
-        const params: string[] = [];
+    const queryString = params.length ? '?' + params.join('&') : '';
 
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
 
-        const queryString = params.length ? '?' + params.join('&') : '';
+    let url: string;
 
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
-          console.log(url,'block excel');
-        } else if (districtId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
-          console.log(url,'district excel');
-        } else if (sectorId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
-        } else {
-          url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
-        }
-         
-         return this.http.get<any>(url, { headers });
-      }
+    if (districtId && blockId) {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-dpo${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-dpo${queryString}`;
+    } else {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-dpo${queryString}`;
+    }
 
-         CDPOActive(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
+    return this.http.get(url);
+  }
 
-        const params: string[] = [];
+  getObservationCompletionForCDPO(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
 
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
+    const params: string[] = [];
 
-        const queryString = params.length ? '?' + params.join('&') : '';
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
 
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
-          console.log(url,'block excel');
-        } else if (districtId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
-          console.log(url,'district excel');
-        } else if (sectorId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
-        } else {
-          url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
-        }
-         
-         return this.http.get<any>(url, { headers });
-      }
 
-       DPOActive(
-        districtId?: string,
-        year?: string,
-        month?: string,
-        sectorId?: string,
-        blockId?: string
-      ): Observable<any> {
-        const token = localStorage.getItem('access_token');
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    } if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
 
-        const params: string[] = [];
 
-        if (districtId) params.push(`district_id=${districtId}`);
-        if (month) params.push(`month=${month}`);
-        if (year) params.push(`year=${year}`);
-        if (blockId) params.push(`block_id=${blockId}`);
-        if (sectorId) params.push(`sector_id=${sectorId}`);
+    const queryString = params.length ? '?' + params.join('&') : '';
 
-        const queryString = params.length ? '?' + params.join('&') : '';
 
-        let url = '';
-        if (blockId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
-          console.log(url,'block excel');
-        } else if (districtId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
-          console.log(url,'district excel');
-        } else if (sectorId) {
-          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
-        } else [
-          url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`
-        ]
-         
-         return this.http.get<any>(url, { headers });
-      }
+    let url: string;
 
+    if (districtId && blockId) {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-cdpo${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-cdpo${queryString}`;
+    } else {
+      url = `${this.baseUrl}web-observation-completion/get-observation-completion-for-cdpo${queryString}`;
+    }
+
+    return this.http.get(url);
+  }
+
+  getObsCompletetionExcelSupervisor(
+    districtId?: string,
+    year?: any,
+    month?: string,
+    blockId?: string,
+    sectorId?:string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+
+   console.log(blockId,"blockId",districtId);
+   
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/excel-block${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/excel${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/excel-sector${queryString}`;
+      console.log(url, 'district excel');
+    } 
+
+
+    return this.http.get(url, { responseType: 'blob' });
+  }
+  getObsCompletetionExcelCDPO(
+    districtId?: string,
+    year?: any,
+    month?: string,
+    blockId?: string,
+    sectorId?:string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+
+   console.log(blockId,"blockId",districtId);
+   
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/cdpo-excel-block${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/cdpo-excel-district${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/cdpo-excel-sector${queryString}`;
+      console.log(url, 'district excel');
+    } 
+
+
+    return this.http.get(url, { responseType: 'blob' });
+  }
 
 
 
@@ -805,12 +1146,12 @@ export class DashboardServiceService {
 
   postSectorData(blockId): Observable<any> {
     console.log(blockId, "inside api");
-    
+
     const token = localStorage?.getItem('access_token');
     //console.log(token, 'token');
     const paylods = {
       filter: { "block_id": blockId },
-    
+
     }
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,

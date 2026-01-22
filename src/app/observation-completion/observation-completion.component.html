@@ -6,7 +6,7 @@
   </div>
 </div> -->
 
-<div *ngIf="!isLoading" class="dashboard-container">
+<div  class="dashboard-container">
   <!-- Header -->
   <header class="content-header">
     <div class="header-left">
@@ -27,10 +27,7 @@
       <div class="filters-row">
         <mat-form-field appearance="outline" style="border: 2px soild red">
           <mat-label>Year</mat-label>
-          <mat-select
-            [(value)]="selectedYear"
-            (selectionChange)="onFilterChange()"
-          >
+          <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
             <mat-option *ngFor="let year of years" [value]="year">
               {{ year }}
             </mat-option>
@@ -39,15 +36,9 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Month</mat-label>
-          <mat-select
-            [(value)]="selectedMonth"
-            (selectionChange)="onFilterChange()"
-          >
-            <mat-option
-              *ngFor="let month of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]"
-              [value]="month.toString()"
-              [disabled]="selectedYear == currentYear && month > currentMonth"
-            >
+          <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let month of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" [value]="month.toString()"
+              [disabled]="selectedYear == currentYear && month > currentMonth">
               {{ monthNames[month - 1] }}
             </mat-option>
           </mat-select>
@@ -55,15 +46,9 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>District</mat-label>
-          <mat-select
-            [(value)]="selectedDistrict"
-            (selectionChange)="onDistrictChange($event)"
-          >
+          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)">
             <!-- <mat-option value="" >All District</mat-option> -->
-            <mat-option
-              *ngFor="let district of districtData"
-              [value]="district.district_id"
-            >
+            <mat-option *ngFor="let district of districtData" [value]="district.district_id">
               {{ district.district_name }}
             </mat-option>
           </mat-select>
@@ -71,15 +56,9 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Block</mat-label>
-          <mat-select
-            [(value)]="selectedBlock"
-            (selectionChange)="onBlockChange()"
-          >
+          <mat-select [(value)]="selectedBlock" (selectionChange)="onBlockChange()">
             <!-- <mat-option value="" >All Block</mat-option> -->
-            <mat-option
-              *ngFor="let block of blockData"
-              [value]="block.block_id"
-            >
+            <mat-option *ngFor="let block of blockData" [value]="block.block_id">
               {{ block.block_name }}
             </mat-option>
           </mat-select>
@@ -97,31 +76,22 @@
         <!-- your existing filter fields here -->
 
         <!-- Clear Filters Button -->
-        <button
-          mat-stroked-button
-          class="clear-button"
-          color="warn"
-          (click)="clearFilters()"
-          *ngIf="selectedDistrict"
-        >
+        <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()" *ngIf="selectedDistrict">
           Clear Filters
         </button>
       </div>
     </mat-card>
   </div>
 
-    <div
-  style="
+  <div style="
     display: flex;
     justify-content: space-around;
     gap: 16px;
     padding: 12px;
     margin-top: 0px;
-  "
->
-  <!-- Supervisor -->
-   <div
-  style="
+  ">
+    <!-- Supervisor -->
+    <div style="
     flex: 1;
     min-width: 200px;
     border-radius: 15px;
@@ -133,28 +103,26 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-  "
->
-  <ng-container *ngIf="isLoadingForSupervisorObservationCompletion; else dataView">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
-  </ng-container>
+  ">
+      <ng-container *ngIf="isLoadingForSupervisorObservationCompletion; else dataView">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+      </ng-container>
 
-  <ng-template #dataView>
-    <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-      {{ supervisorObservationCompletionData | number:'1.0-0' }}%
-    </p>
+      <ng-template #dataView>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
+          {{ supervisorObservationCompletionData | number:'1.0-0' }}%
+        </p>
 
-    <p style="font-size: 1rem; font-weight: 600;">
-      Supervisor observations completed this month
-    </p>
-  </ng-template>
-</div>
+        <p style="font-size: 1rem; font-weight: 600;">
+          Supervisor observations completed this month
+        </p>
+      </ng-template>
+    </div>
 
 
-  <!-- CDPO -->
-    <div
-  style="
+    <!-- CDPO -->
+    <div style="
     flex: 1;
     min-width: 200px;
     border-radius: 15px;
@@ -166,30 +134,63 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-  "
->
-  <!-- Loader -->
-  <ng-container *ngIf="isLoadingForCDPOObservationCompletion; else cdpoData">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
-  </ng-container>
+  ">
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingForCDPOObservationCompletion; else cdpoDatas">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+      </ng-container>
 
-  <!-- Data -->
-  <ng-template #cdpoData>
-    <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-      {{ cdpoObservationCompletionData | number:'1.0-0' }}%
-    </p>
+      <!-- Data -->
+      <ng-template #cdpoDatas>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
+          {{ cdpoObservationCompletionData | number:'1.0-0' }}%
+        </p>
 
-    <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-      CDPO observations completed this quarter
-    </p>
-  </ng-template>
-</div>
+        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
+          CDPO observations completed this quarter
+        </p>
+      </ng-template>
+    </div>
 
 
-  <!-- DPO -->
-  <div
-    style="
+    <!-- CDPO -->
+    <div style="
+    flex: 1;
+    min-width: 200px;
+    border-radius: 15px;
+    padding: 20px 10px;
+    background-color: rgb(233, 149, 149);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  ">
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingSectorsObservedByDpo; else cdpoData">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+      </ng-container>
+
+      <!-- Data -->
+      <ng-template #cdpoData>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
+          {{ sectorsObservedByDpoData?.sector_visit_percentage | number:'1.0-0' }}%
+        </p>
+
+        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
+          Sectors observed by DPO this quarter
+        </p>
+      </ng-template>
+    </div>
+
+
+
+
+    <!-- DPO -->
+    <!-- <div style="
       flex: 1;
       min-width: 200px;
       border-radius: 15px;
@@ -201,28 +202,23 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-    "
-  >
-    <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">12</p>
-    <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-      Sectors observed by DPO this quarter
-    </p>
+    ">
+      <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">12</p>
+      <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
+        Sectors observed by DPO this quarter
+      </p>
+    </div> -->
   </div>
-</div>
 
-
-  <div
-    style="
+  <div style="
       display: flex;
       justify-content: space-around;
       gap: 16px;
       padding: 12px;
       margin-top: 0px;
-    "
-  >
+    ">
     <!-- Supervisor -->
-       <div
-  style="
+    <div style="
     flex: 1;
     min-width: 200px;
     border-radius: 15px;
@@ -235,31 +231,28 @@
     justify-content: center;
     text-align: center;
     position: relative;
-  "
->
-  <!-- Loader -->
-  <ng-container *ngIf="isLoadingForSupervisorActive; else dataTpl">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
-  </ng-container>
+  ">
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingForSupervisorActive; else dataTpl">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+      </ng-container>
 
-  <!-- Data -->
-  <ng-template #dataTpl>
-    <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-      {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
-    </p>
+      <!-- Data -->
+      <ng-template #dataTpl>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
+          {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+        </p>
 
-    <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-      Supervisor active this month
-    </p>
+        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
+          Supervisor active this month
+        </p>
 
-    <!-- Up triangle -->
-    <div
-      *ngIf="
+        <!-- Up triangle -->
+        <div *ngIf="
         supervisorActiveData?.presentMonthActiveRate >
         supervisorActiveData?.lastMonthActiveRate
-      "
-      style="
+      " style="
         position: absolute;
         right: 12px;
         top: 12px;
@@ -268,16 +261,13 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
         border-bottom: 14px solid green;
-      "
-    ></div>
+      "></div>
 
-    <!-- Down triangle -->
-    <div
-      *ngIf="
+        <!-- Down triangle -->
+        <div *ngIf="
         supervisorActiveData?.presentMonthActiveRate <
         supervisorActiveData?.lastMonthActiveRate
-      "
-      style="
+      " style="
         position: absolute;
         right: 12px;
         top: 12px;
@@ -286,16 +276,14 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
         border-top: 14px solid red;
-      "
-    ></div>
-  </ng-template>
-</div>
+      "></div>
+      </ng-template>
+    </div>
 
 
 
-         <!-- CDPO -->
-<div
-  style="
+    <!-- CDPO -->
+    <div style="
     flex: 1;
     min-width: 200px;
     border-radius: 15px;
@@ -308,31 +296,28 @@
     justify-content: center;
     text-align: center;
     position: relative;
-  "
->
-  <!-- Loader -->
-  <ng-container *ngIf="isLoadingForCDPOActive; else cdpoActiveTpl">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
-  </ng-container>
+  ">
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingForCDPOActive; else cdpoActiveTpl">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+      </ng-container>
 
-  <!-- Data -->
-  <ng-template #cdpoActiveTpl>
-    <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-      {{ cdpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
-    </p>
+      <!-- Data -->
+      <ng-template #cdpoActiveTpl>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
+          {{ cdpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+        </p>
 
-    <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-      CDPO active this quarter
-    </p>
+        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
+          CDPO active this quarter
+        </p>
 
-    <!-- Up triangle -->
-    <div
-      *ngIf="
+        <!-- Up triangle -->
+        <div *ngIf="
         cdpoActiveData?.presentMonthActiveRate >
         cdpoActiveData?.lastMonthActiveRate
-      "
-      style="
+      " style="
         position: absolute;
         right: 12px;
         top: 12px;
@@ -341,16 +326,13 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
         border-bottom: 14px solid green;
-      "
-    ></div>
+      "></div>
 
-    <!-- Down triangle -->
-    <div
-      *ngIf="
+        <!-- Down triangle -->
+        <div *ngIf="
         cdpoActiveData?.presentMonthActiveRate <
         cdpoActiveData?.lastMonthActiveRate
-      "
-      style="
+      " style="
         position: absolute;
         right: 12px;
         top: 12px;
@@ -359,16 +341,14 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
         border-top: 14px solid red;
-      "
-    ></div>
-  </ng-template>
-</div>
+      "></div>
+      </ng-template>
+    </div>
 
 
     <!-- DPO -->
-      <!-- DPO -->
-<div
-  style="
+    <!-- DPO -->
+    <div style="
     flex: 1;
     min-width: 200px;
     border-radius: 15px;
@@ -381,31 +361,28 @@
     justify-content: center;
     text-align: center;
     position: relative;
-  "
->
-  <!-- Loader -->
-  <ng-container *ngIf="isLoadingForDPOActive; else dpoActiveTpl">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
-  </ng-container>
+  ">
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingForDPOActive; else dpoActiveTpl">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+      </ng-container>
 
-  <!-- Data -->
-  <ng-template #dpoActiveTpl>
-    <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-      {{ dpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
-    </p>
+      <!-- Data -->
+      <ng-template #dpoActiveTpl>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
+          {{ dpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+        </p>
 
-    <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-      DPO active this month
-    </p>
+        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
+          DPO active this month
+        </p>
 
-    <!-- Up triangle -->
-    <div
-      *ngIf="
+        <!-- Up triangle -->
+        <div *ngIf="
         dpoActiveData?.presentMonthActiveRate >
         dpoActiveData?.lastMonthActiveRate
-      "
-      style="
+      " style="
         position: absolute;
         right: 12px;
         top: 12px;
@@ -414,16 +391,13 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
         border-bottom: 14px solid green;
-      "
-    ></div>
+      "></div>
 
-    <!-- Down triangle -->
-    <div
-      *ngIf="
+        <!-- Down triangle -->
+        <div *ngIf="
         dpoActiveData?.presentMonthActiveRate <
         dpoActiveData?.lastMonthActiveRate
-      "
-      style="
+      " style="
         position: absolute;
         right: 12px;
         top: 12px;
@@ -432,137 +406,190 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
         border-top: 14px solid red;
-      "
-    ></div>
-  </ng-template>
-</div>
+      "></div>
+      </ng-template>
+    </div>
 
   </div>
 
-  <!-- Key Metrics Cards -->
-  <!-- <div class="metrics-row">
-     <div style=" padding: 15px; display: flex; align-items: center; justify-content: space-between; flex-direction: column;  background: rgb(233, 226, 226); border-radius: 10px;">
-       <p style="font-size: medium; font-weight: 400;">By Observation</p>
-       <div style="display: flex; flex-direction:  row; gap: 10px; height: 100%;">
-           <mat-card
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        border-radius: 7%;
-        background: lightblue;
-        padding: 12px;
-        gap: 10px;
-        margin-bottom: 0px;
-      "
-    >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">
-        {{ stateLevelData?.[0]?.[2]?.count_non_zero_diff || 0 }}
-      </div>
-      <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
-        {{ labelChanges.stateChildDeviation || "-" }}
-      </div>
-    </mat-card>
 
-    <mat-card
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-         border-radius: 7%;
-        background: lightblue;
-                padding: 12px;
-                 gap: 10px;
-                 margin-bottom: 0px;
-      "
-    >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.[0]?.[2]?.percent_non_zero_diff | number:'1.0-2' }}%</div>
-      <div class="status-label"  style="font-weight: 400; font-size: medium; text-align: center;">
-        {{ labelChanges.statePercentageChildDeviation || "-" }}
-      </div>
-    </mat-card>
-       </div>
-         
-     </div>
+  <!-- graph -->
 
-      <div style=" padding: 15px; display: flex; align-items: center; justify-content: space-between;  flex-direction: column;  background: rgb(233, 226, 226); border-radius: 10px;">
-               <p style="font-size: medium; font-weight: 400;">By Anganwadi</p>
-          <mat-card
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-         border-radius: 5%;
-        background: lightblue;
-                padding: 12px;
-                 gap: 10px;
-                 margin-bottom: 0px;
-                 height: 100%;
-                 width: -webkit-fill-available;
-      "
-    >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">
-            {{ stateLevelData?.[1]?.[stateLevelData?.[1]?.length - 1]?.percent_non_zero_diff | number:'1.0-2' }}%
-      </div>
-      <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
-        {{ labelChanges.stateByAwcDeviationThisMonth || "-" }}
-      </div>
-    </mat-card>
-         
-      </div>
-     
 
-      <div style=" padding: 15px; display: flex; align-items: center; flex-direction: column;  background: rgb(233, 226, 226); border-radius: 10px;">
-             <p style="font-size: medium; font-weight: 400;">By Supervisor</p>
-            <div style="display: flex; flex-direction:  row; gap: 10px; height: 100%;">
-           <mat-card
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-         border-radius: 7%;
-        background: lightblue;
-                padding: 12px;
-                 gap: 10px;
-                 margin-bottom: 0px;
-      "
-    >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">{{ stateLevelData?.[2]?.deviation_supervisor_reporting?.[stateLevelData?.[2]?.deviation_supervisor_reporting?.length - 1]?.deviation }}%</div>
-      <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
-        {{ labelChanges.stateBySupervisorNoDeviationThisMonth || "-" }}
-      </div>
-    </mat-card>
+  <div class="chart-container">
 
-    <mat-card
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-         border-radius: 7%;
-        background: lightblue;
-                padding: 12px;
-                 gap: 10px;
-                 margin-bottom: 0px;
-      "
-    >
-      <div class="status-number" style="font-weight: 600; font-size: larger;">
-         {{ stateLevelData?.[3]?.deviation_supervisor_reporting?.[stateLevelData?.[3]?.deviation_supervisor_reporting?.length - 1]?.deviation }}%
+    <!-- Supervisor -->
+    <div class="card supervisor">
+      <h3>Supervisor completion trends</h3>
+      <canvas baseChart [data]="supervisorChartData" [type]="chartType" [options]="chartOptions">
+      </canvas>
+    </div>
+
+    <!-- CDPO -->
+    <div class="card cdpo">
+      <h3>CDPO completion trends</h3>
+      <canvas baseChart [data]="cdpoChartData" [type]="chartType" [options]="chartOptions">
+      </canvas>
+    </div>
+
+    <!-- DPO -->
+    <div class="card dpo">
+      <h3>DPO completion trends</h3>
+      <canvas baseChart [data]="dpoChartData" [type]="chartType" [options]="chartOptions">
+      </canvas>
+    </div>
+
+  </div>
+
+
+  <div class="role-toggle">
+    <button
+      *ngFor="let role of ['DPO','CDPO','SUPERVISOR']"
+      (click)="onToggleChangeUserChange(role)"
+      [class.active]="selectedRole === role">
+      {{ role === 'SUPERVISOR' ? 'Block Supervisor' : role }}
+    </button>
+  </div>
+
+
+
+  <!-- charts -->
+  <mat-card class="chart-card full-width" style=" max-height: 80vh; overflow-x: scroll ; margin-top: 10px;">
+    <mat-card-header class="chart-header">
+      <div class="header-content">
+        <mat-card-title>{{ labelChanges.barchart || "-" }}</mat-card-title>
+
+        <div class="view-toggle-buttons" fxLayout="row" fxLayoutGap="8px">
+          <!-- Download Buttons -->
+          <ng-container *ngIf="selectedTabIndex === 0">
+            <button mat-icon-button (click)="downloadBarChart()" matTooltip="Download Chart">
+              <mat-icon>download</mat-icon>
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="selectedTabIndex === 1">
+            <!-- <button mat-icon-button (click)="downloadExcel()" matTooltip="Download Excel">
+              <mat-icon>download</mat-icon>
+            </button> -->
+          </ng-container>
+
+          <!-- Sorting Buttons -->
+          <ng-container *ngIf="selectedTabIndex === 1">
+            <div class="button-group" style="display: flex; flex-direction: row; gap: 8px;">
+              <button mat-stroked-button (click)="toggleChartSort('number')"
+                title="{{ chartSortOrder === 'asc' ? 'Currently: Low to High - Click to sort High to Low' : 'Currently: High to Low - Click to sort Low to High' }}"
+                style="position: relative; padding: 10px;">
+                <div style="display: flex; flex-direction: row; align-items: center; line-height: 0.8;">
+                  <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px;"
+                    [style.color]="chartSortOrder === 'desc' ? 'black' : '#ccc'">north</mat-icon>
+                  <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px"
+                    [style.color]="chartSortOrder === 'asc' ? 'black' : '#ccc'">south</mat-icon>
+                </div>
+              </button>
+              <button style="height: 44px;" mat-stroked-button (click)="toggleChartSort('alpha')"
+                title="Sort alphabetically {{ alphaSortOrder === 'asc' ? 'Z-A' : 'A-Z' }}">
+                {{ alphaSortOrder === 'asc' ? 'A-Z' : 'Z-A' }}
+              </button>
+            </div>
+          </ng-container>
+        </div>
       </div>
-      <div class="status-label" style="font-weight: 400; font-size: medium; text-align: center;">
-        {{ labelChanges.stateBySupervisor100DeviationThisMonth || "-" }}
-      </div>
-    </mat-card>
-      </div>
-      </div>
-    
-      
-    
-  </div> -->
+    </mat-card-header>
+
+    <mat-card-content class="bar-and-table">
+      <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+        <!-- Table Tab -->
+        <mat-tab label="Table View">
+          <div class="table-controls mt-3">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Search {{ labelChanges.sectionType || "-" }}</mat-label>
+              <input matInput (keyup)="applyFilter($event)" placeholder="Search..." />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="table-container">
+            <table mat-table [dataSource]="dataSource" matSort class="data-table mat-elevation-z2">
+              <!-- Sl.No -->
+              <ng-container matColumnDef="slNo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="slNo" style="text-align: center">
+                  Sl.No
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.slNo }}</td>
+              </ng-container>
+
+              <!-- District (Sortable) -->
+              <ng-container matColumnDef="district">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="district">
+                  {{ labelChanges.sectionType || "-" }} Name
+                </th>
+                <td mat-cell *matCellDef="let row"  style="
+                    cursor: pointer;
+                    color: blue;
+                    text-decoration: underline;
+                    " (click)="onDistrictOrBlockClick(row.id)" >
+                  {{ row.district }}
+                </td>
+              </ng-container>
+
+              <!-- Available (Sortable) -->
+              <ng-container matColumnDef="available">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="available" style="text-align: center">
+                  Centers Available
+                </th>
+                <td mat-cell *matCellDef="let row" style="text-align: center">
+                  {{ row.available }}
+                </td>
+              </ng-container>
+
+              <!-- Observed (Sortable) -->
+              <ng-container matColumnDef="observed">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="observed" style="text-align: center">
+                  Centers Observed
+                </th>
+                <td mat-cell *matCellDef="let row" style="text-align: center">
+                  {{ row.observed }}
+                </td>
+              </ng-container>
+
+              <!-- Centers Not Observed - Pending (Sortable) -->
+              <ng-container matColumnDef="centerNotObserved">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="centerNotObserved" style="text-align: center">
+                  Centers Not Observed (Pending)
+                </th>
+                <td mat-cell *matCellDef="let row" style="text-align: center">
+                  {{ row.centerNotObserved }}
+                </td>
+              </ng-container>
+
+              <!-- Observed Percentage - Completion % (Sortable) -->
+              <ng-container matColumnDef="observePercentage">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header="observePercentage" style="text-align: center">
+                  Completion %
+                </th>
+                <td mat-cell *matCellDef="let row" style="text-align: center">
+                  {{ row.observePercentage }}%
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        </mat-tab>
+
+        <!-- Chart Tab -->
+        <!-- [options]="barChartOptions" -->
+        <mat-tab label="Chart View">
+          <div class="bar-chart-container" #barCanvasWrapper>
+            <canvas #barChart baseChart [data]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+              [type]="'bar'" [legend]="true" #barChartDirective>
+            </canvas>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
 
   <div style="max-width: 800px; margin: auto"></div>
 </div>
