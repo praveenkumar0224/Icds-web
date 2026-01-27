@@ -1,0 +1,147 @@
+<mat-card class="chart-card">
+    <!-- HEADER -->
+    <mat-card-header *ngIf="!loading">
+        <div class="header-content">
+            <mat-card-title>{{ headerConfig?.title || '-' }}</mat-card-title>
+
+            <div class="view-toggle-buttons">
+                <!-- 🆕 Chart Sort Buttons - Show when on Chart tab and sorting is enabled -->
+                <ng-container *ngIf="selectedTabIndex === 1 && chartConfig?.enableSort">
+                    <div class="button-group" style="display: flex; flex-direction: row; gap: 8px;">
+                        <!-- Numerical Sort -->
+                        <button mat-stroked-button (click)="toggleChartSort('number')"
+                            [title]="chartSortOrder === 'asc' ? 'Currently: Low to High - Click to sort High to Low' : 'Currently: High to Low - Click to sort Low to High'"
+                            style="position: relative; padding: 10px;">
+                            <div style="display: flex; flex-direction: row; align-items: center; line-height: 0.8;">
+                                <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px;"
+                                    [style.color]="chartSortOrder === 'desc' ? 'black' : '#ccc'">north</mat-icon>
+                                <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px"
+                                    [style.color]="chartSortOrder === 'asc' ? 'black' : '#ccc'">south</mat-icon>
+                            </div>
+                        </button>
+
+                        <!-- Alphabetical Sort -->
+                        <button style="height: 44px;" mat-stroked-button (click)="toggleChartSort('alpha')"
+                            [title]="'Sort alphabetically ' + (alphaSortOrder === 'asc' ? 'Z-A' : 'A-Z')">
+                            {{ alphaSortOrder === 'asc' ? 'A-Z' : 'Z-A' }}
+                        </button>
+                    </div>
+                </ng-container>
+
+                <!-- Excel Download - Show when on Table tab -->
+                <button *ngIf="selectedTabIndex === 0 && headerConfig?.showExcelDownload" mat-icon-button
+                    (click)="handleDownloadExcel()" matTooltip="Download Excel">
+                    <mat-icon>download</mat-icon>
+                </button>
+
+                <!-- Chart Download - Show when on Chart tab -->
+                <button *ngIf="selectedTabIndex === 1 && headerConfig?.showChartDownload" mat-icon-button
+                    (click)="handleDownloadChart()" matTooltip="Download Chart">
+                    <mat-icon>download</mat-icon>
+                </button>
+            </div>
+        </div>
+    </mat-card-header>
+
+    <!-- CONTENT -->
+    <mat-card-content class="card-content">
+        <div class="loader-overlay" *ngIf="loading">
+            <mat-spinner diameter="50"></mat-spinner>
+        </div>
+
+        <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+            <!-- TABLE TAB -->
+            <mat-tab label="Table View">
+                <div class="table-container">
+                    <div *ngIf="tableConfig?.enableSearch" class="table-controls">
+                        <mat-form-field appearance="outline" class="search-field">
+                            <mat-label>Search</mat-label>
+                            <input matInput (keyup)="applyFilter($event)" />
+                            <mat-icon matSuffix>search</mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- TRIPLE SAFE RENDER CHECK -->
+                    <ng-container *ngIf="tableConfig && tableConfig.columns && displayedColumns.length > 0">
+                        <table mat-table [dataSource]="dataSource" matSort>
+                            <ng-container *ngFor="let col of tableConfig.columns" [matColumnDef]="col.key">
+
+                                <!-- HEADER -->
+                                <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col.sortable ? col.key : null"
+                                    [style.text-align]="col.align || 'left'">
+                                    {{ col.label }}
+                                </th>
+
+                                <!-- CELL -->
+                                <td mat-cell *matCellDef="let row; let i = index"
+                                    [style.text-align]="col.align || 'left'" [class.clickable]="col.clickable"
+                                    (click)="col.clickable && onRowClick(row)">
+
+                                    <ng-container *ngIf="col.key === 'slNo'; else valueCell">
+                                        {{ i + 1 }}
+                                    </ng-container>
+
+                                    <ng-template #valueCell>
+
+                                        <!-- 🔺 COMPARISON ICON -->
+                                        <ng-container *ngIf="col.comparison?.enabled">
+                                            <span class="comparison-icon"
+                                                [ngClass]="getComparisonClass(row[col.comparison.statusKey])"
+                                                aria-hidden="true">
+                                            </span>
+                                        </ng-container>
+
+                                        <!-- 🔢 VALUE -->
+                                        {{ row[col.key] }}{{ col.suffix || '' }}
+
+
+
+                                    </ng-template>
+
+                                </td>
+
+                                <!-- FOOTER -->
+                                <td mat-footer-cell *matFooterCellDef [style.text-align]="col.align || 'left'">
+
+                                    <ng-container *ngIf="col.totalLabel">
+                                        <strong>Total</strong>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="col.total">
+                                        <strong>{{ getColumnTotal(col.key) }}{{ col.suffix || '' }}</strong>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="col.percentage">
+                                        <strong>{{ getPercentageTotal(col) }}{{ col.suffix || '' }}</strong>
+                                    </ng-container>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+                            <ng-container *ngIf="tableConfig?.showFooter">
+                                <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+                            </ng-container>
+                        </table>
+                    </ng-container>
+
+                    <!-- Empty state when no valid config -->
+                    <div *ngIf="!tableConfig || !tableConfig.columns || displayedColumns.length === 0"
+                        class="empty-state">
+                        <p>No table configuration available</p>
+                    </div>
+                </div>
+            </mat-tab>
+
+            <!-- CHART TAB -->
+            <mat-tab label="Chart View" *ngIf="chartConfig?.enabled">
+                <div class="bar-chart-container">
+                    <canvas #barChart baseChart [data]="chartConfig.data" [labels]="chartConfig.labels"
+                        [options]="chartConfig.options" type="bar">
+                    </canvas>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </mat-card-content>
+</mat-card>

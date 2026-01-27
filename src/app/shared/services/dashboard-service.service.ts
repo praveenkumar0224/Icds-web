@@ -1096,22 +1096,47 @@ export class DashboardServiceService {
 
     return this.http.get(url, { responseType: 'blob' });
   }
-
-
-
-  //Masters 
-  // district="district_id"
-  /* postDistrictData(): Observable<any> {
-    const token = localStorage?.getItem('access_token');
-    console.log(token,'token');
-    
+  getObsCompletetionExcelDPO(
+    districtId?: string,
+    year?: any,
+    month?: string,
+    blockId?: string,
+    sectorId?:string
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
     });
-    
-    return this.http.post(`${this.baseUrl}district/paginate`, { headers });
-  } */
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+
+   console.log(blockId,"blockId",districtId);
+   
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/dpo-excel-block${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/dpo-excel-district${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/dpo-excel-sector${queryString}`;
+      console.log(url, 'district excel');
+    } 
+
+
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   postDistrictData(): Observable<any> {
     const token = localStorage?.getItem('access_token');
     // console.log(token, 'token');

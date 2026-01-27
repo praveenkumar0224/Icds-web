@@ -6,7 +6,7 @@
   </div>
 </div> -->
 
-<div  class="dashboard-container">
+<div class="dashboard-container">
   <!-- Header -->
   <header class="content-header">
     <div class="header-left">
@@ -25,14 +25,19 @@
   <div class="filters-section">
     <mat-card class="filters-card" style="padding: 10px">
       <div class="filters-row">
-        <mat-form-field appearance="outline" style="border: 2px soild red">
+        <mat-form-field appearance="outline">
           <mat-label>Year</mat-label>
           <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
-            <mat-option *ngFor="let year of years" [value]="year">
+            <mat-option
+              *ngFor="let year of years"
+              [value]="year"
+              [disabled]="year > currentYear"
+            >
               {{ year }}
             </mat-option>
           </mat-select>
         </mat-form-field>
+        
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Month</mat-label>
@@ -440,156 +445,22 @@
     </div>
 
   </div>
-
+  ['SUPERVISOR','CDPO','DPO'
 
   <div class="role-toggle">
-    <button
-      *ngFor="let role of ['DPO','CDPO','SUPERVISOR']"
-      (click)="onToggleChangeUserChange(role)"
+    <button *ngFor="let role of ['SUPERVISOR','CDPO','DPO']" (click)="onToggleChangeUserChange(role)"
       [class.active]="selectedRole === role">
       {{ role === 'SUPERVISOR' ? 'Block Supervisor' : role }}
     </button>
   </div>
 
+  <app-dynamic-table-chart [loading]="isLoading" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
+    [tableData]="tableData" [chartConfig]="chartConfig" (rowClick)="onRowClick($event)">
+  </app-dynamic-table-chart>
 
 
-  <!-- charts -->
-  <mat-card class="chart-card full-width" style=" max-height: 80vh; overflow-x: scroll ; margin-top: 10px;">
-    <mat-card-header class="chart-header">
-      <div class="header-content">
-        <mat-card-title>{{ labelChanges.barchart || "-" }}</mat-card-title>
 
-        <div class="view-toggle-buttons" fxLayout="row" fxLayoutGap="8px">
-          <!-- Download Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 0">
-            <button mat-icon-button (click)="downloadBarChart()" matTooltip="Download Chart">
-              <mat-icon>download</mat-icon>
-            </button>
-          </ng-container>
 
-          <ng-container *ngIf="selectedTabIndex === 1">
-            <!-- <button mat-icon-button (click)="downloadExcel()" matTooltip="Download Excel">
-              <mat-icon>download</mat-icon>
-            </button> -->
-          </ng-container>
 
-          <!-- Sorting Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 1">
-            <div class="button-group" style="display: flex; flex-direction: row; gap: 8px;">
-              <button mat-stroked-button (click)="toggleChartSort('number')"
-                title="{{ chartSortOrder === 'asc' ? 'Currently: Low to High - Click to sort High to Low' : 'Currently: High to Low - Click to sort Low to High' }}"
-                style="position: relative; padding: 10px;">
-                <div style="display: flex; flex-direction: row; align-items: center; line-height: 0.8;">
-                  <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px;"
-                    [style.color]="chartSortOrder === 'desc' ? 'black' : '#ccc'">north</mat-icon>
-                  <mat-icon style="font-size: 16px; width: 16px; height: 16px; padding: 2px"
-                    [style.color]="chartSortOrder === 'asc' ? 'black' : '#ccc'">south</mat-icon>
-                </div>
-              </button>
-              <button style="height: 44px;" mat-stroked-button (click)="toggleChartSort('alpha')"
-                title="Sort alphabetically {{ alphaSortOrder === 'asc' ? 'Z-A' : 'A-Z' }}">
-                {{ alphaSortOrder === 'asc' ? 'A-Z' : 'Z-A' }}
-              </button>
-            </div>
-          </ng-container>
-        </div>
-      </div>
-    </mat-card-header>
 
-    <mat-card-content class="bar-and-table">
-      <mat-tab-group [(selectedIndex)]="selectedTabIndex">
-        <!-- Table Tab -->
-        <mat-tab label="Table View">
-          <div class="table-controls mt-3">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Search {{ labelChanges.sectionType || "-" }}</mat-label>
-              <input matInput (keyup)="applyFilter($event)" placeholder="Search..." />
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
-          </div>
-
-          <div class="table-container">
-            <table mat-table [dataSource]="dataSource" matSort class="data-table mat-elevation-z2">
-              <!-- Sl.No -->
-              <ng-container matColumnDef="slNo">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header="slNo" style="text-align: center">
-                  Sl.No
-                </th>
-                <td mat-cell *matCellDef="let row">{{ row.slNo }}</td>
-              </ng-container>
-
-              <!-- District (Sortable) -->
-              <ng-container matColumnDef="district">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header="district">
-                  {{ labelChanges.sectionType || "-" }} Name
-                </th>
-                <td mat-cell *matCellDef="let row"  style="
-                    cursor: pointer;
-                    color: blue;
-                    text-decoration: underline;
-                    " (click)="onDistrictOrBlockClick(row.id)" >
-                  {{ row.district }}
-                </td>
-              </ng-container>
-
-              <!-- Available (Sortable) -->
-              <ng-container matColumnDef="available">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header="available" style="text-align: center">
-                  Centers Available
-                </th>
-                <td mat-cell *matCellDef="let row" style="text-align: center">
-                  {{ row.available }}
-                </td>
-              </ng-container>
-
-              <!-- Observed (Sortable) -->
-              <ng-container matColumnDef="observed">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header="observed" style="text-align: center">
-                  Centers Observed
-                </th>
-                <td mat-cell *matCellDef="let row" style="text-align: center">
-                  {{ row.observed }}
-                </td>
-              </ng-container>
-
-              <!-- Centers Not Observed - Pending (Sortable) -->
-              <ng-container matColumnDef="centerNotObserved">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header="centerNotObserved" style="text-align: center">
-                  Centers Not Observed (Pending)
-                </th>
-                <td mat-cell *matCellDef="let row" style="text-align: center">
-                  {{ row.centerNotObserved }}
-                </td>
-              </ng-container>
-
-              <!-- Observed Percentage - Completion % (Sortable) -->
-              <ng-container matColumnDef="observePercentage">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header="observePercentage" style="text-align: center">
-                  Completion %
-                </th>
-                <td mat-cell *matCellDef="let row" style="text-align: center">
-                  {{ row.observePercentage }}%
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-          </div>
-        </mat-tab>
-
-        <!-- Chart Tab -->
-        <!-- [options]="barChartOptions" -->
-        <mat-tab label="Chart View">
-          <div class="bar-chart-container" #barCanvasWrapper>
-            <canvas #barChart baseChart [data]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
-              [type]="'bar'" [legend]="true" #barChartDirective>
-            </canvas>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
-    </mat-card-content>
-  </mat-card>
-
-  <div style="max-width: 800px; margin: auto"></div>
 </div>

@@ -30,6 +30,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AuthInterceptor } from './auth.interceptor';
 import { ObservationCompletionComponent } from './observation-completion/observation-completion.component';
+import { DynamicTableChartComponent } from './common/dynamic-table-chart/dynamic-table-chart.component';
 
 
 
@@ -58,7 +59,8 @@ import { ObservationCompletionComponent } from './observation-completion/observa
     AttendanceComponent,
      DistrictChartComponent,
      GrowthMonitoringComponent,
-     ObservationCompletionComponent
+     ObservationCompletionComponent,
+     DynamicTableChartComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService,

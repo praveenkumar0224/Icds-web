@@ -5,8 +5,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Chart, ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { MatSort } from '@angular/material/sort';
-import { HttpResponse } from '@angular/common/http';
+import * as FileSaver from 'file-saver';
 
+import * as XLSX from 'xlsx';
+import { TableConfig } from '../common/dynamic-table-chart/dynamic-table-chart.model';
 @Component({
   selector: 'app-observation-completion',
   templateUrl: './observation-completion.component.html',
@@ -61,8 +63,9 @@ export class ObservationCompletionComponent implements OnInit {
 
   selectedYear: string | number;
   years: number[] = [];
+  
   selectedMonth: string = (new Date().getMonth() + 1).toString();
-  currentYear: string = new Date().getFullYear().toString();
+  currentYear = new Date().getFullYear();
   currentMonth: number = new Date().getMonth() + 1;
 
   monthNames = [
@@ -76,8 +79,13 @@ export class ObservationCompletionComponent implements OnInit {
 
 
 
-  selectedRole: any = 'DPO'; // default
+  selectedRole: any = 'SUPERVISOR'; // default
   //line-charts
+
+
+
+
+
 
   lineChart = 'line'
   selectedTabIndex = 0;
@@ -130,6 +138,7 @@ export class ObservationCompletionComponent implements OnInit {
 
   barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       tooltip: {
         callbacks: {
@@ -197,6 +206,40 @@ export class ObservationCompletionComponent implements OnInit {
     }
   };
 
+
+  //tableConfig base 
+
+  tableConfig: TableConfig = {
+    enableSearch: true,
+    columns: [
+      { key: 'slNo', label: 'Sl.No', sortable: true, align: 'center' },
+      { key: 'sector', label: 'Sector Name', clickable: true },
+      { key: 'totalAwc', label: 'Total AWC', align: 'center' },
+      { key: 'deviationCount', label: 'AWC deviation count', align: 'center' },
+      { key: 'percentage', label: 'Deviation %', align: 'center', suffix: '%' }
+    ]
+  };
+
+  headerConfig = {
+    title: 'Sector wise % of AWC’s with deviation',
+    sectionType: 'Sector',
+    showExcelDownload: true,
+    showChartDownload: true
+  };
+  tableData: any[] = [];
+
+  chartConfig = {
+    enabled: true,
+    enableSort: true,
+    labelColumnKey: '',
+    dataColumnKey: '',
+    chartLabel: '',
+    backgroundColor: '#5D87FF',
+    chartFileName: 'dpo-observation.png'
+  };
+
+
+
   constructor(
     private service: DashboardServiceService,
     private router: Router,
@@ -210,14 +253,16 @@ export class ObservationCompletionComponent implements OnInit {
   }
 
   findingYear(): void {
-    const currentYear = new Date().getFullYear();
-    const startYear = 2020;
-    for (let y = startYear; y <= currentYear + 1; y++) {
+    const startYear = 2025;
+    const endYear = 2030;
+  
+    this.years = [];
+    for (let y = startYear; y <= endYear; y++) {
       this.years.push(y);
     }
-    this.selectedYear = currentYear;
+  
+    this.selectedYear = this.currentYear;
   }
-
   loadDistrictData(): void {
     this.isLoading = true;
     this.service.postDistrictData().subscribe({
@@ -241,6 +286,10 @@ export class ObservationCompletionComponent implements OnInit {
   }
 
   loadAllDashboardData(): void {
+
+    this.tableData = [];
+    
+    this.loadTableAndChartData()
     this.callSupervisorObservationCompletion();
     this.callCDPOObservationCompletion();
     this.callSupervisorActive();
@@ -250,7 +299,7 @@ export class ObservationCompletionComponent implements OnInit {
     this.getAwcObservedQuarterByCDPO();
     this.getAwcObservedQuarterByDPO();
     this.getSectorsObservedByDPO();
-    this.loadTableAndChartData()
+  
   }
 
   callSupervisorObservationCompletion(): void {
@@ -295,6 +344,19 @@ export class ObservationCompletionComponent implements OnInit {
           console.error("Error fetching CDPO observation completion:", err);
         },
       });
+  }
+
+  downloadExcel() {
+    const worksheet = XLSX.utils.json_to_sheet(this.dataSource.data);
+    const workbook = {
+      Sheets: { 'AWC Data': worksheet },
+      SheetNames: ['AWC Data'],
+    };
+    const excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    FileSaver.saveAs(new Blob([excelBuffer]), 'awc-observation.xlsx');
   }
 
   callSupervisorActive(): void {
@@ -557,8 +619,6 @@ export class ObservationCompletionComponent implements OnInit {
       });
   }
 
-
-
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value
       .trim()
@@ -640,126 +700,100 @@ export class ObservationCompletionComponent implements OnInit {
     };
   }
 
-  downloadBarChart(): void {
-    const canvas = this.barChartRef?.nativeElement;
-    const chart = Chart.getChart(canvas);
 
-    if (!chart) {
-      console.warn('Bar chart instance not found.');
-      return;
-    }
-
-    // Get canvas context
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Save chart image as base64 with white background
-    // 1. Create temporary canvas
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-
-    const tempCtx = tempCanvas.getContext('2d');
-    if (!tempCtx) return;
-
-    // 2. Fill background with white
-    tempCtx.fillStyle = '#ffffff';
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-    // 3. Draw existing chart on top
-    tempCtx.drawImage(canvas, 0, 0);
-
-    // 4. Convert to image
-    const image = tempCanvas.toDataURL('image/png');
-
-    // 5. Trigger download
-    const link = document.createElement('a');
-    link.href = image;
-    link.download = 'bar-chart.png';
-    link.click();
-  }
-
-  private setupTableSorting(): void {
-    if (this.sort && this.dataSource) {
-      this.dataSource.sort = this.sort;
-
-      this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-        switch (sortHeaderId) {
-          case 'district':
-            return (data.district || '').toLowerCase();
-          case 'centerNotObserved':
-            return Number(data.centerNotObserved);
-          case 'observePercentage':
-            return Number(data.observePercentage);
-          case 'available':
-            return Number(data.available);
-          case 'observed':
-            return Number(data.observed);
-          case 'slNo':
-            return Number(data.slNo);
-          default:
-            return data[sortHeaderId];
-        }
-      };
-    }
-  }
-
-  private createDistrictBarChart(data: any[]): void {
-    if (!data || data.length === 0) return;
-
-    this.barChartData = {
-      labels: data.map(item => item.name.toUpperCase()),
-      datasets: [
-        {
-          data: data.map(item => Number(item.current_observed_percentage)),
-          label: 'Centers Observed Percentage',
-          backgroundColor: '#5D87FF',
-          hoverBackgroundColor: '#4a6cd8',
-          borderRadius: 6,
-          barThickness: 30
-        }
-      ]
-    };
-
-    this.getTableData(data);
-  }
   toggleView(): void {
     this.showChart = !this.showChart;
   }
 
-  getTableData(apiData: any[]) {
-    if (!apiData || apiData.length === 0) return;
 
-    const formatted = apiData.map((item, index) => {
-      const observed = Number(item.current_month_centers_observed);
-      const available = Number(item.centers_available);
-
-      return {
-        slNo: index + 1,
-        id: item.group_id,
-        district: item.name,
-        available,
-        observed: item.current_centers_observed,
-        // centerNotObserved: available - observed,
-        observePercentage: item.current_observed_percentage
-      };
-    });
-    console.log(formatted, "formatted");
-
-    this.dataSource.data = formatted;
-
-    setTimeout(() => {
-      this.setupTableSorting();
-    }, 0);
-  }
   loadTableAndChartData(): void {
     this.isLoading = true;
-    this.showChart = true;
+
+   
+    this.tableData = [];
 
     let apiCall$;
 
     switch (this.selectedRole) {
       case 'DPO':
+        if (this.selectedDistrict && !this.selectedBlock) {
+          this.headerConfig.title = `Block wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'Block  Name', clickable: true, totalLabel: true },
+              { key: 'sectors_available', label: 'Sectors Available', align: 'left', total: true },
+              { key: 'sectors_observed', label: 'sectors Observed', align: 'left', total: true },
+              { key: 'sectors_not_observed', label: 'sectors Not Observed', align: 'left', total: true },
+              {
+                key: 'sector_completion_percentage',
+                label: 'Completion Percentage % for this quarter',
+                suffix: '%',
+                percentage: true,
+                numeratorKey: 'centers_observed_this_quarter',
+                denominatorKey: 'centers_available',
+                decimals: 2
+              }
+            ]
+          };
+    
+
+        } else if (this.selectedDistrict && this.selectedBlock) {
+          this.headerConfig.title = `District wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            showFooter: true,
+            enableSearch: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'Block Name', clickable: true, totalLabel: true },
+              { key: 'sectors_available', label: 'Sectors Available', align: 'left', total: true },
+              { key: 'sectors_observed', label: 'sectors Observed', align: 'left', total: true },
+              { key: 'sectors_not_observed', label: 'sectors Not Observed', align: 'left', total: true },
+              {
+                key: 'sector_completion_percentage',
+                label: 'Completion Percentage % for this quarter',
+                suffix: '%',
+                percentage: true,
+                numeratorKey: 'centers_observed_this_quarter',
+                denominatorKey: 'centers_available',
+                decimals: 2
+              }
+            ]
+          };
+        } else {
+          this.headerConfig.title = `District wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'District Name', clickable: true, totalLabel: true },
+              { key: 'sectors_available', label: 'Sectors Available', align: 'left', total: true },
+              { key: 'sectors_observed', label: 'sectors Observed', align: 'left', total: true },
+              { key: 'sectors_not_observed', label: 'sectors Not Observed', align: 'left', total: true },
+              {
+                key: 'sector_completion_percentage',
+                label: 'Completion Percentage % for this quarter',
+                suffix: '%',
+                percentage: true,
+                numeratorKey: 'centers_observed_this_quarter',
+                denominatorKey: 'centers_available',
+                decimals: 2
+              }
+            ]
+          };
+        }
+        this.chartConfig = {
+          enabled: true,
+          enableSort: true,
+          labelColumnKey: 'name',
+          dataColumnKey: 'sector_completion_percentage',
+          chartLabel: 'Sector Completion %',
+          backgroundColor: '#5D87FF',
+          chartFileName: 'dpo-observation.png'
+        };
         apiCall$ = this.service.getObservationCompletionForDPO(
           this.selectedYear.toString(),
           this.selectedMonth,
@@ -770,6 +804,101 @@ export class ObservationCompletionComponent implements OnInit {
         break;
 
       case 'CDPO':
+        
+        if (this.selectedDistrict && !this.selectedBlock) {
+          this.headerConfig.title = `Block wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'Block Name', clickable: true, totalLabel: true },
+              { key: 'centers_available', label: 'Centers Available', align: 'left', total: true },
+              { key: 'centers_observed_this_month', label: 'Centers Observed This Month', align: 'left', total: true },
+              { key: 'centers_observed_this_quarter', label: 'Centers Observed This Quarter', align: 'left', total: true },
+              { key: 'centers_not_observed_this_quarter', label: 'Centers Not Observed This Quarter', align: 'left', total: true },
+              {
+                key: 'completion_percentage_this_quarter',
+                label: 'Completion Percentage % for this quarter',
+                align: 'left', suffix: '%',
+                percentage: true,
+                numeratorKey: 'centers_observed_this_quarter',
+                denominatorKey: 'centers_available',
+                decimals: 2,
+                comparison: {
+                  enabled: true,
+                  statusKey: 'comparison'
+                }
+              }
+            ]
+          };
+        } else if (this.selectedDistrict && this.selectedBlock) {
+          this.headerConfig.title = `Sector wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'Sector Name', clickable: true, totalLabel: true },
+              { key: 'centers_available', label: 'Centers Available', align: 'left', total: true },
+              { key: 'centers_observed_this_month', label: 'Centers Observed This Month', align: 'left', total: true },
+              { key: 'centers_observed_this_quarter', label: 'Centers Observed This Quarter', align: 'left', total: true },
+              { key: 'centers_not_observed_this_quarter', label: 'Centers Not Observed This Quarter', align: 'left', total: true },
+              {
+                key: 'completion_percentage_this_quarter',
+                label: 'Completion Percentage % for this quarter',
+                align: 'left', suffix: '%',
+                percentage: true,
+                numeratorKey: 'centers_observed_this_quarter',
+                denominatorKey: 'centers_available',
+                decimals: 2,
+                comparison: {
+                  enabled: true,
+                  statusKey: 'comparison'
+                }
+              }
+              
+            ]
+          };
+        } else {
+          this.headerConfig.title = `District wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'District Name', clickable: true, totalLabel: true },
+              { key: 'centers_available', label: 'Centers Available', align: 'left', total: true },
+              { key: 'centers_observed_this_month', label: 'Centers Observed This Month', align: 'left', total: true },
+              { key: 'centers_observed_this_quarter', label: 'Centers Observed This Quarter', align: 'left', total: true },
+              { key: 'centers_not_observed_this_quarter', label: 'Centers Not Observed This Quarter', align: 'left', total: true },
+              {
+                key: 'completion_percentage_this_quarter',
+                label: 'Completion Percentage % for this quarter',
+                align: 'left', suffix: '%',
+                percentage: true,
+                numeratorKey: 'centers_observed_this_quarter',
+                denominatorKey: 'centers_available',
+                decimals: 2,
+                comparison: {
+                  enabled: true,
+                  statusKey: 'comparison'
+                }
+              }
+            ]
+          };
+        }
+
+        this.chartConfig = {
+          enabled: true,
+          enableSort: true,
+          labelColumnKey: 'name',
+          dataColumnKey: 'completion_percentage_this_quarter',
+          chartLabel: 'Quarter Completion %',
+          backgroundColor: '#49BEFF',
+          chartFileName: 'cdpo-observation.png'
+        };
+
         apiCall$ = this.service.getObservationCompletionForCDPO(
           this.selectedYear.toString(),
           this.selectedMonth,
@@ -780,6 +909,99 @@ export class ObservationCompletionComponent implements OnInit {
         break;
 
       case 'SUPERVISOR':
+        if (this.selectedDistrict && !this.selectedBlock) {
+          this.headerConfig.title = `Blockwise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'Block Name', clickable: true, totalLabel: true },
+              { key: 'centers_available', label: 'Centers Available', align: 'left', total: true },
+              { key: 'current_month_centers_observed', label: 'Centers Observed', align: 'left', total: true },
+              { key: 'current_month_centers_not_observed', label: 'Centers Not Observed', align: 'left', total: true },
+              {
+                key: 'current_month_observed_percentage',
+                label: 'Completion Percentage % for this month',
+                align: 'left',
+                suffix: '%',
+                percentage: true,
+                numeratorKey: 'current_month_centers_observed',
+                denominatorKey: 'centers_available',
+                decimals: 2,
+                comparison: {
+                  enabled: true,
+                  statusKey: 'comparison'
+                }
+              }
+            ]
+          };
+        } else if (this.selectedDistrict && this.selectedBlock) {
+          this.headerConfig.title = `Sector wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'Sector Name', clickable: true, totalLabel: true },
+              { key: 'centers_available', label: 'Centers Available', align: 'left', total: true },
+              { key: 'current_month_centers_observed', label: 'Centers Observed', align: 'left', total: true },
+              { key: 'current_month_centers_not_observed', label: 'Centers Not Observed', align: 'left', total: true },
+              {
+                key: 'current_month_observed_percentage',
+                label: 'Completion Percentage % for this month',
+                align: 'left',
+                suffix: '%',
+                percentage: true,
+                numeratorKey: 'current_month_centers_observed',
+                denominatorKey: 'centers_available',
+                decimals: 2,
+                comparison: {
+                  enabled: true,
+                  statusKey: 'comparison'
+                }
+              }
+            ]
+          };
+        } else {
+          this.headerConfig.title = `District wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
+          this.tableConfig = {
+            enableSearch: true,
+            showFooter: true,
+            columns: [
+              { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+              { key: 'name', label: 'District Name', clickable: true, totalLabel: true },
+              { key: 'centers_available', label: 'Centers Available', align: 'left', total: true },
+              { key: 'current_month_centers_observed', label: 'Centers Observed', align: 'left', total: true },
+              { key: 'current_month_centers_not_observed', label: 'Centers Not Observed', align: 'left', total: true },
+              {
+                key: 'current_month_observed_percentage',
+                label: 'Completion Percentage % for this month',
+                align: 'left',
+                suffix: '%',
+                percentage: true,
+                numeratorKey: 'current_month_centers_observed',
+                denominatorKey: 'centers_available',
+                decimals: 2,
+                comparison: {
+                  enabled: true,
+                  statusKey: 'comparison'
+                }
+              }
+            ]
+          };
+        }
+
+        this.chartConfig = {
+          enabled: true,
+          enableSort: true,
+          labelColumnKey: 'name',
+          dataColumnKey: 'current_month_observed_percentage',
+          chartLabel: 'Month Completion %',
+          backgroundColor: '#13DEB9',
+          chartFileName: 'supervisor-observation.png'
+        };
+
         apiCall$ = this.service.getObservationCompletionForSupervisor(
           this.selectedYear.toString(),
           this.selectedMonth,
@@ -790,38 +1012,63 @@ export class ObservationCompletionComponent implements OnInit {
         break;
     }
 
-    apiCall$?.subscribe({
+    console.log(this.tableConfig, "tableConfig loadTableAndChartData");
+
+    // 🚨 CRITICAL: Only make API call if we have a valid observable
+    if (!apiCall$) {
+      this.isLoading = false;
+      return;
+    }
+
+    apiCall$.subscribe({
       next: (res) => {
+        console.log(res, "dashanoard res");
+
         const data = res?.data?.data ?? [];
 
-        if (data.length > 0) {
-          this.createDistrictBarChart(data);
-        }
+        // 🚨 Set tableData AFTER receiving response
+        this.tableData = data;
 
+        // this.createDistrictBarChart(data);
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error('Observation Completion API Error:', err);
+      error: () => {
         this.isLoading = false;
+        this.tableData = []; // Clear on error too
       }
     });
   }
 
+  setConfigurationForTable(): void {
+
+  }
 
 
   onToggleChangeUserChange(role: any): void {
     if (this.selectedRole === role) return;
 
+    // Step 1: Set loading state immediately
+    this.isLoading = true;
+
+    // Step 2: Clear existing config with a valid empty structure
+    this.tableConfig = {
+      enableSearch: false,
+      showFooter: false,
+      columns: []
+    };
+
+    // Step 3: Clear table data
+    this.tableData = [];
+
+    // Step 4: Update role
     this.selectedRole = role;
 
-    // Reset drilldowns if needed
-    this.selectedDistrict = null;
-    this.selectedBlock = null;
-    this.selectedSector = null;
-
-    this.loadTableAndChartData();
+    // Step 5: Use setTimeout to ensure Angular processes the clearing first
+    setTimeout(() => {
+      this.loadTableAndChartData();
+    }, 0);
   }
-  onDistrictOrBlockClick(row: any): void {
+  onRowClick(row: any): void {
     console.log(row, "row data");
 
     const year = this.selectedYear;
@@ -829,13 +1076,25 @@ export class ObservationCompletionComponent implements OnInit {
     let apiCall$;
     switch (this.selectedRole) {
       case 'DPO':
-        apiCall$ = this.service.getObservationCompletionForDPO(
-          this.selectedYear.toString(),
-          this.selectedMonth,
-          this.selectedDistrict,
-          this.selectedBlock,
-          this.selectedSector
-        );
+        if (this.selectedDistrict && !this.selectedBlock) {
+          apiCall$ = this.service
+            .getObsCompletetionExcelDPO(
+              undefined,
+              year,
+              month,
+              row.group_id,
+            )
+        } else if (this.selectedDistrict && this.selectedBlock) {
+
+        } else {
+          apiCall$ = this.service
+            .getObsCompletetionExcelDPO(
+              row.group_id,
+              year,
+              month,
+              undefined,
+            )
+        }
         break;
 
       case 'CDPO':
@@ -845,7 +1104,7 @@ export class ObservationCompletionComponent implements OnInit {
               undefined,
               year,
               month,
-              row,
+              row.group_id,
             )
         } else if (this.selectedDistrict && this.selectedBlock) {
           apiCall$ = this.service
@@ -854,12 +1113,12 @@ export class ObservationCompletionComponent implements OnInit {
               year,
               month,
               undefined,
-              row
+              row.group_id,
             )
         } else {
           apiCall$ = this.service
             .getObsCompletetionExcelCDPO(
-              row,
+              row.group_id,
               year,
               month,
               undefined,
@@ -874,7 +1133,7 @@ export class ObservationCompletionComponent implements OnInit {
               undefined,
               year,
               month,
-              row,
+              row.group_id,
             )
         } else if (this.selectedDistrict && this.selectedBlock) {
           apiCall$ = this.service
@@ -883,12 +1142,12 @@ export class ObservationCompletionComponent implements OnInit {
               year,
               month,
               undefined,
-              row
+              row.group_id,
             )
         } else {
           apiCall$ = this.service
             .getObsCompletetionExcelSupervisor(
-              row,
+              row.group_id,
               year,
               month,
               undefined,
@@ -917,15 +1176,13 @@ export class ObservationCompletionComponent implements OnInit {
 
   }
 
-
-
   onDistrictChange(val): void {
     console.log("District changed to:", val);
     this.blockData = [];
     this.sectorData = [];
     this.selectedBlock = "";
     this.selectedSector = "";
-
+  
     if (this.selectedDistrict || this.selectedDistrict === "") {
       this.loadBlockData(this.selectedDistrict);
       const districtName = this.districtData.find(
@@ -933,30 +1190,60 @@ export class ObservationCompletionComponent implements OnInit {
       );
       console.log(districtName, "districtName");
     }
-
-    // Reload all dashboard data with new filters
-    this.loadAllDashboardData();
+  
+    // 🚨 Clear table config and data before reload
+    this.tableConfig = {
+      enableSearch: false,
+      showFooter: false,
+      columns: []
+    };
+    this.tableData = [];
+  
+    // Use setTimeout to ensure filter values are properly set
+    setTimeout(() => {
+      this.loadAllDashboardData();
+    }, 0);
   }
-
+  
   onBlockChange(): void {
     console.log("Block changed to:", this.selectedBlock);
     this.sectorData = [];
     this.selectedSector = "";
-
+  
     if (this.selectedBlock) {
       this.loadSectorData(this.selectedBlock);
       const blockName = this.blockData.find(
         (block) => block.block_id == this.selectedBlock
       );
     }
-
-    // Reload all dashboard data with new filters
-    this.loadAllDashboardData();
+  
+    // 🚨 Clear table config and data before reload
+    this.tableConfig = {
+      enableSearch: false,
+      showFooter: false,
+      columns: []
+    };
+    this.tableData = [];
+  
+    // Use setTimeout to ensure filter values are properly set
+    setTimeout(() => {
+      this.loadAllDashboardData();
+    }, 0);
   }
-
+  
   onSectorChange(): void {
-    // Reload all dashboard data with new filters
-    this.loadAllDashboardData();
+    // 🚨 Clear table config and data before reload
+    this.tableConfig = {
+      enableSearch: false,
+      showFooter: false,
+      columns: []
+    };
+    this.tableData = [];
+  
+    // Use setTimeout to ensure filter values are properly set
+    setTimeout(() => {
+      this.loadAllDashboardData();
+    }, 0);
   }
 
   onFilterChange(): void {
