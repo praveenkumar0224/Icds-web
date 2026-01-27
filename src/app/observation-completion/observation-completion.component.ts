@@ -5,9 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Chart, ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { MatSort } from '@angular/material/sort';
-import * as FileSaver from 'file-saver';
 
-import * as XLSX from 'xlsx';
 import { TableConfig } from '../common/dynamic-table-chart/dynamic-table-chart.model';
 @Component({
   selector: 'app-observation-completion',
@@ -346,18 +344,7 @@ export class ObservationCompletionComponent implements OnInit {
       });
   }
 
-  downloadExcel() {
-    const worksheet = XLSX.utils.json_to_sheet(this.dataSource.data);
-    const workbook = {
-      Sheets: { 'AWC Data': worksheet },
-      SheetNames: ['AWC Data'],
-    };
-    const excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    FileSaver.saveAs(new Blob([excelBuffer]), 'awc-observation.xlsx');
-  }
+
 
   callSupervisorActive(): void {
     this.isLoadingForSupervisorActive = true;
@@ -550,19 +537,12 @@ export class ObservationCompletionComponent implements OnInit {
 
           // Sort quarters in correct order
           // const quarterOrder = ['Q1','Q2', 'Q3', 'Q4'];
-          const quarterOrder = ['Q4', 'Q3', 'Q2', 'Q1'];
-
-          const sortedData = formattedData.sort(
-            (a: any, b: any) =>
-              quarterOrder.indexOf(a.quarter) - quarterOrder.indexOf(b.quarter)
-          );
-          console.log(sortedData);
-
+        
           this.cdpoChartData = {
-            labels: sortedData.map((item: any) => item.label),
+            labels: formattedData.map((item: any) => item.label),
             datasets: [
               {
-                data: sortedData.map((item: any) => item.observed_percentage),
+                data: formattedData.map((item: any) => item.observed_percentage),
                 label: '% Completion',
                 fill: false,
                 tension: 0.4
@@ -592,18 +572,14 @@ export class ObservationCompletionComponent implements OnInit {
       .subscribe({
         next: (res) => {
           // Sort quarters in correct order
-          const quarterOrder = ['Q4', 'Q3', 'Q2', 'Q1'];
-          const formattedData = res?.data?.formattedData || [];
-          const sortedData = formattedData.sort(
-            (a: any, b: any) =>
-              quarterOrder.indexOf(a.quarter) - quarterOrder.indexOf(b.quarter)
-          );
 
+          const formattedData = res?.data?.formattedData || [];
+         
           this.dpoChartData = {
-            labels: sortedData.map((item: any) => item.label),
+            labels: formattedData.map((item: any) => item.label),
             datasets: [
               {
-                data: sortedData.map((item: any) => item.observed_percentage),
+                data: formattedData.map((item: any) => item.observed_percentage),
                 label: '% Completion',
                 fill: false,
                 tension: 0.4
@@ -1262,13 +1238,22 @@ export class ObservationCompletionComponent implements OnInit {
     this.selectedDistrict = "";
     this.selectedBlock = "";
     this.selectedSector = "";
+    this.tableConfig = {
+      enableSearch: false,
+      showFooter: false,
+      columns: []
+    };
 
+    // Step 3: Clear table data
+    this.tableData = [];
     if (filtersApplied) {
       this.blockData = [];
       this.sectorData = [];
 
       // Reload all dashboard data at state level
-      this.loadAllDashboardData();
+      setTimeout(() => {
+        this.loadAllDashboardData();
+      }, 0);
     }
   }
 
