@@ -105,20 +105,6 @@ export class ObservationCompletionComponent implements OnInit {
   };
 
 
-  displayedColumns: string[] = ['slNo', 'district', 'available', 'observed', 'observePercentage'];
-  dataSource = new MatTableDataSource<any>([]);
-  labelChanges = {
-    stateObserveBox: "Awc's Observed across the State",
-    stateProgressBox: "Awc's progress this month",
-    stateNotObserveBox: "Awc's not Observed this month",
-    stateTotalBox: "Total AWCs",
-    stateActiveUserBox: "Active users this month",
-    stateObservTrendsChart: "AWC observation trends",
-    stateObservNotTrendsChart: "AWCs not visited trends ",
-    stateActiveUserChart: "Active User trends",
-    barchart: `District wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`,
-    sectionType: "District"
-  }
 
   barChartData: ChartData<'bar'> = {
     labels: [],
@@ -126,8 +112,8 @@ export class ObservationCompletionComponent implements OnInit {
       {
         data: [],
         label: 'Centers Observed Percentage',
-        backgroundColor: '#5D87FF',
-        hoverBackgroundColor: '#4a6cd8',
+        // backgroundColor: '#5D87FF',
+        // hoverBackgroundColor: '#4a6cd8',
         borderRadius: 6,
         barThickness: 40
       }
@@ -232,7 +218,7 @@ export class ObservationCompletionComponent implements OnInit {
     labelColumnKey: '',
     dataColumnKey: '',
     chartLabel: '',
-    backgroundColor: '#5D87FF',
+    // backgroundColor: '#5D87FF',
     chartFileName: 'dpo-observation.png'
   };
 
@@ -545,7 +531,8 @@ export class ObservationCompletionComponent implements OnInit {
                 data: formattedData.map((item: any) => item.observed_percentage),
                 label: '% Completion',
                 fill: false,
-                tension: 0.4
+                tension: 0.4,
+                // borderColor:"rgb(40, 40, 40)"
               }
             ]
           };
@@ -595,12 +582,7 @@ export class ObservationCompletionComponent implements OnInit {
       });
   }
 
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value
-      .trim()
-      .toLowerCase();
-    this.dataSource.filter = filterValue;
-  }
+
 
   toggleChartSort(type: 'number' | 'alpha'): void {
     if (type === 'number') {
@@ -650,8 +632,8 @@ export class ObservationCompletionComponent implements OnInit {
         {
           data: sorted.map(item => parseInt(item.observedPercent)), // ✅ use % data
           label: 'Centers Observed Percentage',
-          backgroundColor: '#5D87FF',
-          hoverBackgroundColor: '#4a6cd8',
+          // backgroundColor: '#5D87FF',
+          // hoverBackgroundColor: '#4a6cd8',
           borderRadius: 6,
           barThickness: 30
         }
@@ -767,7 +749,7 @@ export class ObservationCompletionComponent implements OnInit {
           labelColumnKey: 'name',
           dataColumnKey: 'sector_completion_percentage',
           chartLabel: 'Sector Completion %',
-          backgroundColor: '#5D87FF',
+          // backgroundColor: '#cfe3ff',
           chartFileName: 'dpo-observation.png'
         };
         apiCall$ = this.service.getObservationCompletionForDPO(
@@ -871,7 +853,7 @@ export class ObservationCompletionComponent implements OnInit {
           labelColumnKey: 'name',
           dataColumnKey: 'completion_percentage_this_quarter',
           chartLabel: 'Quarter Completion %',
-          backgroundColor: '#49BEFF',
+          // backgroundColor: 'rgb(255, 214, 214)',
           chartFileName: 'cdpo-observation.png'
         };
 
@@ -974,7 +956,7 @@ export class ObservationCompletionComponent implements OnInit {
           labelColumnKey: 'name',
           dataColumnKey: 'current_month_observed_percentage',
           chartLabel: 'Month Completion %',
-          backgroundColor: '#13DEB9',
+          // backgroundColor: 'rgb(202, 245, 247)',
           chartFileName: 'supervisor-observation.png'
         };
 
