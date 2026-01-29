@@ -7,7 +7,8 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges,
-  ViewChild
+  ViewChild,
+  AfterViewInit
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -20,7 +21,7 @@ import * as FileSaver from 'file-saver';
   templateUrl: './dynamic-table-chart.component.html',
   styleUrls: ['./dynamic-table-chart.component.scss']
 })
-export class DynamicTableChartComponent implements OnChanges {
+export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
 
   @Input() loading = false;
   @Input() headerConfig!: HeaderConfig;
@@ -34,6 +35,10 @@ export class DynamicTableChartComponent implements OnChanges {
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('barChart') barChartRef: any; // Reference to chart canvas
+
+  ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort;
+  }
 
   selectedTabIndex = 0;
 
@@ -116,6 +121,9 @@ export class DynamicTableChartComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
     // CRITICAL: Check tableConfig first before doing anything
     if (changes['tableConfig']) {
       if (this.tableConfig && this.tableConfig.columns && Array.isArray(this.tableConfig.columns)) {
