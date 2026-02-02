@@ -6,11 +6,12 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { Chart, ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { MatSort } from '@angular/material/sort';
 
+
 import { TableConfig } from '../common/dynamic-table-chart/dynamic-table-chart.model';
 @Component({
   selector: 'app-observation-completion',
   templateUrl: './observation-completion.component.html',
-  styleUrls: ['./observation-completion.component.scss']
+  styleUrls: ['./observation-completion.component.scss', '../app.component.scss']
 })
 
 export class ObservationCompletionComponent implements OnInit {
@@ -20,6 +21,16 @@ export class ObservationCompletionComponent implements OnInit {
   @ViewChild('lineChartChart3') lineChartChart3Ref!: ElementRef<HTMLCanvasElement>;
 
   @ViewChild(MatSort) sort!: MatSort;
+  localUser = localStorage.getItem('user');
+  user = JSON.parse(this.localUser)
+  role = this.user?.role?.role_name
+  isDistrictDisable = false;
+  isBlockDisable = false;
+  isAccess = true;
+  isStateUser = false;
+  isDistrictUser = false;
+  isBlockUser = false;
+
 
   showChart = true;
   headerTitile: string = "ICDS - Observation completion";
@@ -28,6 +39,8 @@ export class ObservationCompletionComponent implements OnInit {
   districtData: any[] = [];
   blockData: any[] = [];
   sectorData: any[] = [];
+  toggleUsers = ['Block Supervisor', 'CDPO', 'DPO'];
+
 
   isLoadingForSupervisorObservationCompletion = false;
   supervisorObservationCompletionData: any;
@@ -61,7 +74,7 @@ export class ObservationCompletionComponent implements OnInit {
 
   selectedYear: string | number;
   years: number[] = [];
-  
+
   selectedMonth: string = (new Date().getMonth() + 1).toString();
   currentYear = new Date().getFullYear();
   currentMonth: number = new Date().getMonth() + 1;
@@ -77,7 +90,7 @@ export class ObservationCompletionComponent implements OnInit {
 
 
 
-  selectedRole: any = 'SUPERVISOR'; // default
+  selectedRole: any = 'Block Supervisor'; // default
   //line-charts
 
 
@@ -219,7 +232,8 @@ export class ObservationCompletionComponent implements OnInit {
     dataColumnKey: '',
     chartLabel: '',
     // backgroundColor: '#5D87FF',
-    chartFileName: 'dpo-observation.png'
+    chartFileName: 'dpo-observation.png',
+    options: {}
   };
 
 
@@ -232,32 +246,93 @@ export class ObservationCompletionComponent implements OnInit {
 
   ngOnInit(): void {
     this.findingYear();
+    this.getAccessForthisComponent()
     this.loadDistrictData();
-    this.loadAllDashboardData();
+    if (this.isStateUser) {
+      this.loadAllDashboardData();
+    }
+    // this.loadAllDashboardData();
+    console.log(this.user, this.role);
+
+
+  }
+  getAccessForthisComponent(): void {
+
+    switch (this.role) {
+      case "DPO":
+        this.isDistrictUser = true;
+        break;
+      case "CDPO":
+        this.isBlockUser = true
+        break;
+      case "Block Supervisor":
+        this.isAccess = false;
+        break;
+      case "Root":
+        this.isStateUser = true
+        break
+      case "District Collector":
+        this.isDistrictUser = true
+        break
+      case "Zone Officer":
+        this.isStateUser = true
+        break
+      case "District Coordinator":
+        this.isDistrictUser = true
+        break
+      default:
+        this.isDistrictDisable = false;
+        this.isBlockDisable = false;
+        this.isAccess = true;
+    }
+    console.log(this.isStateUser, "isStateUser");
+
+  }
+  get visibleRoles(): any {
+    // State view → show all
+    if (this.isStateUser) {
+      return this.toggleUsers;
+    }
+
+    // Non-state view
+    if (this.role === 'DPO') {
+      return this.toggleUsers.filter(r => r !== 'DPO');
+    }
+    if (this.role === 'CDPO') {
+      return this.toggleUsers.filter(r => r !== 'DPO' && r !== 'CDPO');
+    }
   }
 
   findingYear(): void {
     const startYear = 2025;
     const endYear = 2030;
-  
+
     this.years = [];
     for (let y = startYear; y <= endYear; y++) {
       this.years.push(y);
     }
-  
+
     this.selectedYear = this.currentYear;
   }
   loadDistrictData(): void {
     this.isLoading = true;
-    this.service.postDistrictData().subscribe({
+    const filter: any = {}
+    if (this.isDistrictUser || this.isBlockUser) {
+      filter.district_id = this.user.district_id
+    }
+    this.service.postDistrictDatWithFilter(filter).subscribe({
       next: (res) => {
-        this.isLoading = false;
+        this,
+          this.isLoading = false;
         console.log(res, "District Data");
         this.districtData = res?.data?.result || [];
-        // Sort districts alphabetically if needed
-        this.districtData = this.districtData.sort((a: any, b: any) =>
-          a.district_name?.localeCompare(b.district_name)
-        );
+        if (this.isDistrictUser || this.isBlockUser) {
+          this.selectedDistrict = this.districtData[0].district_id;
+          this.loadBlockData(this.selectedDistrict);
+        }
+        if (this.isDistrictUser) {
+          this.loadAllDashboardData();
+        }
       },
       error: (err) => {
         this.isLoading = false;
@@ -272,18 +347,35 @@ export class ObservationCompletionComponent implements OnInit {
   loadAllDashboardData(): void {
 
     this.tableData = [];
-    
-    this.loadTableAndChartData()
-    this.callSupervisorObservationCompletion();
-    this.callCDPOObservationCompletion();
-    this.callSupervisorActive();
-    this.callCDPOActive();
-    this.callDPOActive();
-    this.getAwcObservedBySupervisor();
-    this.getAwcObservedQuarterByCDPO();
-    this.getAwcObservedQuarterByDPO();
-    this.getSectorsObservedByDPO();
-  
+
+    if (this.isStateUser) {
+      this.loadTableAndChartData()
+      this.callSupervisorObservationCompletion();
+      this.callCDPOObservationCompletion();
+      this.callSupervisorActive();
+      this.callCDPOActive();
+      this.callDPOActive();
+      this.getAwcObservedBySupervisor();
+      this.getAwcObservedQuarterByDPO();
+      this.getSectorsObservedByDPO();
+      this.getAwcObservedQuarterByCDPO();
+    }
+
+    if (this.isDistrictUser) {
+      this.loadTableAndChartData()
+      this.callSupervisorObservationCompletion();
+      this.callCDPOObservationCompletion();
+      this.getAwcObservedBySupervisor();
+      this.callSupervisorActive();
+      this.callCDPOActive();
+      this.getAwcObservedQuarterByCDPO();
+    }
+
+    if (this.isBlockUser) {
+      this.loadTableAndChartData()
+      this.callSupervisorObservationCompletion();
+      this.callSupervisorActive();
+    }
   }
 
   callSupervisorObservationCompletion(): void {
@@ -299,7 +391,9 @@ export class ObservationCompletionComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.isLoadingForSupervisorObservationCompletion = false;
-          this.supervisorObservationCompletionData = res?.data ?? 0;
+          console.log(res?.data, "callSupervisorObservationCompletion");
+
+          this.supervisorObservationCompletionData = res?.data ?? {};
         },
         error: (err) => {
           this.isLoadingForSupervisorObservationCompletion = false;
@@ -345,10 +439,7 @@ export class ObservationCompletionComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.isLoadingForSupervisorActive = false;
-          this.supervisorActiveData = res?.data ?? {
-            presentMonthActiveRate: 0,
-            lastMonthActiveRate: 0
-          };
+          this.supervisorActiveData = res?.data ?? {};
         },
         error: (err) => {
           this.isLoadingForSupervisorActive = false;
@@ -523,7 +614,7 @@ export class ObservationCompletionComponent implements OnInit {
 
           // Sort quarters in correct order
           // const quarterOrder = ['Q1','Q2', 'Q3', 'Q4'];
-        
+
           this.cdpoChartData = {
             labels: formattedData.map((item: any) => item.label),
             datasets: [
@@ -561,7 +652,7 @@ export class ObservationCompletionComponent implements OnInit {
           // Sort quarters in correct order
 
           const formattedData = res?.data?.formattedData || [];
-         
+
           this.dpoChartData = {
             labels: formattedData.map((item: any) => item.label),
             datasets: [
@@ -581,8 +672,6 @@ export class ObservationCompletionComponent implements OnInit {
         },
       });
   }
-
-
 
   toggleChartSort(type: 'number' | 'alpha'): void {
     if (type === 'number') {
@@ -667,13 +756,17 @@ export class ObservationCompletionComponent implements OnInit {
   loadTableAndChartData(): void {
     this.isLoading = true;
 
-   
+
     this.tableData = [];
 
     let apiCall$;
 
     switch (this.selectedRole) {
+
       case 'DPO':
+
+
+
         if (this.selectedDistrict && !this.selectedBlock) {
           this.headerConfig.title = `Block wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
           this.tableConfig = {
@@ -696,7 +789,7 @@ export class ObservationCompletionComponent implements OnInit {
               }
             ]
           };
-    
+
 
         } else if (this.selectedDistrict && this.selectedBlock) {
           this.headerConfig.title = `District wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
@@ -750,7 +843,19 @@ export class ObservationCompletionComponent implements OnInit {
           dataColumnKey: 'sector_completion_percentage',
           chartLabel: 'Sector Completion %',
           // backgroundColor: '#cfe3ff',
-          chartFileName: 'dpo-observation.png'
+          chartFileName: 'dpo-observation.png',
+          options: {
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                title: {
+                  display: true,
+                  text: '% completion'
+                }
+              }
+            }
+          }
         };
         apiCall$ = this.service.getObservationCompletionForDPO(
           this.selectedYear.toString(),
@@ -759,10 +864,11 @@ export class ObservationCompletionComponent implements OnInit {
           this.selectedBlock,
           this.selectedSector
         );
+
         break;
 
       case 'CDPO':
-        
+
         if (this.selectedDistrict && !this.selectedBlock) {
           this.headerConfig.title = `Block wise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
           this.tableConfig = {
@@ -815,7 +921,7 @@ export class ObservationCompletionComponent implements OnInit {
                   statusKey: 'comparison'
                 }
               }
-              
+
             ]
           };
         } else {
@@ -854,7 +960,19 @@ export class ObservationCompletionComponent implements OnInit {
           dataColumnKey: 'completion_percentage_this_quarter',
           chartLabel: 'Quarter Completion %',
           // backgroundColor: 'rgb(255, 214, 214)',
-          chartFileName: 'cdpo-observation.png'
+          chartFileName: 'cdpo-observation.png',
+          options: {
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                title: {
+                  display: true,
+                  text: '% completion'
+                }
+              }
+            }
+          }
         };
 
         apiCall$ = this.service.getObservationCompletionForCDPO(
@@ -866,7 +984,7 @@ export class ObservationCompletionComponent implements OnInit {
         );
         break;
 
-      case 'SUPERVISOR':
+      case 'Block Supervisor':
         if (this.selectedDistrict && !this.selectedBlock) {
           this.headerConfig.title = `Blockwise Observation Completion (${this.monthNames[parseInt(this.selectedMonth) - 1]})`
           this.tableConfig = {
@@ -957,7 +1075,20 @@ export class ObservationCompletionComponent implements OnInit {
           dataColumnKey: 'current_month_observed_percentage',
           chartLabel: 'Month Completion %',
           // backgroundColor: 'rgb(202, 245, 247)',
-          chartFileName: 'supervisor-observation.png'
+          chartFileName: 'supervisor-observation.png',
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                title: {
+                  display: true,
+                  text: '% completion'
+                }
+              }
+            }
+          }
         };
 
         apiCall$ = this.service.getObservationCompletionForSupervisor(
@@ -1084,7 +1215,7 @@ export class ObservationCompletionComponent implements OnInit {
         }
         break;
 
-      case 'SUPERVISOR':
+      case 'Block Supervisor':
         if (this.selectedDistrict && !this.selectedBlock) {
           apiCall$ = this.service
             .getObsCompletetionExcelSupervisor(
@@ -1140,7 +1271,7 @@ export class ObservationCompletionComponent implements OnInit {
     this.sectorData = [];
     this.selectedBlock = "";
     this.selectedSector = "";
-  
+
     if (this.selectedDistrict || this.selectedDistrict === "") {
       this.loadBlockData(this.selectedDistrict);
       const districtName = this.districtData.find(
@@ -1148,7 +1279,7 @@ export class ObservationCompletionComponent implements OnInit {
       );
       console.log(districtName, "districtName");
     }
-  
+
     // 🚨 Clear table config and data before reload
     this.tableConfig = {
       enableSearch: false,
@@ -1156,25 +1287,25 @@ export class ObservationCompletionComponent implements OnInit {
       columns: []
     };
     this.tableData = [];
-  
+
     // Use setTimeout to ensure filter values are properly set
     setTimeout(() => {
       this.loadAllDashboardData();
     }, 0);
   }
-  
+
   onBlockChange(): void {
     console.log("Block changed to:", this.selectedBlock);
     this.sectorData = [];
     this.selectedSector = "";
-  
+
     if (this.selectedBlock) {
       this.loadSectorData(this.selectedBlock);
       const blockName = this.blockData.find(
         (block) => block.block_id == this.selectedBlock
       );
     }
-  
+
     // 🚨 Clear table config and data before reload
     this.tableConfig = {
       enableSearch: false,
@@ -1182,13 +1313,13 @@ export class ObservationCompletionComponent implements OnInit {
       columns: []
     };
     this.tableData = [];
-  
+
     // Use setTimeout to ensure filter values are properly set
     setTimeout(() => {
       this.loadAllDashboardData();
     }, 0);
   }
-  
+
   onSectorChange(): void {
     // 🚨 Clear table config and data before reload
     this.tableConfig = {
@@ -1197,7 +1328,7 @@ export class ObservationCompletionComponent implements OnInit {
       columns: []
     };
     this.tableData = [];
-  
+
     // Use setTimeout to ensure filter values are properly set
     setTimeout(() => {
       this.loadAllDashboardData();
@@ -1216,10 +1347,16 @@ export class ObservationCompletionComponent implements OnInit {
 
   clearFilters(): void {
     const filtersApplied = this.selectedDistrict || this.selectedBlock || this.selectedSector;
+    if (this.isStateUser) {
+      this.selectedDistrict = "";
+      this.selectedBlock = "";
+    }
+    if (this.role == this.isBlockUser) {
 
-    this.selectedDistrict = "";
-    this.selectedBlock = "";
-    this.selectedSector = "";
+    }
+    if (this.isDistrictUser) {
+      this.selectedBlock = "";
+    }
     this.tableConfig = {
       enableSearch: false,
       showFooter: false,
@@ -1241,7 +1378,18 @@ export class ObservationCompletionComponent implements OnInit {
 
   loadBlockData(districtId): void {
     this.isLoading = true;
-    this.service.postBlockData(districtId).subscribe({
+    const filter: any = {}
+    if (this.isDistrictUser || this.isBlockUser) {
+      filter.district_id = this.user.district_id
+      if (this.isBlockUser) {
+        filter.block_id = this.user.block_id
+      }
+    }
+    if (districtId) {
+      filter.district_id = districtId
+    }
+
+    this.service.postBlockDataWithFilter(filter).subscribe({
       next: (res) => {
         this.isLoading = false;
         console.log(res, "Block Data");
@@ -1249,6 +1397,11 @@ export class ObservationCompletionComponent implements OnInit {
         this.blockData = this.blockData.sort((a: any, b: any) =>
           a.block_name?.localeCompare(b.block_name)
         );
+        if (this.isBlockUser) {
+          this.selectedDistrict = this.districtData[0].district_id;
+          this.selectedBlock = this.blockData[0].block_id;
+          this.loadAllDashboardData();
+        }
       },
       error: (err) => {
         this.isLoading = false;

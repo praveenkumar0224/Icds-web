@@ -77,117 +77,161 @@
         <!-- your existing filter fields here -->
 
         <!-- Clear Filters Button -->
-        <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()" *ngIf="selectedDistrict">
+        <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()"  [disabled]="isBlockUser"
+          *ngIf="selectedDistrict">
           Clear Filters
         </button>
       </div>
     </mat-card>
   </div>
-
   <div style="
-    display: flex;
-    justify-content: space-around;
-    gap: 16px;
-    padding: 12px;
-    margin-top: 0px;
-  ">
+      display: flex;
+      justify-content: space-around;
+      gap: 16px;
+      padding: 12px;
+    ">
     <!-- Supervisor -->
-    <div style="
-    flex: 1;
-    min-width: 200px;
-    border-radius: 15px;
-    padding: 20px 10px;
-    background-color: rgb(202, 245, 247);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  ">
+    <div class="completion-card supervisor">
+
+
+      <!-- Loader -->
       <ng-container *ngIf="isLoadingForSupervisorObservationCompletion; else dataView">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
       </ng-container>
 
+      <!-- Data -->
       <ng-template #dataView>
-        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-          {{ supervisorObservationCompletionData | number:'1.0-0' }}%
-        </p>
 
-        <p style="font-size: 1rem; font-weight: 600;">
+        <p class="completion-title">
           Supervisor observations completed this month
         </p>
+
+        <div class="completion-stats">
+
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ supervisorObservationCompletionData?.completedCount}}
+            </div>
+            <div class="completion-label">
+              Centers observed
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ supervisorObservationCompletionData?.completionRate | number:'1.0-0' }}%
+
+            </div>
+            <div class="completion-label">
+              observation Completion%
+            </div>
+          </div>
+
+        </div>
+
       </ng-template>
     </div>
 
-
     <!-- CDPO -->
-    <div style="
-    flex: 1;
-    min-width: 200px;
-    border-radius: 15px;
-    padding: 20px 10px;
-    background-color: rgb(255, 214, 214);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  ">
+    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
+
       <!-- Loader -->
       <ng-container *ngIf="isLoadingForCDPOObservationCompletion; else cdpoDatas">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
       </ng-container>
 
       <!-- Data -->
       <ng-template #cdpoDatas>
-        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-          {{ cdpoObservationCompletionData | number:'1.0-0' }}%
+
+        <p class="completion-title">
+          CDPO observations completed this quarter({{cdpoObservationCompletionData?.monthlabel}})
         </p>
 
-        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-          CDPO observations completed this quarter
-        </p>
+        <div class="completion-stats">
+
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{cdpoObservationCompletionData?.completedCount}}
+            </div>
+            <div class="completion-label">
+              Centers observed
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ cdpoObservationCompletionData?.completionRate | number:'1.0-0' }}%
+            </div>
+            <div class="completion-label">
+              Observation completion%
+            </div>
+          </div>
+
+        </div>
+
       </ng-template>
     </div>
 
-
     <!-- DPO -->
-    <div style="
-    flex: 1;
-    min-width: 200px;
-    border-radius: 15px;
-    padding: 20px 10px;
-    background-color: #cfe3ff;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  ">
+    <div class="completion-card dpo" *ngIf="isStateUser">
+
       <!-- Loader -->
       <ng-container *ngIf="isLoadingSectorsObservedByDpo; else cdpoData">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
       </ng-container>
 
       <!-- Data -->
       <ng-template #cdpoData>
-        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-          {{ sectorsObservedByDpoData?.sector_visit_percentage | number:'1.0-0' }}%
+
+        <p class="completion-title">
+          Sectors observed by DPO this quarter({{sectorsObservedByDpoData?.monthlabel}})
         </p>
 
-        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-          Sectors observed by DPO this quarter
-        </p>
+        <div class="completion-stats">
+
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ sectorsObservedByDpoData.sectors_visited }}
+            </div>
+            <div class="completion-label">
+              Sectors observed
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ sectorsObservedByDpoData?.sector_visit_percentage | number:'1.0-0' }}%
+            </div>
+            <div class="completion-label">
+              Completion%
+            </div>
+          </div>
+
+        </div>
+
       </ng-template>
     </div>
+
+
   </div>
 
+
+  <!-- Actives -->
   <div style="
       display: flex;
       justify-content: space-around;
@@ -196,197 +240,167 @@
       margin-top: 0px;
     ">
     <!-- Supervisor -->
-    <div style="
-    flex: 1;
-    min-width: 200px;
-    border-radius: 15px;
-    padding: 20px 10px;
-    background-color: rgb(202, 245, 247);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-  ">
+    <div class="completion-card supervisor">
+      <div *ngIf="
+      !isLoadingForSupervisorActive &&
+      supervisorActiveData?.presentMonthActiveRate >
+      supervisorActiveData?.lastMonthActiveRate
+    " class="triangle-up"></div>
+
+      <!-- ▼ DOWN -->
+      <div *ngIf="
+      !isLoadingForSupervisorActive &&
+      supervisorActiveData?.presentMonthActiveRate <
+      supervisorActiveData?.lastMonthActiveRate
+    " class="triangle-down"></div>
       <!-- Loader -->
       <ng-container *ngIf="isLoadingForSupervisorActive; else dataTpl">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
       </ng-container>
 
       <!-- Data -->
       <ng-template #dataTpl>
-        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-          {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+
+        <p class="completion-title">
+          Supervisor Completion this month
         </p>
 
-        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-          Supervisor active this month
-        </p>
+        <div class="completion-stats">
 
-        <!-- Up triangle -->
-        <div *ngIf="
-        supervisorActiveData?.presentMonthActiveRate >
-        supervisorActiveData?.lastMonthActiveRate
-      " style="
-        position: absolute;
-        right: 12px;
-        top: 12px;
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 14px solid green;
-      "></div>
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{supervisorActiveData?.activeSupervisorsPresentMonth}}
+            </div>
+            <div class="completion-label">
+              Active supervisor
+            </div>
+          </div>
 
-        <!-- Down triangle -->
-        <div *ngIf="
-        supervisorActiveData?.presentMonthActiveRate <
-        supervisorActiveData?.lastMonthActiveRate
-      " style="
-        position: absolute;
-        right: 12px;
-        top: 12px;
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 14px solid red;
-      "></div>
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+            </div>
+            <div class="completion-label">
+              Supervisor active this month%
+            </div>
+          </div>
+
+        </div>
+
       </ng-template>
     </div>
 
-
-
     <!-- CDPO -->
-    <div style="
-    flex: 1;
-    min-width: 200px;
-    border-radius: 15px;
-    padding: 20px 10px;
-    background-color: rgb(255, 214, 214);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-  ">
+    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
+      <div *ngIf="
+      !isLoadingForCDPOActive &&
+cdpoActiveData?.presentMonthActiveRate >
+cdpoActiveData?.lastMonthActiveRate" class="triangle-up"></div>
+
+      <!-- ▼ DOWN -->
+      <div *ngIf="
+      !isLoadingForCDPOActive &&
+cdpoActiveData?.presentMonthActiveRate <
+cdpoActiveData?.lastMonthActiveRate" class="triangle-down"></div>
       <!-- Loader -->
       <ng-container *ngIf="isLoadingForCDPOActive; else cdpoActiveTpl">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
       </ng-container>
 
       <!-- Data -->
       <ng-template #cdpoActiveTpl>
-        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-          {{ cdpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+
+        <p class="completion-title">
+          CDPO Completion this month
         </p>
 
-        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
-          CDPO active this month
-        </p>
+        <div class="completion-stats">
 
-        <!-- Up triangle -->
-        <div *ngIf="
-        cdpoActiveData?.presentMonthActiveRate >
-        cdpoActiveData?.lastMonthActiveRate
-      " style="
-        position: absolute;
-        right: 12px;
-        top: 12px;
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 14px solid green;
-      "></div>
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{cdpoActiveData?.activeSupervisorsPresentMonth}}
+            </div>
+            <div class="completion-label">
+              Active CDPO
+            </div>
+          </div>
 
-        <!-- Down triangle -->
-        <div *ngIf="
-        cdpoActiveData?.presentMonthActiveRate <
-        cdpoActiveData?.lastMonthActiveRate
-      " style="
-        position: absolute;
-        right: 12px;
-        top: 12px;
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 14px solid red;
-      "></div>
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ cdpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+            </div>
+            <div class="completion-label">
+              CDPO active this month
+            </div>
+          </div>
+
+        </div>
+
       </ng-template>
     </div>
 
+    <!-- DPO -->
+    <div class="completion-card dpo" *ngIf="isStateUser">
+      <div *ngIf="!isLoadingForDPOActive &&
+      dpoActiveData?.presentMonthActiveRate >
+      dpoActiveData?.lastMonthActiveRate" class="triangle-up"></div>
 
-    <!-- DPO -->
-    <!-- DPO -->
-    <div style="
-    flex: 1;
-    min-width: 200px;
-    border-radius: 15px;
-    padding: 20px 10px;
-    background-color: #cfe3ff;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-  ">
+      <!-- ▼ DOWN -->
+      <div *ngIf="!isLoadingForDPOActive &&
+      dpoActiveData?.presentMonthActiveRate <
+      dpoActiveData?.lastMonthActiveRate" class="triangle-down"></div>
       <!-- Loader -->
       <ng-container *ngIf="isLoadingForDPOActive; else dpoActiveTpl">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p style="font-size: 0.9rem; font-weight: 500;">Loading...</p>
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
       </ng-container>
 
       <!-- Data -->
       <ng-template #dpoActiveTpl>
-        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">
-          {{ dpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
-        </p>
 
-        <p style="font-size: 1rem; font-weight: 600; margin-top: 8px;">
+        <p class="completion-title">
           DPO active this month
         </p>
 
-        <!-- Up triangle -->
-        <div *ngIf="
-        dpoActiveData?.presentMonthActiveRate >
-        dpoActiveData?.lastMonthActiveRate
-      " style="
-        position: absolute;
-        right: 12px;
-        top: 12px;
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 14px solid green;
-      "></div>
+        <div class="completion-stats">
 
-        <!-- Down triangle -->
-        <div *ngIf="
-        dpoActiveData?.presentMonthActiveRate <
-        dpoActiveData?.lastMonthActiveRate
-      " style="
-        position: absolute;
-        right: 12px;
-        top: 12px;
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 14px solid red;
-      "></div>
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ dpoActiveData?.activeSupervisorsPresentMonth }}
+            </div>
+            <div class="completion-label">
+              Centers observed
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ dpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+            </div>
+            <div class="completion-label">
+              Observation Completion%
+            </div>
+          </div>
+
+        </div>
+
       </ng-template>
     </div>
+
 
   </div>
 
@@ -404,14 +418,14 @@
     </div>
 
     <!-- CDPO -->
-    <div class="card cdpo">
+    <div class="card cdpo" *ngIf="isStateUser || isDistrictUser">
       <h3>CDPO completion trends</h3>
       <canvas baseChart [data]="cdpoChartData" [type]="chartType" [options]="chartOptions">
       </canvas>
     </div>
 
     <!-- DPO -->
-    <div class="card dpo">
+    <div class="card dpo" *ngIf="isStateUser">
       <h3>DPO completion trends</h3>
       <canvas baseChart [data]="dpoChartData" [type]="chartType" [options]="chartOptions">
       </canvas>
@@ -421,19 +435,15 @@
 
 
   <div class="role-toggle">
-    <button *ngFor="let role of ['SUPERVISOR','CDPO','DPO']" (click)="onToggleChangeUserChange(role)"
+    <button *ngFor="let role of visibleRoles" (click)="onToggleChangeUserChange(role)"
       [class.active]="selectedRole === role">
-      {{ role === 'SUPERVISOR' ? 'Block Supervisor' : role }}
+      {{ role}}
     </button>
   </div>
+
 
   <app-dynamic-table-chart [loading]="isLoading" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
     [tableData]="tableData" [chartConfig]="chartConfig" (rowClick)="onRowClick($event)">
   </app-dynamic-table-chart>
-
-
-
-
-
 
 </div>

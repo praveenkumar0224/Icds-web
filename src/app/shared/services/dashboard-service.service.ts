@@ -25,7 +25,7 @@ export class DashboardServiceService {
     const user = {
       email: 'admintechfes@madhifoundation.org',
       password: 'User@123',
-      icds_user_id: id ? parseInt(id) : 8812,
+      icds_user_id: id ? parseInt(id) : 52152,
     };
 
     return this.http.post(url, user).pipe(
@@ -1150,6 +1150,36 @@ export class DashboardServiceService {
 
     // The second argument is the body (empty object here), third is the options
     return this.http.post(`${this.baseUrl}district/paginate`, paylods);
+  }
+  postDistrictDatWithFilter(filter): Observable<any> {
+    const token = localStorage?.getItem('access_token');
+    // console.log(token, 'token');
+    const paylods = {
+      filter
+    }
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+
+    // The second argument is the body (empty object here), third is the options
+    return this.http.post(`${this.baseUrl}district/paginate`, paylods);
+  }
+
+
+  postBlockDataWithFilter(filter): Observable<any> {
+    const token = localStorage?.getItem('access_token');
+    //console.log(token, 'token');
+    const paylods = {
+      filter
+    }
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+
+    // The second argument is the body (empty object here), third is the options
+    return this.http.post(`${this.baseUrl}block/paginate`, paylods);
   }
 
 
