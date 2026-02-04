@@ -77,7 +77,7 @@
         <!-- your existing filter fields here -->
 
         <!-- Clear Filters Button -->
-        <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()"  [disabled]="isBlockUser"
+        <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()" [disabled]="isBlockUser"
           *ngIf="selectedDistrict">
           Clear Filters
         </button>
@@ -138,7 +138,7 @@
     </div>
 
     <!-- CDPO -->
-    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
+    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser || isBlockUser">
 
       <!-- Loader -->
       <ng-container *ngIf="isLoadingForCDPOObservationCompletion; else cdpoDatas">
@@ -183,7 +183,7 @@
     </div>
 
     <!-- DPO -->
-    <div class="completion-card dpo" *ngIf="isStateUser">
+    <div class="completion-card dpo" *ngIf="isStateUser || isDistrictUser">
 
       <!-- Loader -->
       <ng-container *ngIf="isLoadingSectorsObservedByDpo; else cdpoData">
@@ -205,7 +205,7 @@
           <!-- Count -->
           <div class="completion-box">
             <div class="completion-value">
-              {{ sectorsObservedByDpoData.sectors_visited }}
+              {{ sectorsObservedByDpoData?.sectors_visited }}
             </div>
             <div class="completion-label">
               Sectors observed
@@ -241,165 +241,86 @@
     ">
     <!-- Supervisor -->
     <div class="completion-card supervisor">
+      <p class="completion-title">Supervisor active this month</p>
+
       <div *ngIf="
       !isLoadingForSupervisorActive &&
-      supervisorActiveData?.presentMonthActiveRate >
-      supervisorActiveData?.lastMonthActiveRate
+      supervisorActiveData?.comparison == 'greater'
     " class="triangle-up"></div>
 
       <!-- ▼ DOWN -->
       <div *ngIf="
-      !isLoadingForSupervisorActive &&
-      supervisorActiveData?.presentMonthActiveRate <
-      supervisorActiveData?.lastMonthActiveRate
+      !isLoadingForSupervisorActive && supervisorActiveData?.comparison == 'less'
+     
     " class="triangle-down"></div>
-      <!-- Loader -->
-      <ng-container *ngIf="isLoadingForSupervisorActive; else dataTpl">
-        <div class="card-loader">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p class="loading-text">Loading...</p>
+
+      <div class="card-loader" *ngIf="isLoadingForSupervisorActive">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading...</p>
+      </div>
+
+
+      <div class="chart-wrapper" *ngIf="!isLoadingForSupervisorActive">
+        <canvas id="supervisorChart"></canvas>
+        <div class="chart-center-text">
+          {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
         </div>
-      </ng-container>
+      </div>
 
-      <!-- Data -->
-      <ng-template #dataTpl>
 
-        <p class="completion-title">
-          Supervisor Completion this month
-        </p>
-
-        <div class="completion-stats">
-
-          <!-- Count -->
-          <div class="completion-box">
-            <div class="completion-value">
-              {{supervisorActiveData?.activeSupervisorsPresentMonth}}
-            </div>
-            <div class="completion-label">
-              Active supervisor
-            </div>
-          </div>
-
-          <!-- Percentage -->
-          <div class="completion-box">
-            <div class="completion-value">
-              {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
-            </div>
-            <div class="completion-label">
-              Supervisor active this month%
-            </div>
-          </div>
-
-        </div>
-
-      </ng-template>
     </div>
 
     <!-- CDPO -->
     <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
-      <div *ngIf="
-      !isLoadingForCDPOActive &&
-cdpoActiveData?.presentMonthActiveRate >
-cdpoActiveData?.lastMonthActiveRate" class="triangle-up"></div>
+
+      <p class="completion-title"> CDPO active this month</p>
+      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData.comparison == 'greater'" class="triangle-up"></div>
 
       <!-- ▼ DOWN -->
-      <div *ngIf="
-      !isLoadingForCDPOActive &&
-cdpoActiveData?.presentMonthActiveRate <
-cdpoActiveData?.lastMonthActiveRate" class="triangle-down"></div>
+      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData.comparison == 'less'" class="triangle-down"></div>
       <!-- Loader -->
-      <ng-container *ngIf="isLoadingForCDPOActive; else cdpoActiveTpl">
-        <div class="card-loader">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p class="loading-text">Loading...</p>
+
+      <div class="card-loader" *ngIf="isLoadingForCDPOActive">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading...</p>
+      </div>
+
+
+      <div class="chart-wrapper" *ngIf="!isLoadingForCDPOActive">
+        <canvas id="CDPOChart"></canvas>
+        <div class="chart-center-text">
+          {{ cdpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
         </div>
-      </ng-container>
+      </div>
 
-      <!-- Data -->
-      <ng-template #cdpoActiveTpl>
-
-        <p class="completion-title">
-          CDPO Completion this month
-        </p>
-
-        <div class="completion-stats">
-
-          <!-- Count -->
-          <div class="completion-box">
-            <div class="completion-value">
-              {{cdpoActiveData?.activeSupervisorsPresentMonth}}
-            </div>
-            <div class="completion-label">
-              Active CDPO
-            </div>
-          </div>
-
-          <!-- Percentage -->
-          <div class="completion-box">
-            <div class="completion-value">
-              {{ cdpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
-            </div>
-            <div class="completion-label">
-              CDPO active this month
-            </div>
-          </div>
-
-        </div>
-
-      </ng-template>
     </div>
-
     <!-- DPO -->
     <div class="completion-card dpo" *ngIf="isStateUser">
-      <div *ngIf="!isLoadingForDPOActive &&
-      dpoActiveData?.presentMonthActiveRate >
-      dpoActiveData?.lastMonthActiveRate" class="triangle-up"></div>
+
+      <p class="completion-title"> DPO active this month</p>
+      <div *ngIf="!isLoadingForDPOActive && dpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
 
       <!-- ▼ DOWN -->
-      <div *ngIf="!isLoadingForDPOActive &&
-      dpoActiveData?.presentMonthActiveRate <
-      dpoActiveData?.lastMonthActiveRate" class="triangle-down"></div>
+      <div *ngIf="!isLoadingForDPOActive && dpoActiveData?.comparison == 'less'" class="triangle-down"></div>
       <!-- Loader -->
-      <ng-container *ngIf="isLoadingForDPOActive; else dpoActiveTpl">
-        <div class="card-loader">
-          <mat-spinner diameter="40"></mat-spinner>
-          <p class="loading-text">Loading...</p>
+
+      <div class="card-loader" *ngIf="isLoadingForDPOActive">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading...</p>
+      </div>
+
+
+      <div class="chart-wrapper" *ngIf="!isLoadingForDPOActive">
+        <canvas id="DPOChart"></canvas>
+        <div class="chart-center-text">
+          {{ dpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
         </div>
-      </ng-container>
+      </div>
 
-      <!-- Data -->
-      <ng-template #dpoActiveTpl>
-
-        <p class="completion-title">
-          DPO active this month
-        </p>
-
-        <div class="completion-stats">
-
-          <!-- Count -->
-          <div class="completion-box">
-            <div class="completion-value">
-              {{ dpoActiveData?.activeSupervisorsPresentMonth }}
-            </div>
-            <div class="completion-label">
-              Centers observed
-            </div>
-          </div>
-
-          <!-- Percentage -->
-          <div class="completion-box">
-            <div class="completion-value">
-              {{ dpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
-            </div>
-            <div class="completion-label">
-              Observation Completion%
-            </div>
-          </div>
-
-        </div>
-
-      </ng-template>
     </div>
+
+
+
 
 
   </div>
@@ -418,14 +339,14 @@ cdpoActiveData?.lastMonthActiveRate" class="triangle-down"></div>
     </div>
 
     <!-- CDPO -->
-    <div class="card cdpo" *ngIf="isStateUser || isDistrictUser">
+    <div class="card cdpo" *ngIf="isStateUser || isDistrictUser || isBlockUser">
       <h3>CDPO completion trends</h3>
       <canvas baseChart [data]="cdpoChartData" [type]="chartType" [options]="chartOptions">
       </canvas>
     </div>
 
     <!-- DPO -->
-    <div class="card dpo" *ngIf="isStateUser">
+    <div class="card dpo" *ngIf="isStateUser || isDistrictUser">
       <h3>DPO completion trends</h3>
       <canvas baseChart [data]="dpoChartData" [type]="chartType" [options]="chartOptions">
       </canvas>

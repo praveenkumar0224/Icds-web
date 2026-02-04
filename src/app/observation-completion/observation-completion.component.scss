@@ -439,3 +439,21 @@ h3 {
   border-right: 8px solid transparent;
   border-top: 14px solid red;
 }
+
+
+
+//
+.chart-wrapper {
+  position: relative;
+  width: 140px;
+  margin: 0 auto;
+}
+
+.chart-center-text {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 700;
+  font-size: 20px;
+}

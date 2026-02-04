@@ -3,22 +3,25 @@ import { DashboardServiceService } from "../shared/services/dashboard-service.se
 import { Router } from "@angular/router";
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Chart, ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { Chart, ChartConfiguration, ChartData, ChartType,DoughnutController,ArcElement,Tooltip,Legend } from 'chart.js';
 import { MatSort } from '@angular/material/sort';
 
 
 import { TableConfig } from '../common/dynamic-table-chart/dynamic-table-chart.model';
+Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 @Component({
   selector: 'app-observation-completion',
   templateUrl: './observation-completion.component.html',
   styleUrls: ['./observation-completion.component.scss', '../app.component.scss']
 })
 
+
 export class ObservationCompletionComponent implements OnInit {
   @ViewChild('barChart') barChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart1') lineChartChart1Ref!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart2') lineChartChart2Ref!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart3') lineChartChart3Ref!: ElementRef<HTMLCanvasElement>;
+  
 
   @ViewChild(MatSort) sort!: MatSort;
   localUser = localStorage.getItem('user');
@@ -40,6 +43,12 @@ export class ObservationCompletionComponent implements OnInit {
   blockData: any[] = [];
   sectorData: any[] = [];
   toggleUsers = ['Block Supervisor', 'CDPO', 'DPO'];
+
+  supervisorChart?: Chart<'doughnut', number[], unknown>;
+  CDPOChart?: Chart<'doughnut', number[], unknown>;
+  DPOChart?: Chart<'doughnut', number[], unknown>;
+
+
 
 
   isLoadingForSupervisorObservationCompletion = false;
@@ -368,13 +377,18 @@ export class ObservationCompletionComponent implements OnInit {
       this.getAwcObservedBySupervisor();
       this.callSupervisorActive();
       this.callCDPOActive();
+      this.getSectorsObservedByDPO();
+      this.getAwcObservedQuarterByDPO();
       this.getAwcObservedQuarterByCDPO();
     }
 
     if (this.isBlockUser) {
       this.loadTableAndChartData()
+      this.callCDPOObservationCompletion();
+      this.getAwcObservedBySupervisor();
       this.callSupervisorObservationCompletion();
       this.callSupervisorActive();
+      this.getAwcObservedQuarterByCDPO();
     }
   }
 
@@ -428,25 +442,40 @@ export class ObservationCompletionComponent implements OnInit {
 
   callSupervisorActive(): void {
     this.isLoadingForSupervisorActive = true;
-    this.service
-      .supervisorActive(  // Fixed: was calling CDPOObs instead
-        this.selectedDistrict,
-        this.selectedYear.toString(),
-        this.selectedMonth,
-        this.selectedBlock,
-        this.selectedSector,
-      )
-      .subscribe({
-        next: (res) => {
-          this.isLoadingForSupervisorActive = false;
-          this.supervisorActiveData = res?.data ?? {};
-        },
-        error: (err) => {
-          this.isLoadingForSupervisorActive = false;
-          console.error("Error fetching supervisorActiveData:", err);
-        },
-      });
+  
+    this.service.supervisorActive(
+      this.selectedDistrict,
+      this.selectedYear.toString(),
+      this.selectedMonth,
+      this.selectedBlock,
+      this.selectedSector
+    ).subscribe({
+      next: (res) => {
+        this.isLoadingForSupervisorActive = false;
+        this.supervisorActiveData = res?.data ?? {};
+  
+        const percent = Math.round(
+          this.supervisorActiveData?.presentMonthActiveRate || 0
+        );
+  
+        setTimeout(() => {
+          if (this.supervisorChart) {
+            this.supervisorChart.destroy();
+          }
+  
+          this.supervisorChart = new Chart(
+            'supervisorChart',
+            this.buildHalfDoughnut(percent)
+          );
+          console.log(this.supervisorChart);
+        });
+
+      
+      },
+      error: () => (this.isLoadingForSupervisorActive = false)
+    });
   }
+  
 
   callCDPOActive(): void {
     this.isLoadingForCDPOActive = true;
@@ -465,6 +494,25 @@ export class ObservationCompletionComponent implements OnInit {
             presentMonthActiveRate: 0,
             lastMonthActiveRate: 0
           };
+
+          const percent = Math.round(
+            this.cdpoActiveData?.presentMonthActiveRate || 0
+          );
+    
+          setTimeout(() => {
+            if (this.CDPOChart) {
+              this.CDPOChart.destroy();
+            }
+    
+            this.CDPOChart = new Chart(
+              'CDPOChart',
+              this.buildHalfDoughnut(percent)
+            );
+            console.log(this.CDPOChart);
+          });
+
+         
+            
         },
         error: (err) => {
           this.isLoadingForCDPOActive = false;
@@ -539,6 +587,22 @@ export class ObservationCompletionComponent implements OnInit {
             presentMonthActiveRate: 0,
             lastMonthActiveRate: 0
           };
+          const percent = Math.round(
+            this.dpoActiveData?.presentMonthActiveRate || 0
+          );
+          console.log(this.isLoadingForDPOActive,"isLoadingForDPOActive");
+          setTimeout(() => {
+            if (this.DPOChart) {
+              this.DPOChart.destroy();
+            }
+    
+            this.DPOChart = new Chart(
+              'DPOChart',
+              this.buildHalfDoughnut(percent)
+            ); 
+            console.log(this.DPOChart);
+          });
+        
         },
         error: (err) => {
           this.isLoadingForDPOActive = false;
@@ -564,39 +628,104 @@ export class ObservationCompletionComponent implements OnInit {
 
           const data = res?.data?.formattedData ?? [];
 
-          // 👉 Chart labels (Nov-2025, Dec-2025, Jan-2026)
+          // 👉 Labels (Nov-2025, Dec-2025, Jan-2026)
           const labels = data.map((item: any) => item.year_month);
-          console.log(data, "data");
 
-          console.log();
+          const datasets: any[] = [];
 
+          /** ---------- Supervisor (Current Scope) ---------- */
+          datasets.push({
+            data: data.map((item: any) =>
+              Number(item.observed_percentage ?? 0)
+            ),
+            label: 'Supervisor AWC Observation %',
+            fill: false,
+            tension: 0.4,
+            borderWidth: 2,
+            borderColor: 'green',
+            pointRadius: 5
+          });
 
-          // 👉 Percentage values
-          const percentages = data.map((item: any) =>
-            Number(item.observed_percentage ?? 0)
+          /** ---------- District Line (only if exists) ---------- */
+
+          const hasDistrictData = data.some(
+            (item: any) => item.district_observed_percentage !== null
           );
-          console.log(percentages);
+         
+          if (hasDistrictData) {
+            datasets.push({
+              data: data.map((item: any) =>
+                item.district_observed_percentage !== null
+                  ? Number(item.district_observed_percentage)
+                  : null
+              ),
+              label: 'District Observation %',
+              fill: false,
+              tension: 0.4,
+              borderWidth: 2,
+              borderColor: 'blue',
+              pointRadius: 4,
+              // borderDash: [6, 4]   // 👈 optional: dashed line
+            });
+          }
 
+          /** ---------- State Line (only if exists) ---------- */
+          const hasStateData = data.some(
+            (item: any) => item.state_observed_percentage !== null
+          );
+
+          if (hasStateData) {
+            datasets.push({
+              data: data.map((item: any) =>
+                item.state_observed_percentage !== null
+                  ? Number(item.state_observed_percentage)
+                  : null
+              ),
+              label: 'State Observation %',
+              fill: false,
+              tension: 0.4,
+              borderWidth: 2,
+              borderColor: 'red',
+              pointRadius: 4,
+              // borderDash: [2, 2]   // 👈 optional: dotted line
+            });
+          }
+
+          /** ---------- Final Chart ---------- */
           this.supervisorChartData = {
             labels,
-            datasets: [
-              {
-                data: percentages,
-                label: 'Supervisor AWC Observation %',
-                fill: false,
-                tension: 0.4,
-                borderWidth: 2,
-                pointRadius: 5
-              }
-            ]
+            datasets
           };
         },
-        error: (err) => {
+        error: () => {
           this.isLoadingForSupervisorTrends = false;
-          console.error('Error fetching Supervisor Trends:', err);
         }
       });
   }
+  buildHalfDoughnut(percent: number) {
+    return {
+      type: 'doughnut' as const,
+      data: {
+        datasets: [
+          {
+            data: [percent, 100 - percent],
+            borderWidth: 0
+          }
+        ]
+      },
+      options: {
+        aspectRatio: 2,
+        circumference: 180,
+        rotation: -90,
+        cutout: '70%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        }
+      }
+    };
+  }
+  
   getAwcObservedQuarterByCDPO(): void {
     this.isLoadingForDPOActive = true;
     this.service
@@ -610,30 +739,64 @@ export class ObservationCompletionComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.isLoadingForCDPOTrends = false;
+
           const formattedData = res?.data?.formattedData || [];
 
-          // Sort quarters in correct order
-          // const quarterOrder = ['Q1','Q2', 'Q3', 'Q4'];
+          const labels = formattedData.map((item: any) => item.label);
 
+          const datasets: any[] = [];
+
+          /** 1️⃣ Quarter-wise (always present) */
+          datasets.push({
+            label: '% Completion (Quarter)',
+            data: formattedData.map((item: any) => item.observed_percentage),
+            fill: false,
+            borderColor: 'green',
+            tension: 0.4,
+          });
+
+          /** 2️⃣ State-wise (only if at least one value > 0) */
+          const hasStateData = formattedData.some(
+            (item: any) => item.state_observed_percentage !== null
+          );
+
+          if (hasStateData) {
+            datasets.push({
+              label: '% Completion (State)',
+              data: formattedData.map((item: any) =>
+                item.state_observed_percentage ?? 0
+              ),
+              borderColor: 'red',
+              fill: false,
+              tension: 0.4,
+              // borderDash: [5, 5], // optional visual distinction
+            });
+          }
+
+          /** 3️⃣ District-wise (only if district_id filter applied) */
+          const hasDistrictData = formattedData.some(
+            (item: any) => item.district_observed_percentage !== null
+          );
+
+          if (hasDistrictData) {
+            datasets.push({
+              label: '% Completion (District)',
+              data: formattedData.map((item: any) =>
+                item.district_observed_percentage ?? 0
+              ),
+              borderColor: 'blue',
+              fill: false,
+              tension: 0.4,
+              // borderDash: [10, 5], // optional visual distinction
+            });
+          }
+
+          /** Final chart object */
           this.cdpoChartData = {
-            labels: formattedData.map((item: any) => item.label),
-            datasets: [
-              {
-                data: formattedData.map((item: any) => item.observed_percentage),
-                label: '% Completion',
-                fill: false,
-                tension: 0.4,
-                // borderColor:"rgb(40, 40, 40)"
-              }
-            ]
+            labels,
+            datasets
           };
-
-
-        },
-        error: (err) => {
-          this.isLoadingForDPOActive = false;
-          console.error("Error fetching DPOActiveData:", err);
-        },
+        }
       });
   }
 
@@ -650,21 +813,62 @@ export class ObservationCompletionComponent implements OnInit {
       .subscribe({
         next: (res) => {
           // Sort quarters in correct order
-
           const formattedData = res?.data?.formattedData || [];
 
-          this.dpoChartData = {
-            labels: formattedData.map((item: any) => item.label),
-            datasets: [
-              {
-                data: formattedData.map((item: any) => item.observed_percentage),
-                label: '% Completion',
-                fill: false,
-                tension: 0.4
-              }
-            ]
-          };
+          const labels = formattedData.map((item: any) => item.label);
 
+          const datasets: any[] = [];
+
+          /** 1️⃣ Quarter-wise (always present) */
+          datasets.push({
+            label: '% Completion (Quarter)',
+            data: formattedData.map((item: any) => item.observed_percentage),
+            fill: false,
+            borderColor: 'green',
+            tension: 0.4,
+          });
+
+          /** 2️⃣ State-wise (only if at least one value > 0) */
+          const hasStateData = formattedData.some(
+            (item: any) => item.state_observed_percentage !== null
+          );
+
+          if (hasStateData) {
+            datasets.push({
+              label: '% Completion (State)',
+              data: formattedData.map((item: any) =>
+                item.state_observed_percentage ?? 0
+              ),
+              fill: false,
+              tension: 0.4,
+              borderColor: 'red',
+              // borderDash: [5, 5], // optional visual distinction
+            });
+          }
+
+          /** 3️⃣ District-wise (only if district_id filter applied) */
+          const hasDistrictData = formattedData.some(
+            (item: any) => item.district_observed_percentage !== null
+          );
+
+          if (hasDistrictData) {
+            datasets.push({
+              label: '% Completion (District)',
+              data: formattedData.map((item: any) =>
+                item.district_observed_percentage ?? 0
+              ),
+              fill: false,
+              tension: 0.4,
+              borderColor: 'blue',
+              // borderDash: [10, 5], // optional visual distinction
+            });
+          }
+
+          /** Final chart object */
+          this.dpoChartData = {
+            labels,
+            datasets
+          };
         },
         error: (err) => {
           this.isLoadingForDPOActive = false;
