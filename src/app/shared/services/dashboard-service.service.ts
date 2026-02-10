@@ -21,11 +21,13 @@ export class DashboardServiceService {
   ) { }
 
   loginWithEmail(id: any): Observable<any> {
+    console.log(id,"======");
+    
     const url = this.baseUrl + 'auth/loginWithEmail';
     const user = {
       email: 'admintechfes@madhifoundation.org',
       password: 'User@123',
-      icds_user_id: id ? parseInt(id) : 52152,
+      icds_user_id: id ? parseInt(id) : 65288,
     };
 
     return this.http.post(url, user).pipe(
@@ -830,6 +832,43 @@ export class DashboardServiceService {
 
     return this.http.get<any>(url, { headers });
   }
+  unVisitedAwcCountSupervisor(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    blockId?: string,
+    sectorId?: string,
+  ): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) params.push(`block_id=${blockId}`);
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}web-observation-completion/unvisited-awc-count-supervisor${queryString}`;
+      console.log(url, 'block excel');
+    } else if (districtId) {
+      url = `${this.baseUrl}web-observation-completion/unvisited-awc-count-supervisor${queryString}`;
+      console.log(url, 'district excel');
+    } else if (sectorId) {
+      url = `${this.baseUrl}web-observation-completion/unvisited-awc-count-supervisor${queryString}`;
+    } else[
+      url = `${this.baseUrl}web-observation-completion/unvisited-awc-count-supervisor${queryString}`
+    ]
+
+    return this.http.get<any>(url, { headers });
+  }
 
   awcObservedQuarterByCDPO(
     districtId?: string,
@@ -1154,16 +1193,16 @@ export class DashboardServiceService {
   postDistrictDatWithFilter(filter): Observable<any> {
     const token = localStorage?.getItem('access_token');
     // console.log(token, 'token');
-    const paylods = {
-      filter
-    }
+    // const paylods = {
+    //   filter,options
+    // }
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     });
 
     // The second argument is the body (empty object here), third is the options
-    return this.http.post(`${this.baseUrl}district/paginate`, paylods);
+    return this.http.post(`${this.baseUrl}district/paginate`, filter);
   }
 
 

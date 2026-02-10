@@ -20,7 +20,7 @@ const routes: Routes = [
   {path:"growth-monitoring", component: GrowthMonitoringComponent},
   { path: 'observation-completion', component: ObservationCompletionComponent },
 
-  { path: '**', redirectTo: '/home' },
+  { path: '**', redirectTo: '/observation-completion' },
 ];
 
 @NgModule({

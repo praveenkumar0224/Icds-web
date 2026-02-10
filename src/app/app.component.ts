@@ -5,6 +5,7 @@ import { AuthService } from './shared/services/auth/auth.service';
 import { DashboardServiceService } from './shared/services/dashboard-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -28,37 +29,31 @@ export class AppComponent {
 
   constructor(private authService: AuthService,
     private service: DashboardServiceService,
-        private router: Router,
-        private route: ActivatedRoute,
-        private snackBar: MatSnackBar,
-  ) {}
+    private router: Router,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
+  ) { }
 
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      console.log(params);
-      
-      const encryptedId = params['user_id']; // fetch dynamically
-      if (encryptedId) {
-        this.deCryptedId = this.service.decryptUserId(encryptedId);
-        console.log(this.deCryptedId, 'decrypted user_id');
-      }
-    });
-
-    this.service
-      .loginWithEmail(this.deCryptedId)
-      .subscribe({
-        next: (response) => {
-          console.log('Login successful', response);
-          this.openToast('success');
-        },
-        error: (error) => {
-          console.error('Login failed', error);
-          this.openToast('error');
-        },
-      });
-  }
+      console.log(params, '========awcmonitor', environment);
   
+      const user_id = params['user_id'];
+      if (!user_id) return;
+  
+      // ✅ Env-based logic
+      this.deCryptedId = environment.production
+        ? this.service.decryptUserId(user_id)
+        : user_id;
+  
+      console.log(this.deCryptedId, 'final user_id');
+  
+      // ✅ LOGIN ONLY AFTER ID IS READY
+      this.login(this.deCryptedId);
+    });
+  }
+
   openToast(type: 'success' | 'error') {
     this.snackBar.open(
       type === 'success' ? 'Login Successful ✅' : 'Something went wrong ❌',
@@ -72,6 +67,19 @@ export class AppComponent {
     );
   }
 
+  private login(userId: string): void {
+    this.service.loginWithEmail(userId).subscribe({
+      next: (response) => {
+        console.log('Login successful', response);
+        this.openToast('success');
+      },
+      error: (error) => {
+        console.error('Login failed', error);
+        this.openToast('error');
+      },
+    });
+  }
+  
 
 
   logout() {

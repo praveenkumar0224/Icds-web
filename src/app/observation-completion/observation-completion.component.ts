@@ -3,7 +3,7 @@ import { DashboardServiceService } from "../shared/services/dashboard-service.se
 import { Router } from "@angular/router";
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Chart, ChartConfiguration, ChartData, ChartType,DoughnutController,ArcElement,Tooltip,Legend } from 'chart.js';
+import { Chart, ChartConfiguration, ChartData, ChartType, DoughnutController, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { MatSort } from '@angular/material/sort';
 
 
@@ -21,7 +21,7 @@ export class ObservationCompletionComponent implements OnInit {
   @ViewChild('lineChartChart1') lineChartChart1Ref!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart2') lineChartChart2Ref!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart3') lineChartChart3Ref!: ElementRef<HTMLCanvasElement>;
-  
+
 
   @ViewChild(MatSort) sort!: MatSort;
   localUser = localStorage.getItem('user');
@@ -194,7 +194,34 @@ export class ObservationCompletionComponent implements OnInit {
     ]
   };
 
+  barChartUnVisitedAwcCountSupervisorLabels: string[] = [];
 
+  barChartUnVisitedAwcCountSupervisor: ChartData<"bar"> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: "",
+        backgroundColor: "#5D87FF",
+        hoverBackgroundColor: "#4a6cd8",
+        borderRadius: 6,
+        barThickness: 40,
+      },
+    ],
+  };
+
+  barChartUnVisitedAwcCountSupervisorOptions: ChartOptions<'bar'> = {
+    // responsive: true,
+    // maintainAspectRatio: false,
+    scales: {
+      y: {
+        min: 0,
+        max: 100,
+      },
+    },
+  };
+
+  
 
   chartType: ChartType = 'line';
 
@@ -325,11 +352,21 @@ export class ObservationCompletionComponent implements OnInit {
   }
   loadDistrictData(): void {
     this.isLoading = true;
-    const filter: any = {}
+    const payload: any = {
+      filter: {
+        is_active: true
+      },
+      options: {
+        "sortBy":
+          { "district_name": "asc" }
+
+      }
+    };
+
     if (this.isDistrictUser || this.isBlockUser) {
-      filter.district_id = this.user.district_id
+      payload.filter.district_id = this.user.district_id;
     }
-    this.service.postDistrictDatWithFilter(filter).subscribe({
+    this.service.postDistrictDatWithFilter(payload).subscribe({
       next: (res) => {
         this,
           this.isLoading = false;
@@ -389,6 +426,7 @@ export class ObservationCompletionComponent implements OnInit {
       this.callSupervisorObservationCompletion();
       this.callSupervisorActive();
       this.getAwcObservedQuarterByCDPO();
+      this.getUnvisistedAwcForSupervisor()
     }
   }
 
@@ -442,7 +480,7 @@ export class ObservationCompletionComponent implements OnInit {
 
   callSupervisorActive(): void {
     this.isLoadingForSupervisorActive = true;
-  
+
     this.service.supervisorActive(
       this.selectedDistrict,
       this.selectedYear.toString(),
@@ -453,16 +491,16 @@ export class ObservationCompletionComponent implements OnInit {
       next: (res) => {
         this.isLoadingForSupervisorActive = false;
         this.supervisorActiveData = res?.data ?? {};
-  
+
         const percent = Math.round(
           this.supervisorActiveData?.presentMonthActiveRate || 0
         );
-  
+
         setTimeout(() => {
           if (this.supervisorChart) {
             this.supervisorChart.destroy();
           }
-  
+
           this.supervisorChart = new Chart(
             'supervisorChart',
             this.buildHalfDoughnut(percent)
@@ -470,12 +508,11 @@ export class ObservationCompletionComponent implements OnInit {
           console.log(this.supervisorChart);
         });
 
-      
+
       },
       error: () => (this.isLoadingForSupervisorActive = false)
     });
   }
-  
 
   callCDPOActive(): void {
     this.isLoadingForCDPOActive = true;
@@ -498,12 +535,12 @@ export class ObservationCompletionComponent implements OnInit {
           const percent = Math.round(
             this.cdpoActiveData?.presentMonthActiveRate || 0
           );
-    
+
           setTimeout(() => {
             if (this.CDPOChart) {
               this.CDPOChart.destroy();
             }
-    
+
             this.CDPOChart = new Chart(
               'CDPOChart',
               this.buildHalfDoughnut(percent)
@@ -511,8 +548,8 @@ export class ObservationCompletionComponent implements OnInit {
             console.log(this.CDPOChart);
           });
 
-         
-            
+
+
         },
         error: (err) => {
           this.isLoadingForCDPOActive = false;
@@ -590,19 +627,19 @@ export class ObservationCompletionComponent implements OnInit {
           const percent = Math.round(
             this.dpoActiveData?.presentMonthActiveRate || 0
           );
-          console.log(this.isLoadingForDPOActive,"isLoadingForDPOActive");
+          console.log(this.isLoadingForDPOActive, "isLoadingForDPOActive");
           setTimeout(() => {
             if (this.DPOChart) {
               this.DPOChart.destroy();
             }
-    
+
             this.DPOChart = new Chart(
               'DPOChart',
               this.buildHalfDoughnut(percent)
-            ); 
+            );
             console.log(this.DPOChart);
           });
-        
+
         },
         error: (err) => {
           this.isLoadingForDPOActive = false;
@@ -651,7 +688,7 @@ export class ObservationCompletionComponent implements OnInit {
           const hasDistrictData = data.some(
             (item: any) => item.district_observed_percentage !== null
           );
-         
+
           if (hasDistrictData) {
             datasets.push({
               data: data.map((item: any) =>
@@ -716,6 +753,7 @@ export class ObservationCompletionComponent implements OnInit {
       options: {
         aspectRatio: 2,
         circumference: 180,
+
         rotation: -90,
         cutout: '70%',
         plugins: {
@@ -725,7 +763,7 @@ export class ObservationCompletionComponent implements OnInit {
       }
     };
   }
-  
+
   getAwcObservedQuarterByCDPO(): void {
     this.isLoadingForDPOActive = true;
     this.service
@@ -956,6 +994,50 @@ export class ObservationCompletionComponent implements OnInit {
     this.showChart = !this.showChart;
   }
 
+  getUnvisistedAwcForSupervisor(): void {
+  
+    this.service
+      .unVisitedAwcCountSupervisor(  // Fixed: was calling CDPOActive instead
+        this.selectedDistrict,
+        this.selectedYear.toString(),
+        this.selectedMonth,
+        this.selectedBlock,
+        this.selectedSector,
+      )
+      .subscribe({
+        next: (res) => {
+          // Sort quarters in correct order
+          const formattedData = res?.data?.formattedData || [];
+ 
+          const labels = formattedData.map((item: any) => item.month_name);
+
+          const datasets: any[] = [];
+
+          datasets.push({
+            label: 'AWC#',
+            data: formattedData.map((item: any) => item.unvisited_percentage),
+            backgroundColor: "#5D87FF",
+            barThickness: 40,
+            hoverBackgroundColor: "#4a6cd8",
+            // fill: false,
+            // borderColor: '',
+            // tension: 0.4,
+ 
+          });
+
+
+          /** Final chart object */
+          this.barChartUnVisitedAwcCountSupervisor = {
+            labels,
+            datasets
+          };
+        },
+        error: (err) => {
+         
+          console.error("Error fetching DPOActiveData:", err);
+        },
+      });
+  }
 
   loadTableAndChartData(): void {
     this.isLoading = true;
@@ -1282,10 +1364,11 @@ export class ObservationCompletionComponent implements OnInit {
           chartFileName: 'supervisor-observation.png',
           options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
               y: {
-                min: 0,
-                max: 100,
+                 min: 0,
+                 max: 100,
                 title: {
                   display: true,
                   text: '% completion'
@@ -1335,7 +1418,6 @@ export class ObservationCompletionComponent implements OnInit {
   setConfigurationForTable(): void {
 
   }
-
 
   onToggleChangeUserChange(role: any): void {
     if (this.selectedRole === role) return;
@@ -1582,7 +1664,9 @@ export class ObservationCompletionComponent implements OnInit {
 
   loadBlockData(districtId): void {
     this.isLoading = true;
-    const filter: any = {}
+    const filter: any = {
+
+    }
     if (this.isDistrictUser || this.isBlockUser) {
       filter.district_id = this.user.district_id
       if (this.isBlockUser) {

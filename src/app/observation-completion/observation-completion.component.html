@@ -274,10 +274,10 @@
     <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
 
       <p class="completion-title"> CDPO active this month</p>
-      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData.comparison == 'greater'" class="triangle-up"></div>
+      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
 
       <!-- ▼ DOWN -->
-      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData.comparison == 'less'" class="triangle-down"></div>
+      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData?.comparison == 'less'" class="triangle-down"></div>
       <!-- Loader -->
 
       <div class="card-loader" *ngIf="isLoadingForCDPOActive">
@@ -349,6 +349,18 @@
     <div class="card dpo" *ngIf="isStateUser || isDistrictUser">
       <h3>DPO completion trends</h3>
       <canvas baseChart [data]="dpoChartData" [type]="chartType" [options]="chartOptions">
+      </canvas>
+    </div>
+
+
+    <div class="card dpo"  *ngIf="isBlockUser">
+      <h3>Unvisited AWC count by Supervisor</h3>
+    
+      <canvas
+        baseChart
+        [data]="barChartUnVisitedAwcCountSupervisor"
+        [options]="barChartUnVisitedAwcCountSupervisorOptions"
+        [type]="'bar'">
       </canvas>
     </div>
 
