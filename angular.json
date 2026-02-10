@@ -23,6 +23,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+              "baseHref": "/awcmonitor/",
             "outputPath": "dist/angular13-fundamentals-workshop",
             "index": "src/index.html",
             "main": "src/main.ts",
