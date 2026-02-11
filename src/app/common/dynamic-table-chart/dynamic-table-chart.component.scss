@@ -1,0 +1,123 @@
+.chart-card {
+    // height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+
+}
+
+.card-content {
+    flex: 1;
+    // overflow: hidden;
+    /* important */
+}
+
+/* TABLE */
+.table-container {
+    max-height: calc(80vh - 150px);
+    /* adjust based on header + tabs */
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+}
+
+th.mat-header-cell {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+
+    background: #f3f4f6;
+    /* light grey */
+    color: #1f2937;
+    /* dark text */
+    font-weight: 600;
+    font-size: 13px;
+
+    border-bottom: 2px solid #d1d5db;
+}
+
+.table-container th.mat-header-cell {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+tr.mat-footer-row {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    z-index: 1;
+}
+
+
+
+/* CENTERED LOADER */
+.loader-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.6);
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Optional */
+.clickable {
+    cursor: pointer;
+    color: #1976d2;
+}
+
+
+.header-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.bar-chart-container {
+     height: 380px;
+    position: relative;
+    overflow: hidden;
+}
+
+mat-footer-row {
+    position: sticky;
+    bottom: 0;
+    background: #fafafa;
+    font-weight: 600;
+}
+
+
+.comparison-icon {
+    display: inline-block;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+/* ▲ Green */
+.cmp-up {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 10px solid #2e7d32;
+}
+
+/* ▬ Yellow */
+.cmp-equal {
+    width: 12px;
+    height: 4px;
+    background-color: #f9a825;
+}
+
+/* ▼ Red */
+.cmp-down {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 10px solid #c62828;
+}

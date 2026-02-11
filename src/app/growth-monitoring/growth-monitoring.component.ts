@@ -34,6 +34,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
 
   lineChart = "line";
   selectedTabIndex = 0;
+  retryCount = 0;
+maxRetries = 20; 
   labelChanges = {
     stateChildDeviation: "No.of children with deviation",
     statePercentageChildDeviation: "% of children with deviation",
@@ -168,8 +170,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     "November",
     "December",
   ];
-  selectedDistrict = "";
-  selectedBlock = "";
+  selectedDistrict = "a1f99804-065e-43b0-af24-559470a10327";
+  selectedBlock = "0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94";
   selectedSector = "";
   selectedDeviationCategory = "both";
   orderBy = "awc";
@@ -241,7 +243,23 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     private snackBar: MatSnackBar
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+   this.staticcall()
+
+  }
+
+  staticcall(){
+    this.loadDistrictData();
+    // Promizse
+    this.onDistrictChange("a1f99804-065e-43b0-af24-559470a10327")
+
+    
+    this.onBlockChange();
+    //this.loadBlockData("0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94")
+
+    //
+  }
 
   private clearAllData(): void {
     // Clear state level data
@@ -382,8 +400,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         this.selectedSector,
         this.selectedDeviationCategory
       ),
-    }).subscribe({
-      next: (res) => {
+    }).subscribe({  
+      next: (res) => {   
         this.stateLevelData = [
           res.observation.data,
           res.awc.data,
@@ -396,8 +414,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         // const supervisorData = res.supervisor.data
         // const trendsbysupervisorData = res.trendsbysupervisor.data
 
-        console.log(this.stateLevelData);
-
+        console.log(this.stateLevelData); 
         if (this.stateLevelData) {
           this.createBarChartAWCDevaition(this.stateLevelData?.[1]);
           this.createBarChartSupervisorDevaition(this.stateLevelData?.[3]);
@@ -417,6 +434,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           !this.selectedBlock &&
           !this.selectedSector
         ) {
+          console.log('loadDistrictData3');
           this.loadDistrictData();
         }
       },
@@ -652,44 +670,49 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private setupTableSorting(): void {
-    if (!this.sort) {
-      console.warn("MatSort not available yet, retrying...");
-      setTimeout(() => this.setupTableSorting(), 100);
+     private setupTableSorting(): void {
+  if (!this.sort) {
+    this.retryCount++;
+
+    if (this.retryCount > this.maxRetries) {
+      console.warn("MatSort still not available. Stopping retries.");
       return;
     }
 
-    if (!this.dataSource) {
-      console.warn("DataSource not available");
-      return;
-    }
-    if (this.sort && this.dataSource) {
-      this.dataSource.sort = this.sort;
-
-      this.dataSource.sortingDataAccessor = (
-        data: any,
-        sortHeaderId: string
-      ) => {
-        switch (sortHeaderId) {
-          case "district":
-            return data.district?.toLowerCase();
-          case "slNo":
-            return Number(data.slNo);
-          case "totalChildrenPresent":
-            return Number(data.totalChildrenPresent);
-          case "childrenNoDeviation":
-            return Number(data.childrenNoDeviation);
-          case "childrenDeviationCount":
-            return Number(data.childrenDeviationCount);
-          case "deviationPercentage":
-            return Number(data.deviationPercentage);
-          default:
-            return data[sortHeaderId];
-        }
-      };
-    }
+    console.warn(`MatSort not available yet, retrying... (${this.retryCount})`);
+    setTimeout(() => this.setupTableSorting(), 100);
+    return;
   }
 
+  // Sorting is ready → reset retry counter
+  this.retryCount = 0;
+
+  if (!this.dataSource) {
+    console.warn("DataSource not available");
+    return;
+  }
+
+  this.dataSource.sort = this.sort;
+
+  this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+    switch (sortHeaderId) {
+      case "district":
+        return data.district?.toLowerCase();
+      case "slNo":
+        return Number(data.slNo);
+      case "totalChildrenPresent":
+        return Number(data.totalChildrenPresent);
+      case "childrenNoDeviation":
+        return Number(data.childrenNoDeviation);
+      case "childrenDeviationCount":
+        return Number(data.childrenDeviationCount);
+      case "deviationPercentage":
+        return Number(data.deviationPercentage);
+      default:
+        return data[sortHeaderId];
+    }
+  };
+}
   getTableData(apiData: any) {
     if (apiData) {
       const formatted = apiData?.deviation.map((item, index) => ({
@@ -1164,7 +1187,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     // Clear dependent data immediately
     this.blockData = [];
     this.sectorData = [];
-    this.selectedBlock = "";
+    this.selectedBlock = this.selectedDistrict=="a1f99804-065e-43b0-af24-559470a10327" ?"0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94" : "";
     this.selectedSector = "";
 
     // Clear current dashboard data

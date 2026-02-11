@@ -1,0 +1,382 @@
+<!-- Loading Overlay -->
+<!-- <div *ngIf="isLoading" class="component-loader-overlay">
+  <div class="spinner-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Loading dashboard data...</p>
+  </div>
+</div> -->
+
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="content-header">
+    <div class="header-left">
+      <!-- <button mat-icon-button class="back-btn" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button> -->
+      <h1 class="page-title">{{ headerTitile }}</h1>
+    </div>
+
+    <!-- <button mat-button class="back-btn" (click)="goFor()">
+      Test
+    </button> -->
+  </header>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <mat-card class="filters-card" style="padding: 10px">
+      <div class="filters-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Year</mat-label>
+          <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let year of years" [value]="year" [disabled]="year > currentYear">
+              {{ year }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Month</mat-label>
+          <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let month of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]" [value]="month.toString()"
+              [disabled]="selectedYear == currentYear && month > currentMonth">
+              {{ monthNames[month - 1] }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>District</mat-label>
+          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)">
+            <!-- <mat-option value="" >All District</mat-option> -->
+            <mat-option *ngFor="let district of districtData" [value]="district.district_id">
+              {{ district.district_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Block</mat-label>
+          <mat-select [(value)]="selectedBlock" (selectionChange)="onBlockChange()">
+            <!-- <mat-option value="" >All Block</mat-option> -->
+            <mat-option *ngFor="let block of blockData" [value]="block.block_id">
+              {{ block.block_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Sector</mat-label>
+          <mat-select [(value)]="selectedSector" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let sector of sectorData" [value]="sector.sector_id">
+              {{ sector.sector_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field> -->
+
+        <!-- your existing filter fields here -->
+
+        <!-- Clear Filters Button -->
+        <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()" [disabled]="isBlockUser"
+          *ngIf="selectedDistrict">
+          Clear Filters
+        </button>
+      </div>
+    </mat-card>
+  </div>
+  <div style="
+      display: flex;
+      justify-content: space-around;
+      gap: 16px;
+      padding: 12px;
+    ">
+    <!-- Supervisor -->
+    <div class="completion-card supervisor">
+
+
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingForSupervisorObservationCompletion; else dataView">
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
+      </ng-container>
+
+      <!-- Data -->
+      <ng-template #dataView>
+
+        <p class="completion-title">
+          Supervisor observations completed this month
+        </p>
+
+        <div class="completion-stats">
+
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ supervisorObservationCompletionData?.completedCount}}
+            </div>
+            <div class="completion-label">
+              Centers observed
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ supervisorObservationCompletionData?.completionRate | number:'1.0-0' }}%
+
+            </div>
+            <div class="completion-label">
+              observation Completion%
+            </div>
+          </div>
+
+        </div>
+
+      </ng-template>
+    </div>
+
+    <!-- CDPO -->
+    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser || isBlockUser">
+
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingForCDPOObservationCompletion; else cdpoDatas">
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
+      </ng-container>
+
+      <!-- Data -->
+      <ng-template #cdpoDatas>
+
+        <p class="completion-title">
+          CDPO observations completed this quarter({{cdpoObservationCompletionData?.monthlabel}})
+        </p>
+
+        <div class="completion-stats">
+
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{cdpoObservationCompletionData?.completedCount}}
+            </div>
+            <div class="completion-label">
+              Centers observed
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ cdpoObservationCompletionData?.completionRate | number:'1.0-0' }}%
+            </div>
+            <div class="completion-label">
+              Observation completion%
+            </div>
+          </div>
+
+        </div>
+
+      </ng-template>
+    </div>
+
+    <!-- DPO -->
+    <div class="completion-card dpo" *ngIf="isStateUser || isDistrictUser">
+
+      <!-- Loader -->
+      <ng-container *ngIf="isLoadingSectorsObservedByDpo; else cdpoData">
+        <div class="card-loader">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Loading...</p>
+        </div>
+      </ng-container>
+
+      <!-- Data -->
+      <ng-template #cdpoData>
+
+        <p class="completion-title">
+          Sectors observed by DPO this quarter({{sectorsObservedByDpoData?.monthlabel}})
+        </p>
+
+        <div class="completion-stats">
+
+          <!-- Count -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ sectorsObservedByDpoData?.sectors_visited }}
+            </div>
+            <div class="completion-label">
+              Sectors observed
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="completion-box">
+            <div class="completion-value">
+              {{ sectorsObservedByDpoData?.sector_visit_percentage | number:'1.0-0' }}%
+            </div>
+            <div class="completion-label">
+              Completion%
+            </div>
+          </div>
+
+        </div>
+
+      </ng-template>
+    </div>
+
+
+  </div>
+
+
+  <!-- Actives -->
+  <div style="
+      display: flex;
+      justify-content: space-around;
+      gap: 16px;
+      padding: 12px;
+      margin-top: 0px;
+    ">
+    <!-- Supervisor -->
+    <div class="completion-card supervisor">
+      <p class="completion-title">Supervisor active this month</p>
+
+      <div *ngIf="
+      !isLoadingForSupervisorActive &&
+      supervisorActiveData?.comparison == 'greater'
+    " class="triangle-up"></div>
+
+      <!-- ▼ DOWN -->
+      <div *ngIf="
+      !isLoadingForSupervisorActive && supervisorActiveData?.comparison == 'less'
+     
+    " class="triangle-down"></div>
+
+      <div class="card-loader" *ngIf="isLoadingForSupervisorActive">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading...</p>
+      </div>
+
+
+      <div class="chart-wrapper" *ngIf="!isLoadingForSupervisorActive">
+        <canvas id="supervisorChart"></canvas>
+        <div class="chart-center-text">
+          {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- CDPO -->
+    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
+
+      <p class="completion-title"> CDPO active this month</p>
+      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
+
+      <!-- ▼ DOWN -->
+      <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData?.comparison == 'less'" class="triangle-down"></div>
+      <!-- Loader -->
+
+      <div class="card-loader" *ngIf="isLoadingForCDPOActive">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading...</p>
+      </div>
+
+
+      <div class="chart-wrapper" *ngIf="!isLoadingForCDPOActive">
+        <canvas id="CDPOChart"></canvas>
+        <div class="chart-center-text">
+          {{ cdpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+        </div>
+      </div>
+
+    </div>
+    <!-- DPO -->
+    <div class="completion-card dpo" *ngIf="isStateUser">
+
+      <p class="completion-title"> DPO active this month</p>
+      <div *ngIf="!isLoadingForDPOActive && dpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
+
+      <!-- ▼ DOWN -->
+      <div *ngIf="!isLoadingForDPOActive && dpoActiveData?.comparison == 'less'" class="triangle-down"></div>
+      <!-- Loader -->
+
+      <div class="card-loader" *ngIf="isLoadingForDPOActive">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading...</p>
+      </div>
+
+
+      <div class="chart-wrapper" *ngIf="!isLoadingForDPOActive">
+        <canvas id="DPOChart"></canvas>
+        <div class="chart-center-text">
+          {{ dpoActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+        </div>
+      </div>
+
+    </div>
+
+
+
+
+
+  </div>
+
+
+  <!-- graph -->
+
+
+  <div class="chart-container">
+
+    <!-- Supervisor -->
+    <div class="card supervisor">
+      <h3>Supervisor completion trends</h3>
+      <canvas baseChart [data]="supervisorChartData" [type]="chartType" [options]="chartOptions">
+      </canvas>
+    </div>
+
+    <!-- CDPO -->
+    <div class="card cdpo" *ngIf="isStateUser || isDistrictUser || isBlockUser">
+      <h3>CDPO completion trends</h3>
+      <canvas baseChart [data]="cdpoChartData" [type]="chartType" [options]="chartOptions">
+      </canvas>
+    </div>
+
+    <!-- DPO -->
+    <div class="card dpo" *ngIf="isStateUser || isDistrictUser">
+      <h3>DPO completion trends</h3>
+      <canvas baseChart [data]="dpoChartData" [type]="chartType" [options]="chartOptions">
+      </canvas>
+    </div>
+
+
+    <div class="card dpo"  *ngIf="isBlockUser">
+      <h3>Unvisited AWC count by Supervisor</h3>
+    
+      <canvas
+        baseChart
+        [data]="barChartUnVisitedAwcCountSupervisor"
+        [options]="barChartUnVisitedAwcCountSupervisorOptions"
+        [type]="'bar'">
+      </canvas>
+    </div>
+
+  </div>
+
+
+  <div class="role-toggle">
+    <button *ngFor="let role of visibleRoles" (click)="onToggleChangeUserChange(role)"
+      [class.active]="selectedRole === role">
+      {{ role}}
+    </button>
+  </div>
+
+
+  <app-dynamic-table-chart [loading]="isLoading" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
+    [tableData]="tableData" [chartConfig]="chartConfig" (rowClick)="onRowClick($event)">
+  </app-dynamic-table-chart>
+
+</div>

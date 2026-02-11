@@ -1,5 +1,5 @@
 // home.component.ts
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef,ViewChildren, QueryList } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -29,7 +29,7 @@ interface DashboardData {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements OnInit {
   @ViewChild('barChart') barChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart1') lineChartChart1Ref!: ElementRef<HTMLCanvasElement>;
   @ViewChild('lineChartChart2') lineChartChart2Ref!: ElementRef<HTMLCanvasElement>;
@@ -227,96 +227,78 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   }
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      console.log(params);
-      
-      const encryptedId = params['user_id']; // fetch dynamically
-      if (encryptedId) {
-        this.deCryptedId = this.service.decryptUserId(encryptedId);
-        console.log(this.deCryptedId, 'decrypted user_id');
-      }
-    });
-  }
 
   geIdFromUrl() {
 
   }
 
-  ngAfterViewInit(): void {
-    this.isLoading = true;
-    this.service
-      .loginWithEmail(this.deCryptedId)
-      // .pipe(
-      //   switchMap((loginRes) => {
-      //     this.isLoading = false;
-      //     this.openToast('success')
-      //     console.log('Login Success:', loginRes);
-      //     return this.service.fetchUser(this.deCryptedId); // call fetchUser only after login
-      //   })
-      // )
-      .subscribe({
-        next: (userRes) => {
-          this.isLoading = false;
-          this.openToast('success');
-          console.log('User Fetched:', userRes);
+   ngOnInit(): void {
+      this.isLoading = true;
 
-          if (userRes?.data?.[0]?.icds_role_id == 4 && userRes?.data?.[0]?.district_id) {
-            this.selectedDistrict = userRes.data[0].district_id.toString();
-            this.icdsRoleId = userRes.data[0].icds_role_id;
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      console.log(userData, 'userData from localStorage');
+      
 
-            // 🔹 Store user's district info for later use
-            this.userDistrictId = userRes.data[0].district_id.toString();
+      if (userData) {
+        this.handleUserLogin(userData);
+      } else {
+        console.error('User not found in localStorage!');
+        this.isLoading = false;
+      }
+    }
 
-            this.service.postDistrictData().subscribe({
-              next: (res) => {
-                this.isLoading = false;
-                console.log(res, 'district Data ');
-                this.districtData = res?.data?.result?.sort((a: any, b: any) =>
-                  a.district_name.localeCompare(b.district_name)
-                );
 
-                const districtName = this.districtData.find(
-                  (val: any) => val.district_id == this.selectedDistrict
-                );
+      handleUserLogin(user: any) {
+      this.isLoading = false;
 
-                // 🔹 Store district name for later use
-                this.userDistrictName = districtName?.district_name || '';
+      console.log("User Fetched from localStorage:", user);
 
-                this.labelChanges = {
-                  stateObserveBox: `AWC observed in ${districtName?.district_name || ''} this month`,
-                  stateProgressBox: "Awc's progress this month",
-                  stateNotObserveBox: "Awc's not Observed this month",
-                  stateTotalBox: "Total AWCs",
-                  stateActiveUserBox: "Active users this month",
-                  stateObservTrendsChart: "AWC observation trends",
-                  stateObservNotTrendsChart: "AWCs not visited trends ",
-                  stateActiveUserChart: "Active User trends",
-                  barchart: "AWCs Observed This Month by Block",
-                  sectionType: "Block"
-                };
+      // role = 4 (DPO)
+      if (user?.icds_role_id == 4 && user?.district_id) {
+        this.selectedDistrict = user.district_id.toString();
+        this.icdsRoleId = user.icds_role_id;
 
-                // load block data AFTER district is set
-                this.loadBlockData(this.selectedDistrict);
-              },
-              error: (err) => {
-                this.isLoading = false;
-                console.error('Statewise API Error:', err);
-              },
-            });
+        // store globally
+        this.userDistrictId = this.selectedDistrict;
 
-            this.headerTitile = `ICDS - Observation Overview (DPO)`;
-          }
+        // 🔹 get district details
+        this.service.postDistrictData().subscribe({
+          next: (res) => {
+            this.districtData = res?.data?.result?.sort((a: any, b: any) =>
+              a.district_name.localeCompare(b.district_name)
+            );
 
-          this.loadDashboardData();
-        },
-        error: (err) => {
-          this.isLoading = false;
-          this.openToast('error')
-          console.error('Error:', err);
-        },
-      });
-  }
+            const district = this.districtData.find(
+              (val: any) => val.district_id == this.selectedDistrict
+            );
+
+            this.userDistrictName = district?.district_name || "";
+
+            this.labelChanges = {
+              stateObserveBox: `AWC observed in ${this.userDistrictName} this month`,
+              stateProgressBox: "Awc's progress this month",
+              stateNotObserveBox: "Awc's not Observed this month",
+              stateTotalBox: "Total AWCs",
+              stateActiveUserBox: "Active users this month",
+              stateObservTrendsChart: "AWC observation trends",
+              stateObservNotTrendsChart: "AWCs not visited trends",
+              stateActiveUserChart: "Active User trends",
+              barchart: "AWCs Observed This Month by Block",
+              sectionType: "Block",
+            };
+
+            this.loadBlockData(this.selectedDistrict);
+          },
+          error: (err) => {
+            console.error("Statewise API Error:", err);
+          },
+        });
+
+        this.headerTitile = `ICDS - Observation Overview (DPO)`;
+      }
+
+      this.loadDashboardData();
+    }
 
   // API methods (replace with actual API calls)
   loadDashboardData(): void {
@@ -1040,16 +1022,5 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/courses', 123456]);
   }
   
-  openToast(type: 'success' | 'error') {
-    this.snackBar.open(
-      type === 'success' ? 'Login Successful ✅' : 'Something went wrong ❌',
-      'Close',
-      {
-        duration: 3000,
-        verticalPosition: 'top',
-        horizontalPosition: 'right',
-        panelClass: type === 'success' ? ['toast-success'] : ['toast-error'],
-      }
-    );
-  }
+  
 }
