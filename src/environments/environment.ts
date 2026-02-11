@@ -3,7 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  apiUrl: 'http://localhost:5412/v3/',
+  apiUrl: 'http://13.204.36.2:5412/v3/',
   production: false,
   appName: 'ICDS Web Dashboard'
 };

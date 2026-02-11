@@ -1,10 +1,5 @@
 export const environment = {
-<<<<<<< Updated upstream
-  production: true,
-  apiUrl: 'https://icds.xenovex.com/api/v3/',
-=======
   production: false,
-  apiUrl: 'http://localhost:5412/v3/',
->>>>>>> Stashed changes
+  apiUrl: 'http://13.204.36.2:5412/v3/',
   appName: 'ICDS Web Dashboard'
 };
