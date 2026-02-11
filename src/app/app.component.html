@@ -27,7 +27,7 @@
   <mat-sidenav
     #sidenav
     mode="side"
-    [opened]="isAuthenticated$ | async"
+    *ngIf="(isAuthenticated$ | async) && isAccess"
     class="app-sidenav"
   >
     <nav>

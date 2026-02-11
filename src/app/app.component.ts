@@ -6,25 +6,31 @@ import { DashboardServiceService } from './shared/services/dashboard-service.ser
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from 'src/environments/environment';
-
+import { MatSidenav } from '@angular/material/sidenav';
+import { ViewChild } from '@angular/core';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
+
+
+  @ViewChild('sidenav') sidenav!: MatSidenav;
   title = 'ICDS Supervision - Dashboard';
   links = [
-    { path: '/home', icon: 'visibility', title: 'Observation' },
+    // { path: '/home', icon: 'visibility', title: 'Observation' },
+    { path: '/observation-completion', icon: 'visibility', title: 'Observation Completion' },
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },
     { path: '/growth-monitoring', icon: 'assessment', title: 'Growth Monitoring' },
-    { path: '/observation-completion', icon: 'assessment', title: 'Observation Completion' },
-
+   
+    
   ];
   deCryptedId: any
-
-
-
+  isDistrictUser = true;
+  isBlockUser = true;
+  isStateUser = true
+  isAccess = false;
   isAuthenticated$ = this.authService.isAuthenticated$.pipe(shareReplay(1));
 
   constructor(private authService: AuthService,
@@ -52,6 +58,7 @@ export class AppComponent {
       // ✅ LOGIN ONLY AFTER ID IS READY
       this.login(this.deCryptedId);
     });
+
   }
 
   openToast(type: 'success' | 'error') {
@@ -66,12 +73,54 @@ export class AppComponent {
       }
     );
   }
+  getRole(role: string): void {
+
+    // Reset all flags first
+    this.isDistrictUser = false;
+    this.isBlockUser = false;
+    this.isStateUser = false;
+    this.isAccess = true;
+  
+    switch (role) {
+      case "DPO":
+      case "District Collector":
+      case "District Coordinator":
+        this.isDistrictUser = true;
+        break;
+  
+      case "CDPO":
+        this.isBlockUser = true;
+        break;
+  
+      case "Root":
+      case "Zone Officer":
+        this.isStateUser = true;
+        break;
+  
+      case "Block Supervisor":
+        this.isAccess = false;
+        break;
+  
+      default:
+        this.isAccess = false;
+    }
+  
+    console.log(this.isAccess, 'isAccess');
+  
+    // 🚨 Redirect if no access
+    if (!this.isAccess) {
+      this.router.navigate(['/access-denied']);
+    }
+  }
+  
 
   private login(userId: string): void {
     this.service.loginWithEmail(userId).subscribe({
       next: (response) => {
         console.log('Login successful', response);
         this.openToast('success');
+        const user = response?.data?.user
+        this.getRole(user?.role?.role_name)
       },
       error: (error) => {
         console.error('Login failed', error);
@@ -80,8 +129,6 @@ export class AppComponent {
     });
   }
   
-
-
   logout() {
     this.authService.logout();
   }

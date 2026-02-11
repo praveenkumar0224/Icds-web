@@ -31,6 +31,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AuthInterceptor } from './auth.interceptor';
 import { ObservationCompletionComponent } from './observation-completion/observation-completion.component';
 import { DynamicTableChartComponent } from './common/dynamic-table-chart/dynamic-table-chart.component';
+import { AccessDeniedComponent } from './shared/access-denied/access-denied.component';
 
 
 
@@ -60,7 +61,8 @@ import { DynamicTableChartComponent } from './common/dynamic-table-chart/dynamic
      DistrictChartComponent,
      GrowthMonitoringComponent,
      ObservationCompletionComponent,
-     DynamicTableChartComponent
+     DynamicTableChartComponent,
+     AccessDeniedComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService,
