@@ -26,6 +26,7 @@ export class AppComponent {
    
     
   ];
+  filteredLinks: any[] = [];
   deCryptedId: any
   isDistrictUser = true;
   isBlockUser = true;
@@ -75,7 +76,7 @@ export class AppComponent {
   }
   getRole(role: string): void {
 
-    // Reset all flags first
+    // Reset all flags
     this.isDistrictUser = false;
     this.isBlockUser = false;
     this.isStateUser = false;
@@ -105,11 +106,21 @@ export class AppComponent {
         this.isAccess = false;
     }
   
-    console.log(this.isAccess, 'isAccess');
-  
     // 🚨 Redirect if no access
     if (!this.isAccess) {
       this.router.navigate(['/access-denied']);
+      return;
+    }
+  
+    // ✅ Filter links based on role
+    if (this.isStateUser) {
+      // State user → show all
+      this.filteredLinks = this.links;
+    } else {
+      // Others → show only Observation Completion
+      this.filteredLinks = this.links.filter(
+        link => link.path === '/observation-completion'
+      );
     }
   }
   

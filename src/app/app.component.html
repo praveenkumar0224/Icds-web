@@ -34,7 +34,7 @@
       <a
         mat-button
         class="nav-link"
-        *ngFor="let link of links"
+        *ngFor="let link of filteredLinks"
         [routerLink]="link.path"
         routerLinkActive="active"
       >
