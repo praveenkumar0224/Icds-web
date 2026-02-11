@@ -1569,7 +1569,7 @@ export class ObservationCompletionComponent implements OnInit {
     // 🚨 Clear table config and data before reload
     this.tableConfig = {
       enableSearch: false,
-      showFooter: false,
+      showFooter: true,
       columns: []
     };
     this.tableData = [];
@@ -1595,7 +1595,7 @@ export class ObservationCompletionComponent implements OnInit {
     // 🚨 Clear table config and data before reload
     this.tableConfig = {
       enableSearch: false,
-      showFooter: false,
+      showFooter: true,
       columns: []
     };
     this.tableData = [];
@@ -1610,7 +1610,7 @@ export class ObservationCompletionComponent implements OnInit {
     // 🚨 Clear table config and data before reload
     this.tableConfig = {
       enableSearch: false,
-      showFooter: false,
+      showFooter: true,
       columns: []
     };
     this.tableData = [];
@@ -1645,7 +1645,7 @@ export class ObservationCompletionComponent implements OnInit {
     }
     this.tableConfig = {
       enableSearch: false,
-      showFooter: false,
+      showFooter: true,
       columns: []
     };
 

@@ -21,7 +21,7 @@ export class DashboardServiceService {
   ) { }
 
   loginWithEmail(id: any): Observable<any> {
-    console.log(id,"======");
+  
     
     const url = this.baseUrl + 'auth/loginWithEmail';
     const user = {
@@ -32,8 +32,7 @@ export class DashboardServiceService {
 
     return this.http.post(url, user).pipe(
       tap((res: any) => {
-        console.log(res, 'login response check by ram');
-
+       
         const token = res?.data?.token?.access?.token;
         if (token) {
           localStorage.setItem('access_token', token);
@@ -517,10 +516,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-dashboard/attendance-blockWiseReport-excel${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-dashboard/attendance-report-excel${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-dashboard/attendance-sectorWiseReport-excel${queryString}`;
     }
@@ -554,10 +553,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}webDashboard-gm/gmblockWiseReport-excel${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}webDashboard-gm/gmdistrictwise-report-excel${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}webDashboard-gm/gmsectorWiseReport-excel${queryString}`;
     }
@@ -592,10 +591,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/by-observation-supervisor${queryString}`;
     } else {
@@ -630,10 +629,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/by-observation-cdpo${queryString}`;
     } else {
@@ -668,10 +667,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/by-active-supervisor${queryString}`;
     } else {
@@ -706,10 +705,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/by-active-cdpo${queryString}`;
     } else {
@@ -744,10 +743,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/by-active-dpo${queryString}`;
     } else[
@@ -782,10 +781,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-by-supervisor${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-by-supervisor${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-by-supervisor${queryString}`;
     } else[
@@ -820,10 +819,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-dpo${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-dpo${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-dpo${queryString}`;
     } else[
@@ -857,10 +856,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/unvisited-awc-count-supervisor${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/unvisited-awc-count-supervisor${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/unvisited-awc-count-supervisor${queryString}`;
     } else[
@@ -895,10 +894,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-cdpo${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-cdpo${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/get-awc-observed-quarter-by-cdpo${queryString}`;
     } else[
@@ -935,10 +934,10 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/get-sectors-observed-by-dpo${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/get-sectors-observed-by-dpo${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/get-sectors-observed-by-dpo${queryString}`;
     } else[
@@ -1083,13 +1082,13 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/excel-block${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/excel${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/excel-sector${queryString}`;
-      console.log(url, 'district excel');
+      
     } 
 
 
@@ -1123,13 +1122,13 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/cdpo-excel-block${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/cdpo-excel-district${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/cdpo-excel-sector${queryString}`;
-      console.log(url, 'district excel');
+      
     } 
 
 
@@ -1163,13 +1162,13 @@ export class DashboardServiceService {
     let url = '';
     if (blockId) {
       url = `${this.baseUrl}web-observation-completion/dpo-excel-block${queryString}`;
-      console.log(url, 'block excel');
+      
     } else if (districtId) {
       url = `${this.baseUrl}web-observation-completion/dpo-excel-district${queryString}`;
-      console.log(url, 'district excel');
+      
     } else if (sectorId) {
       url = `${this.baseUrl}web-observation-completion/dpo-excel-sector${queryString}`;
-      console.log(url, 'district excel');
+      
     } 
 
 
