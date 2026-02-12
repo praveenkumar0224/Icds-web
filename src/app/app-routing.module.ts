@@ -15,9 +15,9 @@ import { observeOn } from 'rxjs';
 
 
 const routes: Routes = [
-  { path: 'home', component: HomeComponent },
-  { path: 'courses/:id', component: CoursesComponent },
-  { path: 'login', component: LoginComponent },
+  { path: 'home', component: ObservationCompletionComponent },
+  // { path: 'courses/:id', component: CoursesComponent },
+  // { path: 'login', component: LoginComponent },
   { path: 'attendance', component: AttendanceComponent },
   { path: "growth-monitoring", component: GrowthMonitoringComponent },
   { path: 'observation-completion', component: ObservationCompletionComponent },
