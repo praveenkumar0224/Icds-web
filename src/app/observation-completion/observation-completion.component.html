@@ -227,7 +227,36 @@
       </ng-template>
     </div>
 
+    <!-- Supervisor -->
+    <div class="completion-card supervisor"  *ngIf="isBlockUser">
+      <p class="completion-title">Supervisor active this month</p>
 
+      <div *ngIf="
+      !isLoadingForSupervisorActive &&
+      supervisorActiveData?.comparison == 'greater'
+    " class="triangle-up"></div>
+
+      <!-- ▼ DOWN -->
+      <div *ngIf="
+      !isLoadingForSupervisorActive && supervisorActiveData?.comparison == 'less'
+     
+    " class="triangle-down"></div>
+
+      <div class="card-loader" *ngIf="isLoadingForSupervisorActive">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p class="loading-text">Loading...</p>
+      </div>
+
+
+      <div class="chart-wrapper" *ngIf="!isLoadingForSupervisorActive">
+        <canvas id="supervisorChart"></canvas>
+        <div class="chart-center-text">
+          {{ supervisorActiveData?.presentMonthActiveRate | number:'1.0-0' }}%
+        </div>
+      </div>
+
+
+    </div>
   </div>
 
 
@@ -240,7 +269,7 @@
       margin-top: 0px;
     ">
     <!-- Supervisor -->
-    <div class="completion-card supervisor">
+    <div class="completion-card supervisor" *ngIf="!isBlockUser">
       <p class="completion-title">Supervisor active this month</p>
 
       <div *ngIf="

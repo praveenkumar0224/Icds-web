@@ -746,6 +746,10 @@ export class ObservationCompletionComponent implements OnInit {
         datasets: [
           {
             data: [percent, 100 - percent],
+            backgroundColor: [
+              '#5DA5DA',   
+              '#F4A6B8'   
+            ],
             borderWidth: 0
           }
         ]

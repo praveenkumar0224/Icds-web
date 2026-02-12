@@ -27,14 +27,14 @@
   <mat-sidenav
     #sidenav
     mode="side"
-    [opened]="isAuthenticated$ | async"
+    *ngIf="(isAuthenticated$ | async) && isAccess"
     class="app-sidenav"
   >
     <nav>
       <a
         mat-button
         class="nav-link"
-        *ngFor="let link of links"
+        *ngFor="let link of filteredLinks"
         [routerLink]="link.path"
         routerLinkActive="active"
       >

@@ -1,0 +1,28 @@
+<div class="access-wrapper">
+    <mat-card class="access-card" elevation="6">
+      
+      <div class="icon-container">
+        <mat-icon class="lock-icon">lock</mat-icon>
+      </div>
+  
+      <h1>403</h1>
+      <h2>Access Denied</h2>
+  
+      <p>
+        You don’t have permission to access this page.
+        Please contact your administrator if you believe this is a mistake.
+      </p>
+  
+      <div class="actions">
+        <button mat-raised-button color="primary" routerLink="/">
+          Go to Dashboard
+        </button>
+  
+        <button mat-stroked-button color="accent" (click)="goBack()">
+          Go Back
+        </button>
+      </div>
+  
+    </mat-card>
+  </div>
+  
