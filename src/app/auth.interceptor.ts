@@ -35,7 +35,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
         if (error.status === 401) {
           console.warn('Unauthorized - redirecting to login');
-          localStorage.removeItem('access_token');
+          // localStorage.removeItem('access_token');
           this.router.navigate(['/login']);
         }
 
