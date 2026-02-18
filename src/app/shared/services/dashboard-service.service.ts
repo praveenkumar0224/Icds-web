@@ -224,7 +224,7 @@ export class DashboardServiceService {
 
 
 
-  getgmDashboardByobservation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+  getgmDashboardByobservation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string,selectedUser?:string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -235,6 +235,7 @@ export class DashboardServiceService {
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
@@ -252,7 +253,7 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-  getgmDashboardByawc(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+  getgmDashboardByawc(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string,selectedUser?:string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -263,7 +264,7 @@ export class DashboardServiceService {
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
-
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
@@ -281,7 +282,7 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-  getgmBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+  getgmBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string,selectedUser?:string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -292,7 +293,7 @@ export class DashboardServiceService {
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
-
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
@@ -310,7 +311,7 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-  getgmTrendsBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+  getgmTrendsBySupervisor(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string,selectedUser?:string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -321,7 +322,7 @@ export class DashboardServiceService {
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
-
+      if (selectedUser) params.push(`observation_type=${selectedUser}`)
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
@@ -339,7 +340,7 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-  getgmAgegroupDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+  getgmAgegroupDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string,selectedUser?:string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -350,7 +351,7 @@ export class DashboardServiceService {
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
-
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
@@ -368,7 +369,7 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-  getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string, orderBy?: string): Observable<any> {
+  getgmHierarchicalDeviation(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string, orderBy?: string,selectedUser?:string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -380,7 +381,7 @@ export class DashboardServiceService {
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
     if (orderBy) params.push(`orderBy=${orderBy}`);
-
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
@@ -398,7 +399,7 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-  getDeviationByAwwSuperviosr(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string): Observable<any> {
+  getDeviationByAwwSuperviosr(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string, deviationCategory?: string,selectedUser?:string): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -409,7 +410,7 @@ export class DashboardServiceService {
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
     if (deviationCategory) params.push(`deviation_category=${deviationCategory}`)
-
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);

@@ -221,7 +221,7 @@ export class ObservationCompletionComponent implements OnInit {
     },
   };
 
-  
+
 
   chartType: ChartType = 'line';
 
@@ -281,16 +281,22 @@ export class ObservationCompletionComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.findingYear();
-    this.getAccessForthisComponent()
-    this.loadDistrictData();
-    if (this.isStateUser) {
-      this.loadAllDashboardData();
+    if (!sessionStorage.getItem('reloaded')) {
+      sessionStorage.setItem('reloaded', 'true');
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem('reloaded');
+  
+      this.findingYear();
+      this.getAccessForthisComponent();
+      this.loadDistrictData();
+  
+      if (this.isStateUser) {
+        this.loadAllDashboardData();
+      }
+  
+      console.log(this.user, this.role);
     }
-    // this.loadAllDashboardData();
-    console.log(this.user, this.role);
-
-
   }
   getAccessForthisComponent(): void {
 
@@ -747,8 +753,8 @@ export class ObservationCompletionComponent implements OnInit {
           {
             data: [percent, 100 - percent],
             backgroundColor: [
-              '#5DA5DA',   
-              '#F4A6B8'   
+              '#5DA5DA',
+              '#F4A6B8'
             ],
             borderWidth: 0
           }
@@ -999,7 +1005,7 @@ export class ObservationCompletionComponent implements OnInit {
   }
 
   getUnvisistedAwcForSupervisor(): void {
-  
+
     this.service
       .unVisitedAwcCountSupervisor(  // Fixed: was calling CDPOActive instead
         this.selectedDistrict,
@@ -1012,7 +1018,7 @@ export class ObservationCompletionComponent implements OnInit {
         next: (res) => {
           // Sort quarters in correct order
           const formattedData = res?.data?.formattedData || [];
- 
+
           const labels = formattedData.map((item: any) => item.month_name);
 
           const datasets: any[] = [];
@@ -1026,7 +1032,7 @@ export class ObservationCompletionComponent implements OnInit {
             // fill: false,
             // borderColor: '',
             // tension: 0.4,
- 
+
           });
 
 
@@ -1037,7 +1043,7 @@ export class ObservationCompletionComponent implements OnInit {
           };
         },
         error: (err) => {
-         
+
           console.error("Error fetching DPOActiveData:", err);
         },
       });
@@ -1371,8 +1377,8 @@ export class ObservationCompletionComponent implements OnInit {
             maintainAspectRatio: false,
             scales: {
               y: {
-                 min: 0,
-                 max: 100,
+                min: 0,
+                max: 100,
                 title: {
                   display: true,
                   text: '% completion'
