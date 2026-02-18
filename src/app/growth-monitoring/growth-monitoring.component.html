@@ -1,6 +1,12 @@
-
-
-<div class="dashboard-container">
+<!-- Loading Overlay -->
+<div *ngIf="isLoading" class="component-loader-overlay">
+  <div class="spinner-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Loading dashboard data...</p>
+  </div>
+</div>
+ 
+<div *ngIf="!isLoading" class="dashboard-container">
   <!-- Header -->
   <header class="content-header">
     <div class="header-left">

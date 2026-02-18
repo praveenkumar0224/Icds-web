@@ -176,7 +176,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     "December",
   ];
   selectedDistrict = "a1f99804-065e-43b0-af24-559470a10327";
-  selectedBlock = "0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94";
+  selectedBlock = "";
   selectedSector = "";
   selectedDeviationCategory = "both";
   orderBy = "awc";
@@ -256,7 +256,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
 
   onUserChange(event: any) {
     this.selectedUser = event.value;
-    this.loadDashboardData();
+     this.loadDashboardData();
   }
   staticcall() {
     this.loadDistrictData();
@@ -1215,7 +1215,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     // Clear dependent data immediately
     this.blockData = [];
     this.sectorData = [];
-    this.selectedBlock = this.selectedDistrict == "a1f99804-065e-43b0-af24-559470a10327" ? "0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94" : "";
+    this.selectedBlock = ""
     this.selectedSector = "";
 
     // Clear current dashboard data
