@@ -1,12 +1,6 @@
-<!-- Loading Overlay -->
-<div *ngIf="isLoading" class="component-loader-overlay">
-  <div class="spinner-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p class="loading-text">Loading dashboard data...</p>
-  </div>
-</div>
 
-<div *ngIf="!isLoading" class="dashboard-container">
+
+<div class="dashboard-container">
   <!-- Header -->
   <header class="content-header">
     <div class="header-left">
@@ -25,15 +19,15 @@
   <div class="filters-section">
     <mat-card class="filters-card" style="padding: 10px;">
       <div class="filters-row">
-        <mat-form-field appearance="outline"  style="border: 2px soild red;">
+        <mat-form-field appearance="outline">
           <mat-label>Year</mat-label>
-          <mat-select
-            [(value)]="selectedYear"
-            (selectionChange)="onFilterChange()"
-          >
-            <mat-option value="2025">2025</mat-option>
+          <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let year of years" [value]="year" [disabled]="year > currentYear">
+              {{ year }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
+
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Month</mat-label>
@@ -96,15 +90,14 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Sector</mat-label>
-          <mat-select [(value)]="selectedSector" (selectionChange)="onFilterChange()">
-            <mat-option *ngFor="let sector of sectorData" [value]="sector.sector_id">
-              {{ sector.sector_name }}
+        <mat-form-field appearance="outline">
+          <mat-label>Official Cadre</mat-label>
+          <mat-select [(value)]="selectedUser" (selectionChange)="onUserChange($event)">
+            <mat-option *ngFor="let user of users" [value]="user">
+              {{ user }}
             </mat-option>
           </mat-select>
-        </mat-form-field> -->
-
+        </mat-form-field>
         <!-- your existing filter fields here -->
 
         <!-- Clear Filters Button -->

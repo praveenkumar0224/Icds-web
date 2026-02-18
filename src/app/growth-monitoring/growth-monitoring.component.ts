@@ -29,13 +29,18 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
   @ViewChild("lineChartChart3")
   lineChartChart3Ref!: ElementRef<HTMLCanvasElement>;
 
+  years: number[] = [];
+  currentYear = new Date().getFullYear();
   headerTitile: string = "ICDS - Growth Monitoring (State)";
   lineChartLabels: string[] = [];
+  users: string[] = ["Block Supervisor", "DPO", "CDPO"];
+  selectedUser: string = "Block Supervisor"; // ✅ Default value
+
 
   lineChart = "line";
   selectedTabIndex = 0;
   retryCount = 0;
-maxRetries = 20; 
+  maxRetries = 20;
   labelChanges = {
     stateChildDeviation: "No.of children with deviation",
     statePercentageChildDeviation: "% of children with deviation",
@@ -151,9 +156,9 @@ maxRetries = 20;
   // Filter properties
   // selectedYear = '2025';
   // selectedMonth = '8';
-  selectedYear: string = new Date().getFullYear().toString();
+  selectedYear: any
   selectedMonth: string = (new Date().getMonth() + 1).toString();
-  currentYear: string = new Date().getFullYear().toString();
+  // currentYear: string = new Date().getFullYear().toString();
   currentMonth: number = new Date().getMonth() + 1;
 
   monthNames = [
@@ -241,20 +246,24 @@ maxRetries = 20;
     private service: DashboardServiceService,
     private router: Router,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-
-   this.staticcall()
+    this.findingYear();
+    this.staticcall()
 
   }
 
-  staticcall(){
+  onUserChange(event: any) {
+    this.selectedUser = event.value;
+    this.loadDashboardData();
+  }
+  staticcall() {
     this.loadDistrictData();
     // Promizse
     this.onDistrictChange("a1f99804-065e-43b0-af24-559470a10327")
 
-    
+
     this.onBlockChange();
     //this.loadBlockData("0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94")
 
@@ -329,6 +338,18 @@ maxRetries = 20;
     this.dataSource.data = [];
   }
 
+  findingYear(): void {
+    const startYear = 2025;
+    const endYear = 2030;
+
+    this.years = [];
+    for (let y = startYear; y <= endYear; y++) {
+      this.years.push(y);
+    }
+
+    this.selectedYear = this.currentYear;
+  }
+
   ngAfterViewInit(): void {
     this.loadDashboardData();
   }
@@ -349,7 +370,8 @@ maxRetries = 20;
         this.selectedDistrict,
         this.selectedBlock,
         this.selectedSector,
-        this.selectedDeviationCategory
+        this.selectedDeviationCategory,
+        this.selectedUser
       ),
       awc: this.service.getgmDashboardByawc(
         this.selectedYear,
@@ -357,7 +379,8 @@ maxRetries = 20;
         this.selectedDistrict,
         this.selectedBlock,
         this.selectedSector,
-        this.selectedDeviationCategory
+        this.selectedDeviationCategory,
+        this.selectedUser
       ),
       supervisor: this.service.getgmBySupervisor(
         this.selectedYear,
@@ -365,7 +388,8 @@ maxRetries = 20;
         this.selectedDistrict,
         this.selectedBlock,
         this.selectedSector,
-        this.selectedDeviationCategory
+        this.selectedDeviationCategory,
+        this.selectedUser
       ),
       trendsbysupervisor: this.service.getgmTrendsBySupervisor(
         this.selectedYear,
@@ -373,7 +397,8 @@ maxRetries = 20;
         this.selectedDistrict,
         this.selectedBlock,
         this.selectedSector,
-        this.selectedDeviationCategory
+        this.selectedDeviationCategory,
+        this.selectedUser
       ),
       ageGroup: this.service.getgmAgegroupDeviation(
         this.selectedYear,
@@ -381,7 +406,8 @@ maxRetries = 20;
         this.selectedDistrict,
         this.selectedBlock,
         this.selectedSector,
-        this.selectedDeviationCategory
+        this.selectedDeviationCategory,
+        this.selectedUser
       ),
       byHierarchical: this.service.getgmHierarchicalDeviation(
         this.selectedYear,
@@ -390,7 +416,8 @@ maxRetries = 20;
         this.selectedBlock,
         this.selectedSector,
         this.selectedDeviationCategory,
-        this.orderBy
+        this.orderBy,
+        this.selectedUser
       ),
       byAwwSuperviosrDeviation: this.service.getDeviationByAwwSuperviosr(
         this.selectedYear,
@@ -398,10 +425,11 @@ maxRetries = 20;
         this.selectedDistrict,
         this.selectedBlock,
         this.selectedSector,
-        this.selectedDeviationCategory
+        this.selectedDeviationCategory,
+        this.selectedUser
       ),
-    }).subscribe({  
-      next: (res) => {   
+    }).subscribe({
+      next: (res) => {
         this.stateLevelData = [
           res.observation.data,
           res.awc.data,
@@ -414,7 +442,7 @@ maxRetries = 20;
         // const supervisorData = res.supervisor.data
         // const trendsbysupervisorData = res.trendsbysupervisor.data
 
-        console.log(this.stateLevelData); 
+        console.log(this.stateLevelData);
         if (this.stateLevelData) {
           this.createBarChartAWCDevaition(this.stateLevelData?.[1]);
           this.createBarChartSupervisorDevaition(this.stateLevelData?.[3]);
@@ -541,7 +569,7 @@ maxRetries = 20;
         datasets: [
           {
             data: data.deviation.map((item) =>
-               item.percentage
+              item.percentage
             ),
             backgroundColor: "#5D87FF",
             hoverBackgroundColor: "#4a6cd8",
@@ -670,49 +698,49 @@ maxRetries = 20;
     }
   }
 
-     private setupTableSorting(): void {
-  if (!this.sort) {
-    this.retryCount++;
+  private setupTableSorting(): void {
+    if (!this.sort) {
+      this.retryCount++;
 
-    if (this.retryCount > this.maxRetries) {
-      console.warn("MatSort still not available. Stopping retries.");
+      if (this.retryCount > this.maxRetries) {
+        console.warn("MatSort still not available. Stopping retries.");
+        return;
+      }
+
+      console.warn(`MatSort not available yet, retrying... (${this.retryCount})`);
+      setTimeout(() => this.setupTableSorting(), 100);
       return;
     }
 
-    console.warn(`MatSort not available yet, retrying... (${this.retryCount})`);
-    setTimeout(() => this.setupTableSorting(), 100);
-    return;
-  }
+    // Sorting is ready → reset retry counter
+    this.retryCount = 0;
 
-  // Sorting is ready → reset retry counter
-  this.retryCount = 0;
-
-  if (!this.dataSource) {
-    console.warn("DataSource not available");
-    return;
-  }
-
-  this.dataSource.sort = this.sort;
-
-  this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-    switch (sortHeaderId) {
-      case "district":
-        return data.district?.toLowerCase();
-      case "slNo":
-        return Number(data.slNo);
-      case "totalChildrenPresent":
-        return Number(data.totalChildrenPresent);
-      case "childrenNoDeviation":
-        return Number(data.childrenNoDeviation);
-      case "childrenDeviationCount":
-        return Number(data.childrenDeviationCount);
-      case "deviationPercentage":
-        return Number(data.deviationPercentage);
-      default:
-        return data[sortHeaderId];
+    if (!this.dataSource) {
+      console.warn("DataSource not available");
+      return;
     }
-  };
-}
+
+    this.dataSource.sort = this.sort;
+
+    this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+      switch (sortHeaderId) {
+        case "district":
+          return data.district?.toLowerCase();
+        case "slNo":
+          return Number(data.slNo);
+        case "totalChildrenPresent":
+          return Number(data.totalChildrenPresent);
+        case "childrenNoDeviation":
+          return Number(data.childrenNoDeviation);
+        case "childrenDeviationCount":
+          return Number(data.childrenDeviationCount);
+        case "deviationPercentage":
+          return Number(data.deviationPercentage);
+        default:
+          return data[sortHeaderId];
+      }
+    };
+  }
   getTableData(apiData: any) {
     if (apiData) {
       const formatted = apiData?.deviation.map((item, index) => ({
@@ -722,7 +750,7 @@ maxRetries = 20;
         totalChildrenPresent: item?.total_count,
         childrenNoDeviation: item?.no_deviation_count,
         childrenDeviationCount: item?.total_count - item?.no_deviation_count,
-        deviationPercentage: item?.percentage ,
+        deviationPercentage: item?.percentage,
       }));
 
       this.dataSource.data = formatted;
@@ -785,7 +813,7 @@ maxRetries = 20;
     } else if (this.districtData.length >= 1) {
       console.log("district is working");
       this.service
-        .GMlineTableExcelDownload(row, year, month,undefined, undefined)
+        .GMlineTableExcelDownload(row, year, month, undefined, undefined)
         .subscribe({
           next: (res: Blob) => {
             const url = window.URL.createObjectURL(res);
@@ -1132,7 +1160,7 @@ maxRetries = 20;
           next: (response) => {
             console.log("Deviation data (AWCs):", response);
             this.createDistrictBarChart(response?.data || []);
-             this.isLoadingForHirerarchical = false
+            this.isLoadingForHirerarchical = false
           },
           error: (err) => {
             console.error("Error fetching deviation data:", err);
@@ -1187,7 +1215,7 @@ maxRetries = 20;
     // Clear dependent data immediately
     this.blockData = [];
     this.sectorData = [];
-    this.selectedBlock = this.selectedDistrict=="a1f99804-065e-43b0-af24-559470a10327" ?"0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94" : "";
+    this.selectedBlock = this.selectedDistrict == "a1f99804-065e-43b0-af24-559470a10327" ? "0da0da2b-dbd3-48c0-9ab1-ce73e1df8a94" : "";
     this.selectedSector = "";
 
     // Clear current dashboard data
