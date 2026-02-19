@@ -534,7 +534,8 @@ export class DashboardServiceService {
     year?: string,
     month?: string,
     sectorId?: string,
-    blockId?: string
+    blockId?: string,
+    selectedUser?:string
   ): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
@@ -548,7 +549,7 @@ export class DashboardServiceService {
     if (year) params.push(`year=${year}`);
     if (blockId) params.push(`block_id=${blockId}`);
     if (sectorId) params.push(`sector_id=${sectorId}`);
-
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
     const queryString = params.length ? '?' + params.join('&') : '';
 
     let url = '';

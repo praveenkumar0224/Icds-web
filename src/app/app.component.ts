@@ -122,9 +122,7 @@ export class AppComponent {
         this.filteredLinks = this.links;
       } else {
         // Others → show only Observation Completion
-        this.filteredLinks = this.links.filter(
-          link => link.path === '/observation-completion'
-        );
+        this.filteredLinks = this.links
 
 
       }
