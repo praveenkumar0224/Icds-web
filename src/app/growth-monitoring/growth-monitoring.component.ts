@@ -14,6 +14,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import * as XLSX from "xlsx";
 import * as FileSaver from "file-saver";
 import { forkJoin } from "rxjs";
+import { TableConfig } from "../common/dynamic-table-chart/dynamic-table-chart.model";
 
 @Component({
   selector: "app-growth-monitoring",
@@ -70,10 +71,10 @@ export class GrowthMonitoringComponent implements OnInit {
     barchart: "District wise % of AWC's with deviation",
     sectionType: "District",
   };
-  awwSupervisorMatrix:any
-  byAwc:any
-  bySupervisor:any
-  bySupervisorTrend:any
+  awwSupervisorMatrix: any
+  byAwc: any
+  bySupervisor: any
+  bySupervisorTrend: any
   barChartAWCDeviationLabels: string[] = [];
 
   barChartAWCDeviation: ChartData<"bar"> = {
@@ -176,6 +177,31 @@ export class GrowthMonitoringComponent implements OnInit {
   districtData: any[] = [];
   blockData: any[] = [];
   sectorData: any[] = [];
+
+  headerConfig = {
+    title: 'Sector wise % of AWC’s with deviation',
+    sectionType: 'Sector',
+    showExcelDownload: true,
+    showChartDownload: true
+  };
+
+  tableConfig: TableConfig = {
+    enableSearch: true,
+    columns: [
+
+    ]
+  };
+  chartConfig = {
+    enabled: true,
+    enableSort: true,
+    labelColumnKey: '',
+    dataColumnKey: '',
+    chartLabel: '',
+    // backgroundColor: '#5D87FF',
+    chartFileName: 'dpo-observation.png',
+    options: {}
+  };
+  tableData: any[] = [];
 
   // Filter properties
   // selectedYear = '2025';
@@ -317,10 +343,10 @@ export class GrowthMonitoringComponent implements OnInit {
   staticcall() {
     this.loadDistrictData();
     // Promizse
-    if(this.isStateUser){
+    if (this.isStateUser) {
       this.onDistrictChange("a1f99804-065e-43b0-af24-559470a10327")
     }
-  
+
 
 
     this.onBlockChange();
@@ -458,8 +484,8 @@ export class GrowthMonitoringComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         this.byAwc = res.data[0];
-        console.log(this.byAwc,"byAwc");
-        
+        console.log(this.byAwc, "byAwc");
+
         this.createBarChartAWCDevaition(res.data);
         this.isLoadingAwc = false;
       },
@@ -537,7 +563,7 @@ export class GrowthMonitoringComponent implements OnInit {
 
   private loadHierarchicalData() {
     this.isLoadingHierarchical = true;
-
+    this.prepareJson();
     this.service.getgmHierarchicalDeviation(
       this.selectedYear,
       this.selectedMonth,
@@ -549,7 +575,8 @@ export class GrowthMonitoringComponent implements OnInit {
       this.selectedUser
     ).subscribe({
       next: (res) => {
-        this.createDistrictBarChart(res.data);
+        this.tableData = res.data.deviation;
+      
         this.isLoadingHierarchical = false;
       },
       error: () => {
@@ -558,9 +585,93 @@ export class GrowthMonitoringComponent implements OnInit {
     });
   }
 
+  private prepareJson() {
+    this.tableConfig = {
+      enableSearch: false,
+      showFooter: true,
+      columns: []
+    };
+    this.tableData = [];
+
+   
+    
+    if(this.selectedBlock && this.selectedDistrict){
+      this.headerConfig.title = `Sector wise % of AWC's with deviation  `
+      this.tableConfig = {
+        enableSearch: true,
+        showFooter: true,
+        columns: [
+          { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+          { key: 'name', label: 'Sector  Name', clickable: true, totalLabel: true },
+          { key: 'total_count', label: 'Total AWC', align: 'left', total: true },
+          // { key: 'no_deviation_count', label: 'AWC with no deviation', align: 'left', total: true },
+          { key: 'no_deviation_count', label: 'AWC deviation count', align: 'left', total: true },
+  
+          {
+            key: 'percentage',
+            label: 'Deviation',
+            suffix: '%',
+            percentage: true,
+            numeratorKey: 'no_deviation_count',
+            denominatorKey: 'total_count',
+            decimals: 2
+          }
+        ]
+      };
+    }else if (this.selectedDistrict && !this.selectedBlock){
+      this.headerConfig.title = `District wise % of AWC's with deviation  `
+      this.tableConfig = {
+        enableSearch: true,
+        showFooter: true,
+        columns: [
+          { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+          { key: 'name', label: 'Block  Name', clickable: true, totalLabel: true },
+          { key: 'total_count', label: 'Total AWC', align: 'left', total: true },
+          // { key: 'no_deviation_count', label: 'AWC with no deviation', align: 'left', total: true },
+          { key: 'no_deviation_count', label: 'AWC deviation count', align: 'left', total: true },
+  
+          {
+            key: 'percentage',
+            label: 'Deviation',
+            suffix: '%',
+            percentage: true,
+            numeratorKey: 'no_deviation_count',
+            denominatorKey: 'total_count',
+            decimals: 2
+          }
+        ]
+      };
+    }
+  
+
+    this.chartConfig = {
+      enabled: true,
+      enableSort: true,
+      labelColumnKey: 'name',
+      dataColumnKey: 'percentage',
+      chartLabel: 'Month Completion %',
+      // backgroundColor: 'rgb(202, 245, 247)',
+      chartFileName: 'supervisor-observation.png',
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: '% completion'
+            }
+          }
+        }
+      }
+    };
+  }
+
   private loadAwwSupervisorData() {
     this.isLoadingAwwSupervisor = true;
-  
+
     this.service.getDeviationByAwwSuperviosr(
       this.selectedYear,
       this.selectedMonth,
@@ -571,11 +682,11 @@ export class GrowthMonitoringComponent implements OnInit {
       this.selectedUser
     ).subscribe({
       next: (res) => {
-  
+
         if (res?.data) {
           this.mapAwwSupervisorData(res.data);
         }
-  
+
         this.isLoadingAwwSupervisor = false;
       },
       error: () => {
@@ -592,20 +703,20 @@ export class GrowthMonitoringComponent implements OnInit {
       moderate: { severe: "0.00", moderate: "0.00", normal: "0.00" },
       normal: { severe: "0.00", moderate: "0.00", normal: "0.00" }
     };
-  
+
     data.forEach(item => {
       const supervisor = item.supervisor?.toLowerCase();
       const worker = item.worker?.toLowerCase();
-  
+
       if (this.awwSupervisorMatrix[supervisor] &&
-          this.awwSupervisorMatrix[supervisor][worker] !== undefined) {
-  
+        this.awwSupervisorMatrix[supervisor][worker] !== undefined) {
+
         this.awwSupervisorMatrix[supervisor][worker] = item.percent;
       }
     });
   }
-  
-  
+
+
 
 
 
@@ -735,6 +846,7 @@ export class GrowthMonitoringComponent implements OnInit {
       this.dataSource.data = [];
     }
   }
+
 
   private createBarChartAWCDevaition(data: any): void {
     console.log("Creating AWC deviation chart with data:", data);
@@ -898,7 +1010,7 @@ export class GrowthMonitoringComponent implements OnInit {
     }
   }
 
-  onDistrictOrBlockClick(row: any): void {
+  onRowClick(row: any): void {
     console.log(row, "row data");
 
     const year = this.selectedYear;
@@ -1170,7 +1282,7 @@ export class GrowthMonitoringComponent implements OnInit {
 
   // Master Filter
   loadDistrictData(): void {
-    
+
     const payload: any = {
       filter: {
         is_active: true
@@ -1181,11 +1293,11 @@ export class GrowthMonitoringComponent implements OnInit {
 
       }
     };
-   
+
     if (this.isDistrictUser || this.isBlockUser) {
       payload.filter.district_id = this.user.district_id;
     }
-    
+
     this.isLoading = true;
     this.service.postDistrictDatWithFilter(payload).subscribe({
       next: (res) => {
@@ -1327,16 +1439,16 @@ export class GrowthMonitoringComponent implements OnInit {
     const filtersApplied =
       this.selectedDistrict || this.selectedBlock || this.selectedSector;
 
-      if (this.isStateUser) {
-        this.selectedDistrict = "";
-        this.selectedBlock = "";
-      }
-      if (this.role == this.isBlockUser) {
-  
-      }
-      if (this.isDistrictUser) {
-        this.selectedBlock = "";
-      }
+    if (this.isStateUser) {
+      this.selectedDistrict = "";
+      this.selectedBlock = "";
+    }
+    if (this.role == this.isBlockUser) {
+
+    }
+    if (this.isDistrictUser) {
+      this.selectedBlock = "";
+    }
 
     // Reset labelChanges to default state-level labels
     this.labelChanges = {
@@ -1358,7 +1470,7 @@ export class GrowthMonitoringComponent implements OnInit {
     // Reset header title to state level
     this.headerTitile = "ICDS - Observation Overview (State)";
 
-    
+
     if (filtersApplied) {
       // this.districtData = [];
       // this.blockData = [];
@@ -1461,43 +1573,7 @@ export class GrowthMonitoringComponent implements OnInit {
     this.loadDashboardData();
   }
 
-  sortChartData(order: "asc" | "desc", type: string) {
-    let sorted = [];
 
-    if (type === "number") {
-      sorted = [...(this.stateLevelData?.[5]?.deviation || [])].sort((a, b) => {
-        const percentA = parseFloat(a.percentage.toString().replace("%", ""));
-        const percentB = parseFloat(b.percentage.toString().replace("%", ""));
-
-        return order === "asc" ? percentA - percentB : percentB - percentA;
-      });
-    } else {
-      sorted = [...(this.stateLevelData?.[5]?.deviation || [])].sort((a, b) => {
-        return order === "asc"
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      });
-    }
-
-    console.log("Sorted data:", sorted);
-
-    this.barChartLabels = sorted.map((item) => item.name);
-
-    this.barChartData = {
-      labels: this.barChartLabels,
-      datasets: [
-        {
-          data: sorted.map((item) =>
-            parseFloat(item.percentage.toString().replace("%", ""))
-          ),
-          backgroundColor: "#5D87FF",
-          hoverBackgroundColor: "#4a6cd8",
-          borderRadius: 6,
-          barThickness: 30,
-        },
-      ],
-    };
-  }
 
   loadBlockData(districtId): void {
     // Load state Api

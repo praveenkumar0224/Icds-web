@@ -229,7 +229,7 @@
         </div>
 
         <mat-card-content>
-          <div *ngIf="!isLoadingAwc" class="chart-container"  #barCanvasWrapper>
+          <div *ngIf="!isLoadingAwc" class="chart-container" #barCanvasWrapper>
             <canvas #barChart baseChart [data]="barChartAWCDeviation" [labels]="barChartAWCDeviationLabels"
               [type]="'bar'" [legend]="false" #barChartDirective>
             </canvas>
@@ -268,7 +268,7 @@
             </div>
           </div>
         </mat-card-header>
-        <div *ngIf="isLoadingAwc" class="chart-loader">
+        <div *ngIf="isLoadingSupervisor" class="chart-loader">
           <mat-progress-spinner mode="indeterminate" diameter="50">
           </mat-progress-spinner>
           <p>Loading chart data...</p>
@@ -366,7 +366,7 @@
           <mat-card-title>{{
             labelChanges.stateAgeGroupDeviationTrendsChart || "-"
             }}</mat-card-title>
-         
+
         </mat-card-header>
 
         <div *ngIf="isLoadingAgeGroup" class="chart-loader">
@@ -385,191 +385,9 @@
     </div>
   </div>
 
-  <!-- District-wise Observations Chart/Table -->
-  <mat-card class="chart-card full-width" style="max-height: 80vh; overflow-x: scroll">
-    <mat-card-header class="chart-header">
-      <div class="header-content">
-        <mat-card-title>{{ labelChanges.barchart || "-" }}</mat-card-title>
-        <!-- <span class="spacer"></span> -->
-        <!-- <mat-slide-toggle
-               color="primary"
-              (change)="onToggleChangeForHierarchicalDeviation($event.checked)"
-              matTooltip="Toggle Line Chart"
-            >
-          </mat-slide-toggle> -->
-        <div style="display: flex; border: 1px solid #000; border-radius: 5px;">
-          <div (click)="onToggleChangeForHierarchicalDeviation(true)"
-            [style.background]="isToggleOnForHierarchical ? '#1976d2' : '#fff'"
-            [style.color]="isToggleOnForHierarchical ? '#fff' : '#000'"
-            style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;">
-            Childrens
-          </div>
 
-          <div (click)="onToggleChangeForHierarchicalDeviation(false)"
-            [style.background]="!isToggleOnForHierarchical ? '#1976d2' : '#fff'"
-            [style.color]="!isToggleOnForHierarchical ? '#fff' : '#000'"
-            style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;">
-            AWC
-          </div>
-        </div>
-        <div class="view-toggle-buttons" fxLayout="row" fxLayoutGap="8px">
-          <!-- Download Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 1">
-            <button mat-icon-button (click)="downloadBarChart()" matTooltip="Download Chart">
-              <mat-icon>download</mat-icon>
-            </button>
-          </ng-container>
+  <app-dynamic-table-chart [loading]="isLoading" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
+    [tableData]="tableData" [chartConfig]="chartConfig" (rowClick)="onRowClick($event)">
+  </app-dynamic-table-chart>
 
-          <ng-container *ngIf="selectedTabIndex === 0">
-            <button mat-icon-button (click)="downloadExcel()" matTooltip="Download Excel">
-              <mat-icon>download</mat-icon>
-            </button>
-          </ng-container>
-
-          <!-- Sorting Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 1">
-            <div class="button-group">
-              <button mat-stroked-button (click)="sortChartData('asc', 'number')" matTooltip="Low to High">
-                <mat-icon>south</mat-icon>
-              </button>
-              <button mat-stroked-button (click)="sortChartData('desc', 'number')" matTooltip="High to Low">
-                <mat-icon>north</mat-icon>
-              </button>
-              <button style="height: 44px" mat-stroked-button (click)="sortChartData('asc', 'alpha')"
-                matTooltip="Sort A-Z">
-                A-Z
-              </button>
-            </div>
-          </ng-container>
-        </div>
-      </div>
-    </mat-card-header>
-
-    <mat-card-content class="bar-and-table">
-
-      <!-- Loader while data is loading -->
-      <div *ngIf="isLoadingForHirerarchical"
-        style="display: flex; justify-content: center; align-items: center; height: 300px;">
-        <mat-spinner diameter="50"></mat-spinner>
-      </div>
-
-      <!-- Show content when data is loaded -->
-      <div *ngIf="!isLoadingForHirerarchical">
-        <mat-tab-group [(selectedIndex)]="selectedTabIndex">
-          <!-- Table Tab -->
-          <mat-tab label="Table View">
-            <div class="table-controls mt-3">
-              <mat-form-field appearance="outline" class="search-field">
-                <mat-label>Search {{ labelChanges.sectionType || "-" }}</mat-label>
-                <input matInput (keyup)="applyFilter($event)" placeholder="Search..." />
-                <mat-icon matSuffix>search</mat-icon>
-              </mat-form-field>
-            </div>
-
-            <div class="table-container">
-              <table mat-table [dataSource]="dataSource" matSort class="data-table mat-elevation-z2">
-                <!-- Sl.No -->
-                <ng-container matColumnDef="slNo">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header="slNo">
-                    Sl.No
-                  </th>
-                  <td mat-cell *matCellDef="let row">{{ row.slNo }}</td>
-                </ng-container>
-
-                <!-- District (Sortable) -->
-                <ng-container matColumnDef="district">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header="district">
-                    {{ labelChanges.sectionType || "-" }} Name
-                  </th>
-                  <td mat-cell *matCellDef="let row" (click)="onDistrictOrBlockClick(row.id)"
-                    style="cursor: pointer; color: blue; text-decoration: underline;">
-                    {{ row.district }}
-                  </td>
-                </ng-container>
-
-                <!-- Total Children -->
-                <ng-container matColumnDef="totalChildrenPresent">
-                  <ng-container *ngIf="isToggleOnForHierarchical">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header="totalChildrenPresent">
-                      Total Children Sample
-                    </th>
-                  </ng-container>
-
-                  <ng-container *ngIf="!isToggleOnForHierarchical">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header="totalChildrenPresent">
-                      Total AWC
-                    </th>
-                  </ng-container>
-
-                  <td mat-cell *matCellDef="let row">
-                    {{ row.totalChildrenPresent }}
-                  </td>
-                </ng-container>
-
-                <!-- No Deviation -->
-                <ng-container matColumnDef="childrenNoDeviation">
-                  <ng-container *ngIf="isToggleOnForHierarchical">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header="totalChildrenPresent">
-                      Children with no deviation
-                    </th>
-                  </ng-container>
-
-                  <ng-container *ngIf="!isToggleOnForHierarchical">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header="totalChildrenPresent">
-                      AWC with no deviation
-                    </th>
-                  </ng-container>
-
-                  <td mat-cell *matCellDef="let row">
-                    {{ row.childrenNoDeviation }}
-                  </td>
-                </ng-container>
-
-                <!-- Deviation Count -->
-                <ng-container matColumnDef="childrenDeviationCount">
-                  <ng-container *ngIf="isToggleOnForHierarchical">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header="totalChildrenPresent">
-                      Children deviation count
-                    </th>
-                  </ng-container>
-
-                  <ng-container *ngIf="!isToggleOnForHierarchical">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header="totalChildrenPresent">
-                      AWC deviation count
-                    </th>
-                  </ng-container>
-                  <td mat-cell *matCellDef="let row">
-                    {{ row.childrenDeviationCount }}
-                  </td>
-                </ng-container>
-
-                <!-- Deviation % -->
-                <ng-container matColumnDef="deviationPercentage">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header="deviationPercentage">
-                    Deviation %
-                  </th>
-                  <td mat-cell *matCellDef="let row">
-                    {{ row.deviationPercentage }}%
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-              </table>
-            </div>
-          </mat-tab>
-
-          <!-- Chart Tab -->
-          <mat-tab label="Chart View">
-            <div class="bar-chart-container" #barCanvasWrapper>
-              <canvas #barChart baseChart [data]="barChartData" [labels]="barChartLabels" [type]="'bar'"
-                [legend]="false" #barChartDirective>
-              </canvas>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
-      </div>
-    </mat-card-content>
-
-  </mat-card>
 </div>
