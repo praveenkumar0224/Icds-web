@@ -20,7 +20,7 @@ import { forkJoin } from "rxjs";
   templateUrl: "./growth-monitoring.component.html",
   styleUrls: ["./growth-monitoring.component.scss"],
 })
-export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
+export class GrowthMonitoringComponent implements OnInit {
   @ViewChild("barChart") barChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild("lineChartChart1")
   lineChartChart1Ref!: ElementRef<HTMLCanvasElement>;
@@ -33,6 +33,20 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
   currentYear = new Date().getFullYear();
   headerTitile: string = "ICDS - Growth Monitoring (State)";
   lineChartLabels: string[] = [];
+
+
+  localUser = localStorage.getItem('user');
+  user = JSON.parse(this.localUser)
+  role = this.user?.role?.role_name
+
+
+  isAccess = true;
+  isStateUser = false;
+  isDistrictUser = false;
+  isBlockUser = false;
+
+
+
   users: string[] = ["Block Supervisor", "DPO", "CDPO"];
   selectedUser: string = "Block Supervisor"; // ✅ Default value
 
@@ -56,7 +70,10 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     barchart: "District wise % of AWC's with deviation",
     sectionType: "District",
   };
-
+  awwSupervisorMatrix:any
+  byAwc:any
+  bySupervisor:any
+  bySupervisorTrend:any
   barChartAWCDeviationLabels: string[] = [];
 
   barChartAWCDeviation: ChartData<"bar"> = {
@@ -146,6 +163,13 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
 
   showChart = true;
   isLoading = false;
+  isLoadingObservation = false;
+  isLoadingAwc = false;
+  isLoadingSupervisor = false;
+  isLoadingTrendSupervisor = false;
+  isLoadingAgeGroup = false;
+  isLoadingHierarchical = false;
+  isLoadingAwwSupervisor = false;
 
   // Data properties
   stateLevelData: any;
@@ -249,19 +273,54 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    this.getAccessForthisComponent()
     this.findingYear();
-    this.staticcall()
+    this.staticcall();
+    // this.loadDashboardData();
+
+  }
+  getAccessForthisComponent(): void {
+
+    switch (this.role) {
+      case "DPO":
+        this.isDistrictUser = true;
+        break;
+      case "CDPO":
+        this.isBlockUser = true
+        break;
+      case "Block Supervisor":
+        this.isAccess = false;
+        break;
+      case "Root":
+        this.isStateUser = true
+        break
+      case "District Collector":
+        this.isDistrictUser = true
+        break
+      case "Zone Officer":
+        this.isStateUser = true
+        break
+      case "District Coordinator":
+        this.isDistrictUser = true
+        break
+      default:
+        this.isAccess = true;
+    }
+
 
   }
 
   onUserChange(event: any) {
     this.selectedUser = event.value;
-     this.loadDashboardData();
+    this.loadDashboardData();
   }
   staticcall() {
     this.loadDistrictData();
     // Promizse
-    this.onDistrictChange("a1f99804-065e-43b0-af24-559470a10327")
+    if(this.isStateUser){
+      this.onDistrictChange("a1f99804-065e-43b0-af24-559470a10327")
+    }
+  
 
 
     this.onBlockChange();
@@ -350,129 +409,206 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     this.selectedYear = this.currentYear;
   }
 
-  ngAfterViewInit(): void {
-    this.loadDashboardData();
-  }
-
   loadDashboardData(): void {
-    // Clear previous data immediately
     this.clearAllData();
 
-    // Loading indicators
-    this.isLoading = true;
-    this.showChart = true;
+    this.loadObservationData();
+    this.loadAwcData();
+    this.loadSupervisorData();
+    this.loadTrendSupervisorData();
+    this.loadAgeGroupData();
+    this.loadHierarchicalData();
+    this.loadAwwSupervisorData();
+  }
 
-    // Run both API calls in parallel
-    forkJoin({
-      observation: this.service.getgmDashboardByobservation(
-        this.selectedYear,
-        this.selectedMonth,
-        this.selectedDistrict,
-        this.selectedBlock,
-        this.selectedSector,
-        this.selectedDeviationCategory,
-        this.selectedUser
-      ),
-      awc: this.service.getgmDashboardByawc(
-        this.selectedYear,
-        this.selectedMonth,
-        this.selectedDistrict,
-        this.selectedBlock,
-        this.selectedSector,
-        this.selectedDeviationCategory,
-        this.selectedUser
-      ),
-      supervisor: this.service.getgmBySupervisor(
-        this.selectedYear,
-        this.selectedMonth,
-        this.selectedDistrict,
-        this.selectedBlock,
-        this.selectedSector,
-        this.selectedDeviationCategory,
-        this.selectedUser
-      ),
-      trendsbysupervisor: this.service.getgmTrendsBySupervisor(
-        this.selectedYear,
-        this.selectedMonth,
-        this.selectedDistrict,
-        this.selectedBlock,
-        this.selectedSector,
-        this.selectedDeviationCategory,
-        this.selectedUser
-      ),
-      ageGroup: this.service.getgmAgegroupDeviation(
-        this.selectedYear,
-        this.selectedMonth,
-        this.selectedDistrict,
-        this.selectedBlock,
-        this.selectedSector,
-        this.selectedDeviationCategory,
-        this.selectedUser
-      ),
-      byHierarchical: this.service.getgmHierarchicalDeviation(
-        this.selectedYear,
-        this.selectedMonth,
-        this.selectedDistrict,
-        this.selectedBlock,
-        this.selectedSector,
-        this.selectedDeviationCategory,
-        this.orderBy,
-        this.selectedUser
-      ),
-      byAwwSuperviosrDeviation: this.service.getDeviationByAwwSuperviosr(
-        this.selectedYear,
-        this.selectedMonth,
-        this.selectedDistrict,
-        this.selectedBlock,
-        this.selectedSector,
-        this.selectedDeviationCategory,
-        this.selectedUser
-      ),
-    }).subscribe({
+  private loadObservationData() {
+    this.isLoadingObservation = true;
+
+    this.service.getgmDashboardByobservation(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory,
+      this.selectedUser
+    ).subscribe({
       next: (res) => {
-        this.stateLevelData = [
-          res.observation.data,
-          res.awc.data,
-          res.supervisor.data,
-          res.trendsbysupervisor.data,
-          res.ageGroup.data,
-          res.byHierarchical.data,
-          res.byAwwSuperviosrDeviation?.data,
-        ];
-        // const supervisorData = res.supervisor.data
-        // const trendsbysupervisorData = res.trendsbysupervisor.data
-
-        console.log(this.stateLevelData);
-        if (this.stateLevelData) {
-          this.createBarChartAWCDevaition(this.stateLevelData?.[1]);
-          this.createBarChartSupervisorDevaition(this.stateLevelData?.[3]);
-          this.createBarChartAgegroupDevaition(this.stateLevelData?.[4]);
-          this.createDistrictBarChart(this.stateLevelData?.[5]);
-        } else {
-          console.log("No month wise % AWC with deviation");
-          this.clearAllData();
-        }
-
-        console.log("latell nnana check ", this.createBarChartAWCDevaition);
-
-        this.isLoading = false;
-
-        if (
-          !this.selectedDistrict &&
-          !this.selectedBlock &&
-          !this.selectedSector
-        ) {
-          console.log('loadDistrictData3');
-          this.loadDistrictData();
-        }
+        this.stateLevelData = this.stateLevelData || [];
+        this.stateLevelData[0] = res.data;
+        this.isLoadingObservation = false;
       },
-      error: (err) => {
-        this.isLoading = false;
-        this.clearAllData();
-        console.error("Dashboard API Error:", err);
-      },
+      error: () => {
+        this.isLoadingObservation = false;
+      }
     });
   }
+
+  private loadAwcData() {
+    this.isLoadingAwc = true;
+
+    this.service.getgmDashboardByawc(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory,
+      this.selectedUser
+    ).subscribe({
+      next: (res) => {
+        this.byAwc = res.data[0];
+        console.log(this.byAwc,"byAwc");
+        
+        this.createBarChartAWCDevaition(res.data);
+        this.isLoadingAwc = false;
+      },
+      error: () => {
+        this.isLoadingAwc = false;
+      }
+    });
+  }
+  private loadSupervisorData() {
+    this.isLoadingSupervisor = true;
+
+    this.service.getgmBySupervisor(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory,
+      this.selectedUser
+    ).subscribe({
+      next: (res) => {
+        this.bySupervisor = res.data.deviation_supervisor_reporting[0]
+        this.createBarChartSupervisorDevaition(res.data);
+        this.isLoadingSupervisor = false;
+      },
+      error: () => {
+        this.isLoadingSupervisor = false;
+      }
+    });
+  }
+  private loadTrendSupervisorData() {
+    this.isLoadingTrendSupervisor = true;
+
+    this.service.getgmTrendsBySupervisor(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory,
+      this.selectedUser
+    ).subscribe({
+      next: (res) => {
+        this.bySupervisorTrend = res?.data?.deviation_supervisor_reporting[0]
+        this.createBarChartSupervisorDevaition(res.data);
+        this.isLoadingTrendSupervisor = false;
+      },
+      error: () => {
+        this.isLoadingTrendSupervisor = false;
+      }
+    });
+  }
+
+  private loadAgeGroupData() {
+    this.isLoadingAgeGroup = true;
+
+    this.service.getgmAgegroupDeviation(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory,
+      this.selectedUser
+    ).subscribe({
+      next: (res) => {
+        this.createBarChartAgegroupDevaition(res.data);
+        this.isLoadingAgeGroup = false;
+      },
+      error: () => {
+        this.isLoadingAgeGroup = false;
+      }
+    });
+  }
+
+  private loadHierarchicalData() {
+    this.isLoadingHierarchical = true;
+
+    this.service.getgmHierarchicalDeviation(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory,
+      this.orderBy,
+      this.selectedUser
+    ).subscribe({
+      next: (res) => {
+        this.createDistrictBarChart(res.data);
+        this.isLoadingHierarchical = false;
+      },
+      error: () => {
+        this.isLoadingHierarchical = false;
+      }
+    });
+  }
+
+  private loadAwwSupervisorData() {
+    this.isLoadingAwwSupervisor = true;
+  
+    this.service.getDeviationByAwwSuperviosr(
+      this.selectedYear,
+      this.selectedMonth,
+      this.selectedDistrict,
+      this.selectedBlock,
+      this.selectedSector,
+      this.selectedDeviationCategory,
+      this.selectedUser
+    ).subscribe({
+      next: (res) => {
+  
+        if (res?.data) {
+          this.mapAwwSupervisorData(res.data);
+        }
+  
+        this.isLoadingAwwSupervisor = false;
+      },
+      error: () => {
+        this.isLoadingAwwSupervisor = false;
+      }
+    });
+  }
+
+  private mapAwwSupervisorData(data: any[]) {
+
+    // Reset default
+    this.awwSupervisorMatrix = {
+      severe: { severe: "0.00", moderate: "0.00", normal: "0.00" },
+      moderate: { severe: "0.00", moderate: "0.00", normal: "0.00" },
+      normal: { severe: "0.00", moderate: "0.00", normal: "0.00" }
+    };
+  
+    data.forEach(item => {
+      const supervisor = item.supervisor?.toLowerCase();
+      const worker = item.worker?.toLowerCase();
+  
+      if (this.awwSupervisorMatrix[supervisor] &&
+          this.awwSupervisorMatrix[supervisor][worker] !== undefined) {
+  
+        this.awwSupervisorMatrix[supervisor][worker] = item.percent;
+      }
+    });
+  }
+  
+  
+
+
+
 
   setAttandanceData(lineChatdata: any): void {
     const labels = lineChatdata.map((item) => item.month.toUpperCase());
@@ -776,7 +912,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           year,
           month,
           row,
-          undefined
+          undefined,
+          this.selectedUser
         )
         .subscribe({
           next: (res: Blob) => {
@@ -797,7 +934,8 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
           year,
           month,
           undefined,
-          row
+          row,
+          this.selectedUser
         )
         .subscribe({
           next: (res: Blob) => {
@@ -813,7 +951,7 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     } else if (this.districtData.length >= 1) {
       console.log("district is working");
       this.service
-        .GMlineTableExcelDownload(row, year, month, undefined, undefined)
+        .GMlineTableExcelDownload(row, year, month, undefined, undefined, this.selectedUser)
         .subscribe({
           next: (res: Blob) => {
             const url = window.URL.createObjectURL(res);
@@ -1032,20 +1170,35 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
 
   // Master Filter
   loadDistrictData(): void {
-    console.log("Test1");
-    // this.districtData = []
+    
+    const payload: any = {
+      filter: {
+        is_active: true
+      },
+      options: {
+        "sortBy":
+          { "district_name": "asc" }
 
-    // Load state Api
+      }
+    };
+   
+    if (this.isDistrictUser || this.isBlockUser) {
+      payload.filter.district_id = this.user.district_id;
+    }
+    
     this.isLoading = true;
-    this.service.postDistrictData().subscribe({
+    this.service.postDistrictDatWithFilter(payload).subscribe({
       next: (res) => {
         this.isLoading = false;
         console.log(res, "district Data ");
         this.districtData = res?.data?.result;
-
-        this.districtData = res?.data?.result?.sort((a: any, b: any) =>
-          a?.district_name?.localeCompare(b?.district_name)
-        );
+        if (this.isDistrictUser || this.isBlockUser) {
+          this.selectedDistrict = this.districtData[0].district_id;
+          this.loadBlockData(this.selectedDistrict);
+        }
+        if (this.isDistrictUser) {
+          this.loadDashboardData();
+        }
       },
       error: (err) => {
         this.isLoading = false;
@@ -1174,10 +1327,16 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     const filtersApplied =
       this.selectedDistrict || this.selectedBlock || this.selectedSector;
 
-    // Reset filter variables
-    this.selectedDistrict = "";
-    this.selectedBlock = "";
-    this.selectedSector = "";
+      if (this.isStateUser) {
+        this.selectedDistrict = "";
+        this.selectedBlock = "";
+      }
+      if (this.role == this.isBlockUser) {
+  
+      }
+      if (this.isDistrictUser) {
+        this.selectedBlock = "";
+      }
 
     // Reset labelChanges to default state-level labels
     this.labelChanges = {
@@ -1199,12 +1358,11 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
     // Reset header title to state level
     this.headerTitile = "ICDS - Observation Overview (State)";
 
-    // If filters were applied, clear the data and reload the state-level data.
-    // This will also trigger the fetch for district data again.
+    
     if (filtersApplied) {
-      this.districtData = [];
-      this.blockData = [];
-      this.sectorData = [];
+      // this.districtData = [];
+      // this.blockData = [];
+      // this.sectorData = [];
       this.loadDashboardData();
     }
   }
@@ -1344,7 +1502,19 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
   loadBlockData(districtId): void {
     // Load state Api
     this.isLoading = true;
-    this.service.postBlockData(districtId).subscribe({
+    const filter: any = {
+
+    }
+    if (this.isDistrictUser || this.isBlockUser) {
+      filter.district_id = this.user.district_id
+      if (this.isBlockUser) {
+        filter.block_id = this.user.block_id
+      }
+    }
+    if (districtId) {
+      filter.district_id = districtId
+    }
+    this.service.postBlockDataWithFilter(filter).subscribe({
       next: (res) => {
         this.isLoading = false;
         console.log(res, "Block Data ");
@@ -1353,7 +1523,12 @@ export class GrowthMonitoringComponent implements OnInit, AfterViewInit {
         this.blockData = res?.data?.result?.sort((a: any, b: any) =>
           a.block_name.localeCompare(b.block_name)
         );
-        this.loadDashboardData();
+        if (this.isBlockUser) {
+          this.selectedDistrict = this.districtData[0].district_id;
+          this.selectedBlock = this.blockData[0].block_id;
+          this.loadDashboardData();
+        }
+        // this.loadDashboardData();
       },
       error: (err) => {
         this.isLoading = false;
