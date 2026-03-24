@@ -338,6 +338,7 @@ export class GrowthMonitoringComponent implements OnInit {
 
   onUserChange(event: any) {
     this.selectedUser = event.value;
+      this.labelChanges.stateSupervisorDeviationTrendsChart = this.getSupervisorChartTitle(); 
     this.loadDashboardData();
   }
   staticcall() {
@@ -470,30 +471,30 @@ export class GrowthMonitoringComponent implements OnInit {
     });
   }
 
-  private loadAwcData() {
-    this.isLoadingAwc = true;
+    private loadAwcData() {
+        this.isLoadingAwc = true;
 
-    this.service.getgmDashboardByawc(
-      this.selectedYear,
-      this.selectedMonth,
-      this.selectedDistrict,
-      this.selectedBlock,
-      this.selectedSector,
-      this.selectedDeviationCategory,
-      this.selectedUser
-    ).subscribe({
-      next: (res) => {
-        this.byAwc = res.data[0];
-        console.log(this.byAwc, "byAwc");
-
-        this.createBarChartAWCDevaition(res.data);
-        this.isLoadingAwc = false;
-      },
-      error: () => {
-        this.isLoadingAwc = false;
+        this.service.getgmDashboardByawc(
+          this.selectedYear,
+          this.selectedMonth,
+          this.selectedDistrict,
+          this.selectedBlock,
+          this.selectedSector,
+          this.selectedDeviationCategory,
+          this.selectedUser
+        ).subscribe({
+          next: (res) => {
+            this.stateLevelData = this.stateLevelData || [];
+            this.stateLevelData[1] = res.data;  
+            this.byAwc = res.data[2];
+            this.createBarChartAWCDevaition(res.data);
+            this.isLoadingAwc = false;
+          },
+          error: () => {
+            this.isLoadingAwc = false;
+          }
+        });
       }
-    });
-  }
   private loadSupervisorData() {
     this.isLoadingSupervisor = true;
 
@@ -507,9 +508,11 @@ export class GrowthMonitoringComponent implements OnInit {
       this.selectedUser
     ).subscribe({
       next: (res) => {
-        this.bySupervisor = res.data.deviation_supervisor_reporting[0]
-        this.createBarChartSupervisorDevaition(res.data);
-        this.isLoadingSupervisor = false;
+          this.stateLevelData = this.stateLevelData || [];
+      this.stateLevelData[2] = res.data;  // ✅ store for toggle (0% deviation)
+      this.bySupervisor = res.data.deviation_supervisor_reporting[2];
+      this.createBarChartSupervisorDevaition(res.data);
+      this.isLoadingSupervisor = false;
       },
       error: () => {
         this.isLoadingSupervisor = false;
@@ -529,9 +532,11 @@ export class GrowthMonitoringComponent implements OnInit {
       this.selectedUser
     ).subscribe({
       next: (res) => {
-        this.bySupervisorTrend = res?.data?.deviation_supervisor_reporting[0]
-        this.createBarChartSupervisorDevaition(res.data);
-        this.isLoadingTrendSupervisor = false;
+          this.stateLevelData = this.stateLevelData || [];
+      this.stateLevelData[3] = res.data;  // ✅ store for toggle (100% deviation)
+      this.bySupervisorTrend = res?.data?.deviation_supervisor_reporting[2];
+      this.createBarChartSupervisorDevaition(res.data);
+      this.isLoadingTrendSupervisor = false;
       },
       error: () => {
         this.isLoadingTrendSupervisor = false;
@@ -584,6 +589,30 @@ export class GrowthMonitoringComponent implements OnInit {
       }
     });
   }
+
+  private getSupervisorChartTitle(): string {
+  const cadre = this.selectedUser; // "Block Supervisor", "DPO", "CDPO"
+  const isZero = this.isToggleOnForSupervisor;
+
+  if (cadre === 'Block Supervisor') {
+    return isZero
+      ? '% of Block Supervisors reporting 0% deviation'
+      : '% of Block Supervisors reporting 100% deviation';
+  } else if (cadre === 'DPO') {
+    return isZero
+      ? '% of DPOs reporting 0% deviation'
+      : '% of DPOs reporting 100% deviation';
+  } else if (cadre === 'CDPO') {
+    return isZero
+      ? '% of CDPOs reporting 0% deviation'
+      : '% of CDPOs reporting 100% deviation';
+  }
+
+  return isZero
+    ? '% of supervisors reporting 0% deviation'
+    : '% of supervisors reporting 100% deviation';
+}
+
 
   private prepareJson() {
     this.tableConfig = {
@@ -1348,18 +1377,26 @@ export class GrowthMonitoringComponent implements OnInit {
   onToggleChangeForAWCDeviation(value: boolean): void {
     this.isToggleOn = value;
     if (value == true) {
+      console.log("samples working");
+      
       this.labelChanges.stateAWCDeviationTrendsChart =
         "Month-wise % samples with deviation";
       this.createBarChartAWCDevaition(this.stateLevelData?.[0]);
     } else if (value == false) {
+      console.log("AWC working");
+      
       this.labelChanges.stateAWCDeviationTrendsChart =
         "Month-wise % AWC's with deviation";
+        console.log(this.stateLevelData?.[1], "stateLevelData for AWC deviation");
+        
       this.createBarChartAWCDevaition(this.stateLevelData?.[1]);
     }
   }
 
   onToggleChangeForSupervisorDeviation(value: boolean): void {
     this.isToggleOnForSupervisor = value;
+      this.labelChanges.stateSupervisorDeviationTrendsChart = this.getSupervisorChartTitle(); // ✅
+
     if (value == true) {
       this.labelChanges.stateSupervisorDeviationTrendsChart =
         "% of supervisors reporting 0% deviation";
@@ -1367,6 +1404,8 @@ export class GrowthMonitoringComponent implements OnInit {
     } else if (value == false) {
       this.labelChanges.stateSupervisorDeviationTrendsChart =
         "% of supervisors reporting 100% deviation";
+        console.log(this.stateLevelData?.[3], "stateLevelData for Supervisor deviation");
+        
       this.createBarChartSupervisorDevaition(this.stateLevelData?.[3]);
     }
   }
