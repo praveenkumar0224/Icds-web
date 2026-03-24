@@ -27,7 +27,7 @@ export class DashboardServiceService {
     const user = {
       email: 'admintechfes@madhifoundation.org',
       password: 'User@123',
-      icds_user_id: id ? parseInt(id) : 65288,
+      icds_user_id: id ? parseInt(id) : 67383,
     };
 
     return this.http.post(url, user).pipe(
