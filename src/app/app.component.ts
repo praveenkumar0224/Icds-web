@@ -79,6 +79,8 @@ export class AppComponent {
     );
   }
   getRole(role: string): void {
+    console.log(role, "user role");
+    
     if (role) {
       // Reset all flags
       this.isDistrictUser = false;
