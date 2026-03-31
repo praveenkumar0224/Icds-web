@@ -1079,8 +1079,8 @@ export class ObservationCompletionComponent implements OnInit {
                 label: 'Completion Percentage % for this quarter',
                 suffix: '%',
                 percentage: true,
-                numeratorKey: 'centers_observed_this_quarter',
-                denominatorKey: 'centers_available',
+                numeratorKey: 'sectors_observed',
+                denominatorKey: 'sectors_available',
                 decimals: 2
               }
             ]
@@ -1103,8 +1103,8 @@ export class ObservationCompletionComponent implements OnInit {
                 label: 'Completion Percentage % for this quarter',
                 suffix: '%',
                 percentage: true,
-                numeratorKey: 'centers_observed_this_quarter',
-                denominatorKey: 'centers_available',
+                numeratorKey: 'sectors_observed',
+                denominatorKey: 'sectors_available',
                 decimals: 2
               }
             ]
@@ -1125,8 +1125,8 @@ export class ObservationCompletionComponent implements OnInit {
                 label: 'Completion Percentage % for this quarter',
                 suffix: '%',
                 percentage: true,
-                numeratorKey: 'centers_observed_this_quarter',
-                denominatorKey: 'centers_available',
+                numeratorKey: 'sectors_observed',
+                denominatorKey: 'sectors_available',
                 decimals: 2
               }
             ]
