@@ -203,6 +203,7 @@ export class GrowthMonitoringComponent implements OnInit {
   };
   tableData: any[] = [];
 
+ 
   // Filter properties
   // selectedYear = '2025';
   // selectedMonth = '8';
@@ -581,7 +582,8 @@ export class GrowthMonitoringComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         this.tableData = res.data.deviation;
-      
+        console.log(this.tableData, "hierarchical data");
+        
         this.isLoadingHierarchical = false;
       },
       error: () => {
@@ -670,7 +672,22 @@ export class GrowthMonitoringComponent implements OnInit {
           }
         ]
       };
-    }
+    } else {
+    // ✅ State level — no district selected
+    this.headerConfig.title = `District wise % of AWC's with deviation`;
+    this.tableConfig = {
+      enableSearch: true,
+      showFooter: true,
+      columns: [
+        { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+        { key: 'name', label: 'District Name', clickable: true, totalLabel: true },
+        { key: 'total_count', label: 'Total AWC', align: 'left', total: true },
+        { key: 'no_deviation_count', label: 'AWC deviation count', align: 'left', total: true },
+        { key: 'percentage', label: 'Deviation', suffix: '%', percentage: true,
+          numeratorKey: 'no_deviation_count', denominatorKey: 'total_count', decimals: 2 }
+      ]
+    };
+  }
   
 
     this.chartConfig = {
@@ -1507,7 +1524,7 @@ export class GrowthMonitoringComponent implements OnInit {
     };
 
     // Reset header title to state level
-    this.headerTitile = "ICDS - Observation Overview (State)";
+    this.headerTitile = "ICDS - Growth Monitoring (DPO)";
 
 
     if (filtersApplied) {
