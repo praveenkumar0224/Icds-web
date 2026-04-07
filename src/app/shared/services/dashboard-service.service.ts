@@ -165,7 +165,14 @@ export class DashboardServiceService {
     return this.http.get(url);
   }
 
-  getStatewiseDataForAttandance(year?: string, month?: string, districtId?: string, blockId?: string, sectortId?: string): Observable<any> {
+  getStatewiseDataForAttandance(
+    year?: string,
+    month?: string,
+    districtId?: string,
+    blockId?: string,
+    sectortId?: string,
+    selectedUser?: string
+  ): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -175,6 +182,7 @@ export class DashboardServiceService {
 
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
+    if (selectedUser) params.push(`observation_type=${selectedUser}`);
 
     /*  if (districtId) params.push(`district_id=${districtId}`);
      if (blockId) params.push(`block_id=${blockId}`);
@@ -497,7 +505,8 @@ export class DashboardServiceService {
     year?: string,
     month?: string,
     sectorId?: string,
-    blockId?: string
+    blockId?: string,
+    selectedUser?:string
   ): Observable<any> {
     const token = localStorage.getItem('access_token');
     const headers = new HttpHeaders({
@@ -511,7 +520,7 @@ export class DashboardServiceService {
     if (year) params.push(`year=${year}`);
     if (blockId) params.push(`block_id=${blockId}`);
     if (sectorId) params.push(`sector_id=${sectorId}`);
-
+    if (selectedUser) params.push(`observation_type=${selectedUser}`)
     const queryString = params.length ? '?' + params.join('&') : '';
 
     let url = '';
