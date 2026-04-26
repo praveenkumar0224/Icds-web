@@ -153,9 +153,9 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 }
 
-.clear-button{
-   height: 50px;
-   margin-top: 5px;
+.clear-button {
+  height: 50px;
+  margin-top: 5px;
 }
 
 // Charts Section
@@ -327,14 +327,17 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 .spacer {
   flex: 1 1 auto;
 }
+
 .toast-success {
-  background-color: #2BC161 !important; /* green */
+  background-color: #2BC161 !important;
+  /* green */
   color: #fff !important;
   font-weight: bold;
 }
 
 .toast-error {
-  background-color: #FB565A !important; /* red */
+  background-color: #FB565A !important;
+  /* red */
   color: #fff !important;
   font-weight: bold;
 }
