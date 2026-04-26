@@ -451,7 +451,7 @@ export class GrowthMonitoringComponent implements OnInit {
 
   private loadObservationData() {
     this.isLoadingObservation = true;
-
+    this.isLoading = true;
     this.service.getgmDashboardByobservation(
       this.selectedYear,
       this.selectedMonth,
@@ -465,9 +465,11 @@ export class GrowthMonitoringComponent implements OnInit {
         this.stateLevelData = this.stateLevelData || [];
         this.stateLevelData[0] = res.data;
         this.isLoadingObservation = false;
+        this.isLoading = false;
       },
       error: () => {
         this.isLoadingObservation = false;
+        this.isLoading = false;
       }
     });
   }
@@ -1372,6 +1374,7 @@ export class GrowthMonitoringComponent implements OnInit {
       "Month:",
       this.selectedMonth
     );
+    this.isLoading = true;
 
     // Clear current data
     this.clearAllData();
@@ -1389,6 +1392,7 @@ export class GrowthMonitoringComponent implements OnInit {
 
     // Load data with current filters
     this.loadDashboardData();
+    // this.isLoading = false;
   }
 
   onToggleChangeForAWCDeviation(value: boolean): void {

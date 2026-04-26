@@ -1,467 +1,117 @@
-<!-- Loading Overlay -->
-<div *ngIf="isLoading" class="component-loader-overlay">
-  <div class="spinner-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p class="loading-text">Loading dashboard data...</p>
-  </div>
-</div>
-
-<!-- Main Dashboard Container - Always Present -->
 <div class="dashboard-container">
-  
-  <!-- Content that shows/hides based on loading state -->
-  <div *ngIf="!isLoading">
-    <!-- Header -->
-    <header class="content-header">
-      <div class="header-left">
-        <!-- <button mat-icon-button class="back-btn" (click)="goBack()">
-          <mat-icon>arrow_back</mat-icon>
-        </button> -->
-        <h1 class="page-title">{{ headerTitile }}</h1>
-      </div>
-
-      <!-- <button mat-button class="back-btn" (click)="goFor()">
-        Test
-      </button> -->
-    </header>
-
-    <!-- Filters Section -->
-    <div class="filters-section">
-      <mat-card class="filters-card">
-        <div class="filters-row">
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Year</mat-label>
-            <mat-select
-              [(value)]="selectedYear"
-              (selectionChange)="onFilterChange()"
-            >
-              <mat-option value="2025">2025</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Month</mat-label>
-            <mat-select
-              [(value)]="selectedMonth"
-              (selectionChange)="onFilterChange()"
-            >
-              <mat-option
-                *ngFor="let month of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]"
-                [value]="month.toString()"
-                [disabled]="selectedYear == currentYear && month > currentMonth"
-              >
-                {{ monthNames[month - 1] }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>District</mat-label>
-            <mat-select
-              [(value)]="selectedDistrict"
-              (selectionChange)="onDistrictChange($event)"
-            >
-              <mat-option value="" >All District</mat-option>
-              <mat-option
-                *ngFor="let district of districtData"
-                [value]="district.district_id"
-              >
-                {{ district.district_name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Block</mat-label>
-            <mat-select
-              [(value)]="selectedBlock"
-              (selectionChange)="onBlockChange()"
-            >
-              <mat-option value="" >All Block</mat-option>
-              <mat-option
-                *ngFor="let block of blockData"
-                [value]="block.block_id"
-              >
-                {{ block.block_name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <!-- <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Sector</mat-label>
-            <mat-select [(value)]="selectedSector" (selectionChange)="onFilterChange()">
-              <mat-option *ngFor="let sector of sectorData" [value]="sector.sector_id">
-                {{ sector.sector_name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field> -->
-
-          <!-- Clear Filters Button -->
-          <button mat-stroked-button class="clear-button" color="warn" (click)="clearFilters()" 
-            *ngIf="selectedDistrict || selectedBlock">
-            Clear Filters
-          </button>
-        </div>
-      </mat-card>
+  <header class="content-header">
+    <div class="header-left">
+      <h1 class="page-title">{{ headerTitile }}</h1>
     </div>
+  </header>
 
-    <!-- Key Metrics Cards -->
-    <div class="metrics-row">
-      <mat-card class="metric-card completed">
-        <div class="status-content">
-          <div class="status-info">
-            <div class="status-number">
-              {{ stateLevelData?.Average_attendece || 0 }}
-            </div>
-            <div class="status-label">
-              {{ labelChanges.stateObserveBox || "-" }}
-            </div>
-          </div>
-          <mat-icon class="status-icon">leaderboard</mat-icon>
-        </div>
-      </mat-card>
+  <div class="filters-section">
+    <mat-card class="filters-card">
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Year</mat-label>
+          <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let year of years" [value]="year" [disabled]="year > currentYear">
+              {{ year }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <mat-card class="metric-card inprogress">
-        <div class="status-content">
-          <div class="status-info">
-            <div class="status-number">
-              {{ stateLevelData?.male_children || 0 }}
-            </div>
-            <div class="status-label">
-              {{ labelChanges.stateProgressBox || "-" }}
-            </div>
-          </div>
-          <mat-icon class="status-icon">male_children</mat-icon>
-        </div>
-      </mat-card>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Month</mat-label>
+          <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="month.toString()"
+              [disabled]="selectedYear === currentYear && month > currentMonth">
+              {{ monthNames[month - 1] }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <mat-card class="metric-card notcompleted">
-        <div class="status-content">
-          <div class="status-info">
-            <div class="status-number">
-              {{ stateLevelData?.female_children || 0 }}
-            </div>
-            <div class="status-label">
-              {{ labelChanges.stateNotObserveBox || "-" }}
-            </div>
-          </div>
-          <mat-icon class="status-icon">female</mat-icon>
-        </div>
-      </mat-card>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>District</mat-label>
+          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange()">
+            <mat-option value="" *ngIf="isStateUser">All District</mat-option>
+            <mat-option *ngFor="let district of districtData" [value]="district.district_id">
+              {{ district.district_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <mat-card class="metric-card equal">
-        <div class="status-content">
-          <div class="status-info">
-            <div class="status-number">
-              {{ stateLevelData?.twoToFourChild || 0 }}
-            </div>
-            <div class="status-label">
-              {{ labelChanges.stateTotalBox || "-" }}
-            </div>
-          </div>
-          <mat-icon class="status-icon">groups</mat-icon>
-        </div>
-      </mat-card>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Block</mat-label>
+          <mat-select [(value)]="selectedBlock" (selectionChange)="onBlockChange()">
+            <mat-option value="">All Block</mat-option>
+            <mat-option *ngFor="let block of blockData" [value]="block.block_id">
+              {{ block.block_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <mat-card class="metric-card activeUser">
-        <div class="status-content">
-          <div class="status-info">
-            <div class="status-number">
-              {{ stateLevelData?.fourToSixChild || 0 }}
-            </div>
-            <div class="status-label">
-              {{ labelChanges.stateActiveUserBox || "-" }}
-            </div>
-          </div>
-          <mat-icon class="status-icon">groups</mat-icon>
-        </div>
-      </mat-card>
-    </div>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Official Cadre</mat-label>
+          <mat-select [(value)]="selectedUser" (selectionChange)="onUserChange()">
+            <mat-option *ngFor="let user of users" [value]="user">
+              {{ user }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-    <div style="max-width: 800px; margin: auto"></div>
-
-    <!-- Charts Section -->
-    <!-- <div class="charts-section">
-      <div class="chart-row">
-        <mat-card class="chart-card" *ngIf="!isLoading">
-          <mat-card-header>
-            <div class="chart-header">
-              <mat-card-title>{{labelChanges.stateObservTrendsChart || '-'}}</mat-card-title>
-
-              <span class="spacer"></span>
-
-              <button class="toggle-btn" mat-icon-button (click)="downloadLineChart()" matTooltip="Download Line Chart">
-                <mat-icon>image</mat-icon>
-              </button>
-            </div>
-          </mat-card-header>
-
-          <mat-card-content>
-            <div class="chart-container">
-              <canvas #lineChartChart1 baseChart [datasets]="lineChartDataVisited" [labels]="lineChartLabels"
-                [options]="lineChartOptions" [legend]="true" [type]="'line'">
-              </canvas>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-
-        <mat-card class="chart-card" *ngIf="!isLoading">
-          <mat-card-header>
-            <mat-card-title>{{labelChanges.stateObservNotTrendsChart || '-'}}</mat-card-title>
-            <button class="toggle-btn" mat-icon-button (click)="downloadline2Chart()" matTooltip="Download Line Chart">
-              <mat-icon>image</mat-icon>
-            </button>
-
-          </mat-card-header>
-          <mat-card-content>
-            <div class="chart-container">
-              <canvas #lineChartChart2 baseChart [datasets]="lineChartDataNotVisited" [labels]="lineChartLabels"
-                [options]="lineChartOptions" [legend]="true" [type]="'line'"></canvas>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="chart-card" *ngIf="!isLoading">
-          <mat-card-header>
-            <mat-card-title>{{labelChanges.stateActiveUserChart || '-'}}</mat-card-title>
-            <button class="toggle-btn" mat-icon-button (click)="downloadline3Chart()" matTooltip="Download Line Chart">
-              <mat-icon>image</mat-icon>
-            </button>
-
-          </mat-card-header>
-          <mat-card-content>
-            <div class="chart-container">
-              <canvas #lineChartChart3 baseChart [datasets]="lineChartUserVisited" [labels]="lineChartLabels"
-                [options]="lineChartOptions" [legend]="true" [type]="'line'"></canvas>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
+        <button mat-stroked-button color="warn" (click)="clearFilters()" *ngIf="selectedDistrict || selectedBlock">
+          Clear Filters
+        </button>
       </div>
-    </div> -->
+    </mat-card>
   </div>
 
-  <!-- Table Section - Always Present in DOM -->
-  <mat-card
-    class="chart-card full-width"
-    style="max-height: 80vh; overflow-x: scroll; width: 97%"
-  >
-    <mat-card-header class="chart-header" *ngIf="!isLoading">
-      <div class="header-content">
-        <mat-card-title>{{ labelChanges.barchart || "-" }}</mat-card-title>
-
-        <div class="view-toggle-buttons" fxLayout="row" fxLayoutGap="8px">
-          <!-- Download Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 1">
-            <button
-              mat-icon-button
-              (click)="downloadBarChart()"
-              matTooltip="Download Chart"
-            >
-              <mat-icon>download</mat-icon>
-            </button>
-          </ng-container>
-
-          <ng-container *ngIf="selectedTabIndex === 0">
-            <button
-              mat-icon-button
-              (click)="downloadExcel()"
-              matTooltip="Download Excel"
-            >
-              <mat-icon>download</mat-icon>
-            </button>
-          </ng-container>
-
-          <!-- Sorting Buttons -->
-          <ng-container *ngIf="selectedTabIndex === 1">
-            <div
-              class="button-group"
-              style="display: flex; flex-direction: row; gap: 8px"
-            >
-              <button
-                mat-stroked-button
-                (click)="toggleChartSort('number')"
-                title="{{
-                  chartSortOrder === 'asc'
-                    ? 'Currently: Low to High - Click to sort High to Low'
-                    : 'Currently: High to Low - Click to sort Low to High'
-                }}"
-                style="position: relative; padding: 10px"
-              >
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    line-height: 0.8;
-                  "
-                >
-                  <mat-icon
-                    style="
-                      font-size: 16px;
-                      width: 16px;
-                      height: 16px;
-                      padding: 2px;
-                    "
-                    [style.color]="chartSortOrder === 'desc' ? 'black' : '#ccc'"
-                    >north</mat-icon
-                  >
-                  <mat-icon
-                    style="
-                      font-size: 16px;
-                      width: 16px;
-                      height: 16px;
-                      padding: 2px;
-                    "
-                    [style.color]="chartSortOrder === 'asc' ? 'black' : '#ccc'"
-                    >south</mat-icon
-                  >
-                </div>
-              </button>
-              <button
-                style="height: 44px"
-                mat-stroked-button
-                (click)="toggleChartSort('alpha')"
-                title="Sort alphabetically {{
-                  alphaSortOrder === 'asc' ? 'Z-A' : 'A-Z'
-                }}"
-              >
-                {{ alphaSortOrder === "asc" ? "A-Z" : "Z-A" }}
-              </button>
-            </div>
-          </ng-container>
+  <div class="metrics-row">
+    <mat-card class="metric-card completed">
+      <div class="status-content">
+        <div class="status-info">
+          <div class="status-number">{{ stateLevelData?.Average_attendece || 0 }}</div>
+          <div class="status-label">{{ labelChanges.stateObserveBox }}</div>
         </div>
+        <mat-icon class="status-icon">leaderboard</mat-icon>
       </div>
-    </mat-card-header>
+    </mat-card>
+    <mat-card class="metric-card inprogress">
+      <div class="status-content">
+        <div class="status-info">
+          <div class="status-number">{{ stateLevelData?.male_children || 0 }}</div>
+          <div class="status-label">{{ labelChanges.stateProgressBox }}</div>
+        </div>
+        <mat-icon class="status-icon">person</mat-icon>
+      </div>
+    </mat-card>
+    <mat-card class="metric-card notcompleted">
+      <div class="status-content">
+        <div class="status-info">
+          <div class="status-number">{{ stateLevelData?.female_children || 0 }}</div>
+          <div class="status-label">{{ labelChanges.stateNotObserveBox }}</div>
+        </div>
+        <mat-icon class="status-icon">female</mat-icon>
+      </div>
+    </mat-card>
+    <mat-card class="metric-card equal">
+      <div class="status-content">
+        <div class="status-info">
+          <div class="status-number">{{ stateLevelData?.twoToFourChild || 0 }}</div>
+          <div class="status-label">{{ labelChanges.stateTotalBox }}</div>
+        </div>
+        <mat-icon class="status-icon">groups</mat-icon>
+      </div>
+    </mat-card>
+    <mat-card class="metric-card activeUser">
+      <div class="status-content">
+        <div class="status-info">
+          <div class="status-number">{{ stateLevelData?.fourToSixChild || 0 }}</div>
+          <div class="status-label">{{ labelChanges.stateActiveUserBox }}</div>
+        </div>
+        <mat-icon class="status-icon">groups</mat-icon>
+      </div>
+    </mat-card>
+  </div>
 
-    <mat-card-content class="bar-and-table">
-      <mat-tab-group [(selectedIndex)]="selectedTabIndex">
-        <!-- Table Tab -->
-        <mat-tab label="Table View">
-          <div class="table-controls mt-3" *ngIf="!isLoading">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label
-                >Search {{ labelChanges.sectionType || "-" }}</mat-label
-              >
-              <input
-                matInput
-                (keyup)="applyFilter($event)"
-                placeholder="Search..."
-              />
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
-          </div>
-
-          <div class="table-container">
-            <!-- Table is always in DOM now -->
-            <table
-              mat-table
-              [dataSource]="dataSource"
-              matSort
-              class="data-table mat-elevation-z2"
-            >
-              <!-- Sl.No -->
-              <ng-container matColumnDef="slNo">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header="slNo">
-                  Sl.No
-                </th>
-                <td mat-cell *matCellDef="let row">{{ row.slNo }}</td>
-              </ng-container>
-
-              <!-- District (Sortable) -->
-              <ng-container matColumnDef="district">
-                <th
-                  mat-header-cell
-                  *matHeaderCellDef
-                  mat-sort-header="district"
-                >
-                  {{ labelChanges.sectionType || "-" }} Name
-                </th>
-                <td mat-cell *matCellDef="let row" style="
-                    cursor: pointer;
-                    color: blue;
-                    text-decoration: underline;
-                  " (click)="onDistrictOrBlockClick(row.id)">{{ row.district }}</td>
-              </ng-container>
-
-              <!-- Available (Sortable) -->
-              <ng-container matColumnDef="available">
-                <th
-                  mat-header-cell
-                  *matHeaderCellDef
-                  mat-sort-header="available"
-                >
-                  Children available
-                </th>
-                <td mat-cell *matCellDef="let row">{{ row.available }}</td>
-              </ng-container>
-
-              <!-- Observed (Sortable) -->
-              <ng-container matColumnDef="present">
-                <th
-                  mat-header-cell
-                  *matHeaderCellDef
-                  mat-sort-header="present"
-                >
-                  Children Present
-                </th>
-                <td mat-cell *matCellDef="let row">{{ row.present }}</td>
-              </ng-container>
-
-              <!-- Centers Not Observed - Pending (Sortable) -->
-              <ng-container matColumnDef="absent">
-                <th
-                  mat-header-cell
-                  *matHeaderCellDef
-                  mat-sort-header="absent"
-                >
-                  Children Absent
-                </th>
-                <td mat-cell *matCellDef="let row">{{ row.absent }}</td>
-              </ng-container>
-
-              <!-- Observed Percentage - Completion % (Sortable) -->
-              <ng-container matColumnDef="attendancePercentage">
-                <th
-                  mat-header-cell
-                  *matHeaderCellDef
-                  mat-sort-header="attendancePercentage"
-                >
-                  Present %
-                </th>
-                <td mat-cell *matCellDef="let row">
-                  {{ row.attendancePercentage }}
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-          </div>
-        </mat-tab>
-
-        <!-- Chart Tab -->
-        <mat-tab label="Chart View">
-          <div
-            class="bar-chart-container"
-            style="position: relative; width: 100%; height: calc(100%-40%)"
-            #barCanvasWrapper
-          >
-            <canvas
-              #barChart
-              baseChart
-              [data]="barChartData"
-              [options]="barChartOptions"
-              [labels]="barChartLabels"
-              [type]="'bar'"
-              [legend]="true"
-              #barChartDirective
-            >
-            </canvas>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
-    </mat-card-content>
-  </mat-card>
+  <app-dynamic-table-chart [loading]="isLoading" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
+    [tableData]="tableData" [chartConfig]="chartConfig" (rowClick)="onRowClick($event)">
+  </app-dynamic-table-chart>
 </div>
