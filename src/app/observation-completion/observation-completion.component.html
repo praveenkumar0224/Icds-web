@@ -300,7 +300,7 @@
     </div>
 
     <!-- CDPO -->
-    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
+    <div class="completion-card cdpo" *ngIf="(isStateUser && !selectedBlock) || isDistrictUser">
 
       <p class="completion-title"> CDPO active this month</p>
       <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
@@ -324,7 +324,7 @@
 
     </div>
     <!-- DPO -->
-    <div class="completion-card dpo" *ngIf="isStateUser">
+    <div class="completion-card dpo" *ngIf="(isStateUser && !selectedDistrict && !selectedBlock) || isDistrictUser">
 
       <p class="completion-title"> DPO active this month</p>
       <div *ngIf="!isLoadingForDPOActive && dpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
@@ -375,7 +375,7 @@
     </div>
 
     <!-- DPO -->
-    <div class="card dpo" *ngIf="isStateUser || isDistrictUser">
+    <div class="card dpo" *ngIf="(isStateUser && !selectedBlock) || isDistrictUser">
       <h3>DPO completion trends</h3>
       <canvas baseChart [data]="dpoChartData" [type]="chartType" [options]="chartOptions">
       </canvas>

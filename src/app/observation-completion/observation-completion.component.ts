@@ -295,7 +295,7 @@ export class ObservationCompletionComponent implements OnInit {
         this.loadAllDashboardData();
       }
   
-      console.log(this.user, this.role);
+      console.log(this.user , "user betaaa", this.role , "role betaaa");
     }
   }
   getAccessForthisComponent(): void {
@@ -330,19 +330,23 @@ export class ObservationCompletionComponent implements OnInit {
     console.log(this.isStateUser, "isStateUser");
 
   }
-  get visibleRoles(): any {
-    // State view → show all
-    if (this.isStateUser) {
-      return this.toggleUsers;
-    }
+   get visibleRoles(): any {
+        // State view
+        if (this.isStateUser) {
+          // District + Block both selected → hide DPO
+          if (this.selectedDistrict && this.selectedBlock) {
+            return this.toggleUsers.filter(r => r !== 'DPO');
+          }
+          return this.toggleUsers;
+        }
 
-    // Non-state view
-    if (this.role === 'DPO') {
-      return this.toggleUsers.filter(r => r !== 'DPO');
-    }
-    if (this.role === 'CDPO') {
-      return this.toggleUsers.filter(r => r !== 'DPO' && r !== 'CDPO');
-    }
+        // Non-state view
+        if (this.role === 'DPO') {
+          return this.toggleUsers.filter(r => r !== 'DPO');
+        }
+        if (this.role === 'CDPO') {
+          return this.toggleUsers.filter(r => r !== 'DPO' && r !== 'CDPO');
+        }
   }
 
   findingYear(): void {
