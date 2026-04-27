@@ -650,7 +650,7 @@ export class GrowthMonitoringComponent implements OnInit {
         ]
       };
     }else if (this.selectedDistrict && !this.selectedBlock){
-      this.headerConfig.title = `District wise % of AWC's with deviation  `
+      this.headerConfig.title = `Block wise % of AWC's with deviation  `
       this.tableConfig = {
         enableSearch: true,
         showFooter: true,
@@ -1056,73 +1056,78 @@ export class GrowthMonitoringComponent implements OnInit {
     }
   }
 
-  onRowClick(row: any): void {
-    console.log(row, "row data");
+    onRowClick(row: any): void {
+  console.log(row, "row data");
 
-    const year = this.selectedYear;
-    const month = this.selectedMonth;
+  const year = this.selectedYear;
+  const month = this.selectedMonth;
 
-    if (this.sectorData.length >= 1) {
-      console.log("sector is working");
-      this.service
-        .GMlineTableExcelDownload(
-          undefined,
-          year,
-          month,
-          row,
-          undefined,
-          this.selectedUser
-        )
-        .subscribe({
-          next: (res: Blob) => {
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `Sector_Report_${row.sector_name}_${month}-${year}.xlsx`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: (err) => console.error("Sector API error:", err),
-        });
-    } else if (this.blockData.length >= 1) {
-      console.log("block is working");
-      this.service
-        .GMlineTableExcelDownload(
-          undefined,
-          year,
-          month,
-          undefined,
-          row,
-          this.selectedUser
-        )
-        .subscribe({
-          next: (res: Blob) => {
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `Block_Report_${row.block_name}_${month}-${year}.xlsx`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: (err) => console.error("Block API error:", err),
-        });
-    } else if (this.districtData.length >= 1) {
-      console.log("district is working");
-      this.service
-        .GMlineTableExcelDownload(row, year, month, undefined, undefined, this.selectedUser)
-        .subscribe({
-          next: (res: Blob) => {
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `District_Report_${row.district_name}_${month}-${year}.xlsx`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: (err) => console.error("District API error:", err),
-        });
-    }
+  if (this.selectedBlock && this.selectedDistrict) {
+    // Sector level — block is selected
+    console.log("sector is working");
+    this.service
+      .GMlineTableExcelDownload(
+        undefined,
+        year,
+        month,
+        row?.id,
+        undefined,
+        this.selectedUser
+      )
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Sector_Report_${row.name}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error("Sector API error:", err),
+      });
+
+  } else if (this.selectedDistrict && !this.selectedBlock) {
+    // Block level — district is selected but no block
+    console.log("block is working");
+    this.service
+      .GMlineTableExcelDownload(
+        undefined,
+        year,
+        month,
+        undefined,
+        row,
+        this.selectedUser
+      )
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Block_Report_${row.name}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error("Block API error:", err),
+      });
+
+  } else {
+    // District level — nothing selected
+    console.log("district is working");
+    this.service
+      .GMlineTableExcelDownload(row?.id, year, month, undefined, undefined, this.selectedUser)
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `District_Report_${row.name}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error("District API error:", err),
+      });
   }
+}
 
   // Event handlers
   toggleView(): void {

@@ -543,7 +543,7 @@ export class DashboardServiceService {
     year?: string,
     month?: string,
     sectorId?: string,
-    blockId?: string,
+    blockId?: any,
     selectedUser?:string
   ): Observable<any> {
     const token = localStorage.getItem('access_token');
@@ -552,11 +552,17 @@ export class DashboardServiceService {
     });
 
     const params: string[] = [];
+    console.log("blockId value:", blockId);
 
     if (districtId) params.push(`district_id=${districtId}`);
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
-    if (blockId) params.push(`block_id=${blockId}`);
+     if (blockId) {
+        const finalBlockId =
+          typeof blockId === 'object' ? blockId.id : blockId;
+
+        params.push(`block_id=${encodeURIComponent(finalBlockId)}`);
+      }
     if (sectorId) params.push(`sector_id=${sectorId}`);
     if (selectedUser) params.push(`observation_type=${selectedUser}`)
     const queryString = params.length ? '?' + params.join('&') : '';
