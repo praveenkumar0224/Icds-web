@@ -79,7 +79,7 @@
           <div class="status-number">{{ stateLevelData?.male_children || 0 }}</div>
           <div class="status-label">{{ labelChanges.stateProgressBox }}</div>
         </div>
-        <mat-icon class="status-icon">male_children</mat-icon>
+        <mat-icon class="status-icon">person</mat-icon>
       </div>
     </mat-card>
     <mat-card class="metric-card notcompleted">
@@ -111,12 +111,7 @@
     </mat-card>
   </div>
 
-  <app-dynamic-table-chart
-    [loading]="isLoading"
-    [headerConfig]="headerConfig"
-    [tableConfig]="tableConfig"
-    [tableData]="tableData"
-    [chartConfig]="chartConfig"
-    (rowClick)="onRowClick($event)">
+  <app-dynamic-table-chart [loading]="isLoading" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
+    [tableData]="tableData" [chartConfig]="chartConfig" (rowClick)="onRowClick($event)">
   </app-dynamic-table-chart>
 </div>
