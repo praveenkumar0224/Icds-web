@@ -13,7 +13,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Year</mat-label>
-          <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
+          <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()"  [disabled]="isAnyLoading">
             <mat-option *ngFor="let year of years" [value]="year" [disabled]="year > currentYear">
               {{ year }}
             </mat-option>
@@ -22,7 +22,7 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Month</mat-label>
-          <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()">
+          <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()" [disabled]="isAnyLoading">
             <mat-option
               *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]"
               [value]="month.toString()"
@@ -37,7 +37,7 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>District</mat-label>
-          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)">
+          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)" [disabled]="isAnyLoading">
             <mat-option *ngFor="let district of districtData" [value]="district.district_id">
               {{ district.district_name }}
             </mat-option>
@@ -46,7 +46,7 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Block</mat-label>
-          <mat-select [(value)]="selectedBlock" (selectionChange)="onBlockChange()">
+          <mat-select [(value)]="selectedBlock" (selectionChange)="onBlockChange()" [disabled]="isAnyLoading">
             <mat-option *ngFor="let block of blockData" [value]="block.block_id">
               {{ block.block_name }}
             </mat-option>
@@ -55,7 +55,7 @@
 
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Official Cadre</mat-label>
-          <mat-select [(value)]="selectedUser" (selectionChange)="onUserChange($event)">
+          <mat-select [(value)]="selectedUser" (selectionChange)="onUserChange($event)" [disabled]="isAnyLoading">
             <mat-option *ngFor="let user of users" [value]="user">
               {{ user }}
             </mat-option>
@@ -63,7 +63,7 @@
         </mat-form-field>
 
         <button mat-stroked-button class="clear-button" color="warn"
-          (click)="clearFilters()" *ngIf="selectedDistrict">
+          (click)="clearFilters()" *ngIf="selectedDistrict" [disabled]="isAnyLoading">
           Clear Filters
         </button>
 
@@ -161,14 +161,14 @@
       <mat-card-header class="chart-header">
         <mat-card-title>{{ labelChanges.userwiseTrendChart }}</mat-card-title>
         <span class="spacer"></span>
-        <div class="toggle-group">
+        <!-- <div class="toggle-group">
           <div *ngFor="let opt of userwiseToggleOptions"
             (click)="onUserwiseToggle(opt.value)"
             [class.active]="selectedUserwiseToggle === opt.value"
             class="toggle-btn">
             {{ opt.label }}
           </div>
-        </div>
+        </div> -->
       </mat-card-header>
       <div *ngIf="isLoadingUserwise" class="chart-loader">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>

@@ -15,7 +15,8 @@ export interface TableColumn {
   clickable?: boolean;
   align?: Align;
   suffix?: string;
-  total?: boolean;        
+  total?: boolean;  
+  average?: boolean;       
   totalLabel?: boolean;     
   percentage?: boolean;
   numeratorKey?: string;     // observed column key
