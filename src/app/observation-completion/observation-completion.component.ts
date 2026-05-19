@@ -438,6 +438,7 @@ export class ObservationCompletionComponent implements OnInit {
       this.getAwcObservedBySupervisor();
       this.callSupervisorActive();
       this.callCDPOActive();
+      this.callDPOActive();
       this.getSectorsObservedByDPO();
       this.getAwcObservedQuarterByDPO();
       this.getAwcObservedQuarterByCDPO();
@@ -893,7 +894,7 @@ export class ObservationCompletionComponent implements OnInit {
       .subscribe({
         next: (res) => {
           // Sort quarters in correct order
-          
+          this.isLoadingForDPOActive = false;
           const formattedData = res?.data?.formattedData || [];
 
           const labels = formattedData.map((item: any) => item.label);

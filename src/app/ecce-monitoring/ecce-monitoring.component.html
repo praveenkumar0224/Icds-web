@@ -1,0 +1,202 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="content-header">
+    <div class="header-left">
+      <h1 class="page-title">{{ headerTitle }}</h1>
+    </div>
+  </header>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <mat-card class="filters-card">
+      <div class="filters-row">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Year</mat-label>
+          <mat-select [(value)]="selectedYear" (selectionChange)="onFilterChange()">
+            <mat-option *ngFor="let year of years" [value]="year" [disabled]="year > currentYear">
+              {{ year }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Month</mat-label>
+          <mat-select [(value)]="selectedMonth" (selectionChange)="onFilterChange()">
+            <mat-option
+              *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]"
+              [value]="month.toString()"
+              [disabled]="
+                (selectedYear == currentYear && month > currentMonth) ||
+                (selectedYear == 2025 && month < 6)
+              ">
+              {{ monthNames[month - 1] }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>District</mat-label>
+          <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictChange($event)">
+            <mat-option *ngFor="let district of districtData" [value]="district.district_id">
+              {{ district.district_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Block</mat-label>
+          <mat-select [(value)]="selectedBlock" (selectionChange)="onBlockChange()">
+            <mat-option *ngFor="let block of blockData" [value]="block.block_id">
+              {{ block.block_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Official Cadre</mat-label>
+          <mat-select [(value)]="selectedUser" (selectionChange)="onUserChange($event)">
+            <mat-option *ngFor="let user of users" [value]="user">
+              {{ user }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button class="clear-button" color="warn"
+          (click)="clearFilters()" *ngIf="selectedDistrict">
+          Clear Filters
+        </button>
+
+      </div>
+    </mat-card>
+  </div>
+
+   <!-- Key Metrics Cards -->
+<div class="metrics-row">
+
+  <!-- Card 1: AWCs Observed -->
+  <mat-card class="metric-card metric-card--blue">
+    <div *ngIf="isLoadingAwcsObserved" class="metric-loader">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+    <ng-container *ngIf="!isLoadingAwcsObserved">
+      <div style="color: black; font-size: large; font-weight: 500;">AWC's observed</div>
+      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ awcsObserved?.awcsObserved }}</div>
+    </ng-container>
+  </mat-card>
+
+  <!-- Card 2: Total Children Assessed -->
+  <mat-card class="metric-card metric-card--light">
+    <div *ngIf="isLoadingTotalChildren" class="metric-loader">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+    <ng-container *ngIf="!isLoadingTotalChildren">
+      <div style="color: black; font-size: large; font-weight: 500;">Total children</div>
+      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ totalChildrenAssessed?.totalChildrenAssessed|| 0 }}</div>
+    </ng-container>
+  </mat-card>
+
+  <!-- Card 3: Average Assessment Score -->
+  <mat-card class="metric-card metric-card--light">
+    <div *ngIf="isLoadingAvgScore" class="metric-loader">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+    <ng-container *ngIf="!isLoadingAvgScore">
+      <div style="color: black; font-size: large; font-weight: 500;">Avg assessment score</div>
+      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ averageAssessmentScore?.averageAssessmentScore | number:'1.0-1' }}%</div>
+    </ng-container>
+  </mat-card>
+
+  <!-- Card 4: Children Above 8 Letters -->
+  <mat-card class="metric-card metric-card--light">
+    <div *ngIf="isLoadingAbove8" class="metric-loader">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+    <ng-container *ngIf="!isLoadingAbove8">
+      <div style="color: black; font-size: large; font-weight: 500;">% of children identifying more than 8 letters</div>
+      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ childrenAbove8Letters?.percentageAbove8 | number:'1.0-1' }}%</div>
+    </ng-container>
+  </mat-card>
+
+  <!-- Card 5: Children Below 4 Letters -->
+  <mat-card class="metric-card metric-card--light">
+    <div *ngIf="isLoadingBelow4" class="metric-loader">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+    <ng-container *ngIf="!isLoadingBelow4">
+      <div style="color: black; font-size: large; font-weight: 500;">% of children identifying less than 4 words</div>
+      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ childrenBelow4Letters?.percentageBelow4 | number:'1.0-1' }}%</div>
+    </ng-container>
+  </mat-card>
+
+</div>
+
+  <!-- Charts Section -->
+  <div style="display: flex; flex-direction: row; width: 100%; gap: 16px;">
+
+    <!-- Month-wise Trend -->
+    <mat-card style="flex: 1;">
+      <mat-card-header class="chart-header">
+        <mat-card-title>{{ labelChanges.monthwiseTrendChart }}</mat-card-title>
+      </mat-card-header>
+      <div *ngIf="isLoadingMonthwise" class="chart-loader">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Loading chart data...</p>
+      </div>
+      <mat-card-content>
+        <div *ngIf="!isLoadingMonthwise" class="chart-container">
+          <canvas baseChart
+            [data]="monthwiseTrendChartData"
+            [labels]="monthwiseTrendLabels"
+            [type]="'bar'"
+            [options]="groupedBarChartOptions"
+            [legend]="true">
+          </canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- User-wise Trend -->
+    <mat-card style="flex: 1;">
+      <mat-card-header class="chart-header">
+        <mat-card-title>{{ labelChanges.userwiseTrendChart }}</mat-card-title>
+        <span class="spacer"></span>
+        <div class="toggle-group">
+          <div *ngFor="let opt of userwiseToggleOptions"
+            (click)="onUserwiseToggle(opt.value)"
+            [class.active]="selectedUserwiseToggle === opt.value"
+            class="toggle-btn">
+            {{ opt.label }}
+          </div>
+        </div>
+      </mat-card-header>
+      <div *ngIf="isLoadingUserwise" class="chart-loader">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Loading chart data...</p>
+      </div>
+      <mat-card-content>
+        <div *ngIf="!isLoadingUserwise" class="chart-container">
+          <canvas baseChart
+            [data]="userwiseTrendChartData"
+            [labels]="userwiseTrendLabels"
+            [type]="'bar'"
+            [options]="groupedBarChartOptions"
+            [legend]="true">
+          </canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- Dynamic Table + Chart -->
+  <app-dynamic-table-chart
+    [loading]="isLoading"
+    [headerConfig]="headerConfig"
+    [tableConfig]="tableConfig"
+    [tableData]="tableData"
+    [chartConfig]="chartConfig"
+    (rowClick)="onRowClick($event)">
+  </app-dynamic-table-chart>
+
+</div>

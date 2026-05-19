@@ -1192,6 +1192,405 @@ export class DashboardServiceService {
     return this.http.get(url, { responseType: 'blob' });
   }
 
+
+   // ─── ECCE Observation Methods ────────────────────────────────────────────────
+
+  getEcceObservationMetrics(
+    year?: string,
+    month?: string,
+    districtId?: string,
+    blockId?: string,
+    sectorId?: string,
+    selectedUser?: string
+  ): Observable<any> {
+    const params: string[] = [];
+
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (selectedUser) params.push(`observation_type=${selectedUser}`);
+
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    }
+    if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+    const url = `${this.baseUrl}ecce-observation-dashboard/ecce-observation-summary${queryString}`;
+
+    return this.http.get(url);
+  }
+
+  // ─── ECCE Monitoring — Individual Metric Methods ─────────────────────────────
+
+getEcceMonitoringAwcsObserved(
+  year?: string, month?: string,
+  districtId?: string, blockId?: string,
+  sectorId?: string, selectedUser?: string
+): Observable<any> {
+  return this.http.get(this.buildEcceMonitoringUrl('awcs-observed', year, month, districtId, blockId, sectorId, selectedUser));
+}
+
+getEcceMonitoringTotalChildrenAssessed(
+  year?: string, month?: string,
+  districtId?: string, blockId?: string,
+  sectorId?: string, selectedUser?: string
+): Observable<any> {
+  return this.http.get(this.buildEcceMonitoringUrl('total-children-assessed', year, month, districtId, blockId, sectorId, selectedUser));
+}
+
+getEcceMonitoringAverageAssessmentScore(
+  year?: string, month?: string,
+  districtId?: string, blockId?: string,
+  sectorId?: string, selectedUser?: string
+): Observable<any> {
+  return this.http.get(this.buildEcceMonitoringUrl('average-assessment-score', year, month, districtId, blockId, sectorId, selectedUser));
+}
+
+getEcceMonitoringChildrenAbove8Letters(
+  year?: string, month?: string,
+  districtId?: string, blockId?: string,
+  sectorId?: string, selectedUser?: string
+): Observable<any> {
+  return this.http.get(this.buildEcceMonitoringUrl('children-above-8-letters', year, month, districtId, blockId, sectorId, selectedUser));
+}
+
+getEcceMonitoringChildrenBelow4Letters(
+  year?: string, month?: string,
+  districtId?: string, blockId?: string,
+  sectorId?: string, selectedUser?: string
+): Observable<any> {
+  return this.http.get(this.buildEcceMonitoringUrl('children-below-4-letters', year, month, districtId, blockId, sectorId, selectedUser));
+}
+
+private buildEcceMonitoringUrl(
+  endpoint: string,
+  year?: string, month?: string,
+  districtId?: string, blockId?: string,
+  sectorId?: string, selectedUser?: string
+): string {
+  const params: string[] = [];
+  if (month) params.push(`month=${month}`);
+  if (year) params.push(`year=${year}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+  if (districtId && blockId) params.push(`block_id=${blockId}`);
+  if (districtId) params.push(`district_id=${districtId}`);
+  const queryString = params.length ? '?' + params.join('&') : '';
+  return `${this.baseUrl}ecce-monitering-dashboard/${endpoint}${queryString}`;
+}
+
+  getEcceMonthwiseTrend(
+    year?: string,
+    month?: string,
+    districtId?: string,
+    blockId?: string,
+    sectorId?: string,
+    selectedUser?: string
+  ): Observable<any> {
+    const params: string[] = [];
+
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (selectedUser) params.push(`observation_type=${selectedUser}`);
+
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    }
+    if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+    const url = `${this.baseUrl}ecce-observation-dashboard/monthwise${queryString}`;
+
+    return this.http.get(url);
+  }
+
+  getEcceUserwiseTrend(
+    year?: string,
+    month?: string,
+    districtId?: string,
+    blockId?: string,
+    sectorId?: string,
+    cadreType?: string
+  ): Observable<any> {
+    const params: string[] = [];
+
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (cadreType) params.push(`cadre_type=${cadreType}`);
+
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    }
+    if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+    const url = `${this.baseUrl}ecce-observation-dashboard/userwise-breakdown${queryString}`;
+
+    return this.http.get(url);
+  }
+
+  getEcceDistrictwiseTrend(
+    year?: string,
+    month?: string,
+    districtId?: string,
+    blockId?: string,
+    sectorId?: string,
+    cadreType?: string
+  ): Observable<any> {
+    const params: string[] = [];
+
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (cadreType) params.push(`cadre_type=${cadreType}`);
+
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    }
+    if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+    const url = `${this.baseUrl}webDashboard-ecce/districtwise-trend${queryString}`;
+
+    return this.http.get(url);
+  }
+
+  getEcceHierarchicalData(
+    year?: string,
+    month?: string,
+    districtId?: string,
+    blockId?: string,
+    sectorId?: string,
+    selectedUser?: string
+  ): Observable<any> {
+    const params: string[] = [];
+
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (selectedUser) params.push(`observation_type=${selectedUser}`);
+
+    if (districtId && blockId) {
+      params.push(`block_id=${blockId}`);
+    }
+    if (districtId) {
+      params.push(`district_id=${districtId}`);
+    }
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+    const url = `${this.baseUrl}ecce-observation-dashboard/table-view${queryString}`;
+
+    return this.http.get(url);
+  }
+
+        getEcceMonitoringMetrics(
+        year?: string,
+        month?: string,
+        districtId?: string,
+        blockId?: string,
+        sectorId?: string,
+        selectedUser?: string
+      ): Observable<any> {
+        const params: string[] = [];
+      
+        if (month) params.push(`month=${month}`);
+        if (year) params.push(`year=${year}`);
+        if (selectedUser) params.push(`observation_type=${selectedUser}`);
+      
+        if (districtId && blockId) {
+          params.push(`block_id=${blockId}`);
+        }
+        if (districtId) {
+          params.push(`district_id=${districtId}`);
+        }
+      
+        const queryString = params.length ? '?' + params.join('&') : '';
+        const url = `${this.baseUrl}webDashboard-ecce-monitoring/metrics${queryString}`;
+      
+        return this.http.get(url);
+      }
+          getEcceMonitoringMonthwiseTrend(
+      year?: string,
+      month?: string,
+      districtId?: string,
+      blockId?: string,
+      sectorId?: string,
+      selectedUser?: string
+    ): Observable<any> {
+      const params: string[] = [];
+    
+      if (month) params.push(`month=${month}`);
+      if (year) params.push(`year=${year}`);
+      if (selectedUser) params.push(`observation_type=${selectedUser}`);
+    
+      if (districtId && blockId) {
+        params.push(`block_id=${blockId}`);
+      }
+      if (districtId) {
+        params.push(`district_id=${districtId}`);
+      }
+    
+      const queryString = params.length ? '?' + params.join('&') : '';
+      const url = `${this.baseUrl}ecce-monitering-dashboard/monthly-assessment-score-trend${queryString}`;
+    
+      return this.http.get(url);
+    }
+
+       getEcceMonitoringUserwiseTrend(
+  year?: string,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  cadreType?: string
+): Observable<any> {
+  const params: string[] = [];
+ 
+  if (month) params.push(`month=${month}`);
+  if (year) params.push(`year=${year}`);
+  if (cadreType) params.push(`cadre_type=${cadreType}`);
+ 
+  if (districtId && blockId) {
+    params.push(`block_id=${blockId}`);
+  }
+  if (districtId) {
+    params.push(`district_id=${districtId}`);
+  }
+ 
+  const queryString = params.length ? '?' + params.join('&') : '';
+  const url = `${this.baseUrl}ecce-monitering-dashboard/learning-category-comparison${queryString}`;
+ 
+  return this.http.get(url);
+}
+
+     getEcceMonitoringDistrictwiseTrend(
+  year?: string,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  cadreType?: string
+): Observable<any> {
+  const params: string[] = [];
+ 
+  if (month) params.push(`month=${month}`);
+  if (year) params.push(`year=${year}`);
+  if (cadreType) params.push(`cadre_type=${cadreType}`);
+ 
+  if (districtId && blockId) {
+    params.push(`block_id=${blockId}`);
+  }
+  if (districtId) {
+    params.push(`district_id=${districtId}`);
+  }
+ 
+  const queryString = params.length ? '?' + params.join('&') : '';
+  const url = `${this.baseUrl}webDashboard-ecce-monitoring/districtwise-trend${queryString}`;
+ 
+  return this.http.get(url);
+}
+
+      getEcceMonitoringHierarchicalData(
+  year?: string,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  selectedUser?: string
+): Observable<any> {
+  const params: string[] = [];
+ 
+  if (month) params.push(`month=${month}`);
+  if (year) params.push(`year=${year}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+ 
+  if (districtId && blockId) {
+    params.push(`block_id=${blockId}`);
+  }
+  if (districtId) {
+    params.push(`district_id=${districtId}`);
+  }
+ 
+  const queryString = params.length ? '?' + params.join('&') : '';
+  const url = `${this.baseUrl}ecce-monitering-dashboard/table-view${queryString}`;
+ 
+  return this.http.get(url);
+}
+   ecceMonitoringExcelDownload(
+  districtId?: string,
+  year?: string,
+  month?: string,
+  sectorId?: string,
+  blockId?: any,
+  selectedUser?: string
+): Observable<any> {
+  const params: string[] = [];
+ 
+  if (districtId) params.push(`district_id=${districtId}`);
+  if (month) params.push(`month=${month}`);
+  if (year) params.push(`year=${year}`);
+  if (blockId) {
+    const finalBlockId = typeof blockId === 'object' ? blockId.id : blockId;
+    params.push(`block_id=${encodeURIComponent(finalBlockId)}`);
+  }
+  if (sectorId) params.push(`sector_id=${sectorId}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+ 
+  const queryString = params.length ? '?' + params.join('&') : '';
+ 
+  let url = '';
+  if (blockId) {
+    url = `${this.baseUrl}webDashboard-ecce-monitoring/ecce-monitoring-blockwise-report-excel${queryString}`;
+  } else if (districtId) {
+    url = `${this.baseUrl}webDashboard-ecce-monitoring/ecce-monitoring-districtwise-report-excel${queryString}`;
+  } else if (sectorId) {
+    url = `${this.baseUrl}webDashboard-ecce-monitoring/ecce-monitoring-sectorwise-report-excel${queryString}`;
+  }
+ 
+  return this.http.get(url, { responseType: 'blob' });
+}
+ 
+
+
+  ecceExcelDownload(
+    districtId?: string,
+    year?: string,
+    month?: string,
+    sectorId?: string,
+    blockId?: any,
+    selectedUser?: string
+  ): Observable<any> {
+    const params: string[] = [];
+
+    if (districtId) params.push(`district_id=${districtId}`);
+    if (month) params.push(`month=${month}`);
+    if (year) params.push(`year=${year}`);
+    if (blockId) {
+      const finalBlockId = typeof blockId === 'object' ? blockId.id : blockId;
+      params.push(`block_id=${encodeURIComponent(finalBlockId)}`);
+    }
+    if (sectorId) params.push(`sector_id=${sectorId}`);
+    if (selectedUser) params.push(`observation_type=${selectedUser}`);
+
+    const queryString = params.length ? '?' + params.join('&') : '';
+
+    let url = '';
+    if (blockId) {
+      url = `${this.baseUrl}webDashboard-ecce/ecce-blockwise-report-excel${queryString}`;
+    } else if (districtId) {
+      url = `${this.baseUrl}webDashboard-ecce/ecce-districtwise-report-excel${queryString}`;
+    } else if (sectorId) {
+      url = `${this.baseUrl}webDashboard-ecce/ecce-sectorwise-report-excel${queryString}`;
+    }
+
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   postDistrictData(): Observable<any> {
     const token = localStorage?.getItem('access_token');
     // console.log(token, 'token');
