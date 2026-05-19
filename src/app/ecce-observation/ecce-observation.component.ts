@@ -49,6 +49,17 @@ export class EcceObservationComponent implements OnInit, OnDestroy {
   users: string[] = ['Block Supervisor', 'CDPO', 'DPO'];
   selectedUser = 'Block Supervisor';
 
+  metricOptions = [
+  { label: 'Preschool Sessions Held',  value: 'preschool_sessions_held' },
+  { label: 'Theme Based Teaching',     value: 'theme_based_teaching' },
+  { label: 'Playkit Usage',            value: 'playkit_usage' },
+  { label: 'Workbook Completion',      value: 'workbook_completion' },
+  { label: 'Assessment Card Update',   value: 'assessment_card_update' },
+];
+selectedMetric = 'preschool_sessions_held';
+
+    isChartView = false;
+
   // ─── Loading flags ──────────────────────────────────────
   isLoading = false;
   isLoadingMetrics = false;
@@ -470,10 +481,40 @@ export class EcceObservationComponent implements OnInit, OnDestroy {
         workbook_completion:   d.workbook_completion,
         assessment_card_update: d.assessment_card_update,
       }));
+      this.updateChartConfig(); 
       this.isLoading = false;
     },
     error: () => { this.isLoading = false; }
   });
+}
+     updateChartConfig(): void {
+  const selected = this.metricOptions.find(m => m.value === this.selectedMetric);
+  this.chartConfig = {
+    enabled: true,
+    enableSort: true,
+    labelColumnKey: 'name',
+    dataColumnKey: this.selectedMetric,       // ← drives the bar chart
+    chartLabel: selected?.label || '',
+    chartFileName: 'ecce-observation.png',
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { min: 0, max: 100, title: { display: true, text: '% Compliance' } }
+      }
+    }
+  };
+}
+
+   onViewToggle(tabIndex: any): void {
+    console.log('tabIndex', tabIndex);
+    
+  this.isChartView = tabIndex === 1;  // 0 = table, 1 = chart
+}
+
+   onMetricChange(value: string): void {
+  this.selectedMetric = value;
+  this.updateChartConfig();   // just reconfigure — no API call needed
 }
 
   // ─── Prepare Table/Chart JSON Config ─────────────────────
@@ -528,48 +569,54 @@ export class EcceObservationComponent implements OnInit, OnDestroy {
   }
 
   // Chart config — use preschool_sessions_held as the bar value
-  this.chartConfig = {
-    enabled: true,
-    enableSort: true,
-    labelColumnKey: 'name',
-    dataColumnKey: 'preschool_sessions_held',  // ← or whichever metric makes sense
-    chartLabel: 'Preschool Sessions Held',
-    chartFileName: 'ecce-observation.png',
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: { min: 0, max: 100, title: { display: true, text: '% Compliance' } }
-      }
-    }
-  };
+    this.updateChartConfig(); 
 }
 
   // ─── Row Click → Excel Download ──────────────────────────
-  onRowClick(row: any): void {
-    const year = this.selectedYear;
-    const month = this.selectedMonth;
+     onRowClick(row: any): void {
+  const year  = this.selectedYear;
+  const month = this.selectedMonth;
 
-    if (this.selectedBlock && this.selectedDistrict) {
-      this.service.ecceExcelDownload(undefined, year, month, row?.id, undefined, this.selectedUser)
-        .subscribe({
-          next: (res: Blob) => this.triggerDownload(res, `Sector_ECCE_${row.name}_${month}-${year}.xlsx`),
-          error: (err) => console.error('Sector Excel error:', err)
-        });
-    } else if (this.selectedDistrict && !this.selectedBlock) {
-      this.service.ecceExcelDownload(undefined, year, month, undefined, row, this.selectedUser)
-        .subscribe({
-          next: (res: Blob) => this.triggerDownload(res, `Block_ECCE_${row.name}_${month}-${year}.xlsx`),
-          error: (err) => console.error('Block Excel error:', err)
-        });
-    } else {
-      this.service.ecceExcelDownload(row?.id, year, month, undefined, undefined, this.selectedUser)
-        .subscribe({
-          next: (res: Blob) => this.triggerDownload(res, `District_ECCE_${row.name}_${month}-${year}.xlsx`),
-          error: (err) => console.error('District Excel error:', err)
-        });
-    }
+  if (this.selectedBlock && this.selectedDistrict) {
+    // Filter: district + block selected → user clicks sector row
+    // Payload: district_id + block_id + sector_id
+    this.service.ecceExcelDownload(
+      this.selectedDistrict, year, month,
+      row?.id,               // sector_id from row
+      this.selectedBlock,    // block_id from filter
+      this.selectedUser
+    ).subscribe({
+      next: (res: Blob) => this.triggerDownload(res, `Sector_ECCE_${row.name}_${month}-${year}.xlsx`),
+      error: (err) => console.error('Sector Excel error:', err)
+    });
+
+  } else if (this.selectedDistrict && !this.selectedBlock) {
+    // Filter: district selected → user clicks block row
+    // Payload: district_id + block_id
+    this.service.ecceExcelDownload(
+      this.selectedDistrict, year, month,
+      undefined,             // no sector
+      row?.id,               // block_id from row
+      this.selectedUser
+    ).subscribe({
+      next: (res: Blob) => this.triggerDownload(res, `Block_ECCE_${row.name}_${month}-${year}.xlsx`),
+      error: (err) => console.error('Block Excel error:', err)
+    });
+
+  } else {
+    // No filter → user clicks district row
+    // Payload: district_id only
+    this.service.ecceExcelDownload(
+      row?.id,               // district_id from row
+      year, month,
+      undefined, undefined,
+      this.selectedUser
+    ).subscribe({
+      next: (res: Blob) => this.triggerDownload(res, `District_ECCE_${row.name}_${month}-${year}.xlsx`),
+      error: (err) => console.error('District Excel error:', err)
+    });
   }
+}
 
   private triggerDownload(blob: Blob, filename: string): void {
     const url = window.URL.createObjectURL(blob);

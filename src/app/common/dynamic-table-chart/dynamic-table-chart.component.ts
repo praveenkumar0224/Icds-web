@@ -39,8 +39,9 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
   }
+  @Output() tabChange = new EventEmitter<number>();
 
-  selectedTabIndex = 0;
+  // selectedTabIndex = 0;
 
   dataSource = new MatTableDataSource<any>([]);
   displayedColumns: string[] = [];
@@ -76,6 +77,17 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
       }
     }
   };
+
+  private _selectedTabIndex = 0;
+
+  get selectedTabIndex(): number {
+  return this._selectedTabIndex;
+}
+
+set selectedTabIndex(val: number) {
+  this._selectedTabIndex = val;
+  this.tabChange.emit(val);
+}
 
   prepareChartData(): void {
     if (!this.chartConfig || !this.tableData?.length) return;

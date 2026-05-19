@@ -1521,7 +1521,9 @@ private buildEcceMonitoringUrl(
  
   return this.http.get(url);
 }
-   ecceMonitoringExcelDownload(
+ 
+ 
+   ecceExcelDownload(
   districtId?: string,
   year?: string,
   month?: string,
@@ -1530,66 +1532,72 @@ private buildEcceMonitoringUrl(
   selectedUser?: string
 ): Observable<any> {
   const params: string[] = [];
- 
+
   if (districtId) params.push(`district_id=${districtId}`);
-  if (month) params.push(`month=${month}`);
-  if (year) params.push(`year=${year}`);
+  if (month)      params.push(`month=${month}`);
+  if (year)       params.push(`year=${year}`);
   if (blockId) {
     const finalBlockId = typeof blockId === 'object' ? blockId.id : blockId;
     params.push(`block_id=${encodeURIComponent(finalBlockId)}`);
   }
-  if (sectorId) params.push(`sector_id=${sectorId}`);
+  if (sectorId)     params.push(`sector_id=${sectorId}`);
   if (selectedUser) params.push(`observation_type=${selectedUser}`);
- 
+
   const queryString = params.length ? '?' + params.join('&') : '';
- 
+
+  // ─── URL routing: most specific first ───────────────────
   let url = '';
-  if (blockId) {
-    url = `${this.baseUrl}webDashboard-ecce-monitoring/ecce-monitoring-blockwise-report-excel${queryString}`;
-  } else if (districtId) {
-    url = `${this.baseUrl}webDashboard-ecce-monitoring/ecce-monitoring-districtwise-report-excel${queryString}`;
-  } else if (sectorId) {
-    url = `${this.baseUrl}webDashboard-ecce-monitoring/ecce-monitoring-sectorwise-report-excel${queryString}`;
+  if (sectorId) {
+    // district + block + sector → sectorwise report
+    url = `${this.baseUrl}ecce-observation-dashboard/excel${queryString}`;
+  } else if (blockId) {
+    // district + block → blockwise report
+    url = `${this.baseUrl}ecce-observation-dashboard/excel${queryString}`;
+  } else {
+    // district only → districtwise report
+    url = `${this.baseUrl}ecce-observation-dashboard/excel${queryString}`;
   }
- 
+
   return this.http.get(url, { responseType: 'blob' });
 }
- 
 
+     ecceMonitoringExcelDownload(
+  districtId?: string,
+  year?: string,
+  month?: string,
+  sectorId?: string,
+  blockId?: any,
+  selectedUser?: string
+): Observable<any> {
+  const params: string[] = [];
 
-  ecceExcelDownload(
-    districtId?: string,
-    year?: string,
-    month?: string,
-    sectorId?: string,
-    blockId?: any,
-    selectedUser?: string
-  ): Observable<any> {
-    const params: string[] = [];
-
-    if (districtId) params.push(`district_id=${districtId}`);
-    if (month) params.push(`month=${month}`);
-    if (year) params.push(`year=${year}`);
-    if (blockId) {
-      const finalBlockId = typeof blockId === 'object' ? blockId.id : blockId;
-      params.push(`block_id=${encodeURIComponent(finalBlockId)}`);
-    }
-    if (sectorId) params.push(`sector_id=${sectorId}`);
-    if (selectedUser) params.push(`observation_type=${selectedUser}`);
-
-    const queryString = params.length ? '?' + params.join('&') : '';
-
-    let url = '';
-    if (blockId) {
-      url = `${this.baseUrl}webDashboard-ecce/ecce-blockwise-report-excel${queryString}`;
-    } else if (districtId) {
-      url = `${this.baseUrl}webDashboard-ecce/ecce-districtwise-report-excel${queryString}`;
-    } else if (sectorId) {
-      url = `${this.baseUrl}webDashboard-ecce/ecce-sectorwise-report-excel${queryString}`;
-    }
-
-    return this.http.get(url, { responseType: 'blob' });
+  if (districtId) params.push(`district_id=${districtId}`);
+  if (month)      params.push(`month=${month}`);
+  if (year)       params.push(`year=${year}`);
+  if (blockId) {
+    const finalBlockId = typeof blockId === 'object' ? blockId.id : blockId;
+    params.push(`block_id=${encodeURIComponent(finalBlockId)}`);
   }
+  if (sectorId)     params.push(`sector_id=${sectorId}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+
+  const queryString = params.length ? '?' + params.join('&') : '';
+
+  // ─── URL routing: most specific first ───────────────────
+  let url = '';
+  if (sectorId) {
+    // district + block + sector → sectorwise report
+    url = `${this.baseUrl}ecce-monitering-dashboard/excel${queryString}`;
+  } else if (blockId) {
+    // district + block → blockwise report
+    url = `${this.baseUrl}ecce-monitering-dashboard/excel${queryString}`;
+  } else {
+    // district only → districtwise report
+    url = `${this.baseUrl}ecce-monitering-dashboard/excel${queryString}`;
+  }
+
+  return this.http.get(url, { responseType: 'blob' });
+}
 
   postDistrictData(): Observable<any> {
     const token = localStorage?.getItem('access_token');
