@@ -193,14 +193,26 @@
    
   </div>
 
+     <div class="metric-filter" *ngIf="isChartView">
+  <mat-button-toggle-group 
+    [value]="selectedMetric" 
+    (change)="onMetricChange($event.value)">
+    <mat-button-toggle *ngFor="let opt of metricOptions" [value]="opt.value">
+      {{ opt.label }}
+    </mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+
   <!-- Dynamic Table + Chart -->
   <app-dynamic-table-chart
-    [loading]="isLoading"
-    [headerConfig]="headerConfig"
-    [tableConfig]="tableConfig"
-    [tableData]="tableData"
-    [chartConfig]="chartConfig"
-    (rowClick)="onRowClick($event)">
-  </app-dynamic-table-chart>
+  [loading]="isLoading"
+  [headerConfig]="headerConfig"
+  [tableConfig]="tableConfig"
+  [tableData]="tableData"
+  [chartConfig]="chartConfig"
+  (rowClick)="onRowClick($event)"
+   (tabChange)="onViewToggle($event)"> 
+</app-dynamic-table-chart>
 
 </div>
