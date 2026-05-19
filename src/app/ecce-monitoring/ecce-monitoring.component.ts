@@ -145,11 +145,14 @@ isLoadingBelow4 = false;
       y: {
         beginAtZero: true,
         max: 100,
+        ticks: {
+          stepSize: 25   // ← 0, 25, 50, 75, 100
+        },
         title: { display: true, text: 'Compliance →' }
       },
-      x: {
-        title: { display: true, text: 'Month →' }
-      }
+      // x: {
+      //   title: { display: true, text: 'Month →' }
+      // }
     }
   };
 
@@ -355,6 +358,17 @@ isLoadingBelow4 = false;
 
   console.log('LOADING METRICS');
 }
+    get isAnyLoading(): boolean {
+  return this.isLoading ||
+         this.isLoadingMonthwise ||
+         this.isLoadingUserwise ||
+         this.isLoadingDistrictwise ||
+         this.isLoadingAwcsObserved ||
+         this.isLoadingTotalChildren ||
+         this.isLoadingAvgScore ||
+         this.isLoadingAbove8 ||
+         this.isLoadingBelow4;
+}
 
   // ─── Load Month-wise Trend ───────────────────────────────
   private loadMonthwiseTrend(): void {
@@ -523,6 +537,10 @@ isLoadingBelow4 = false;
     this.headerConfig.sectionType = 'District';
   }
 
+    const sectionLabel = `${this.headerConfig.sectionType} Name`;
+    console.log('PREPARING JSON with section label:', sectionLabel);
+    
+
   // TABLE CONFIG
   this.tableConfig = {
     enableSearch: true,
@@ -536,7 +554,7 @@ isLoadingBelow4 = false;
       },
       {
         key: 'group_name',
-        label: `${this.headerConfig.sectionType} Name`,
+        label: (this.selectedBlock && this.selectedDistrict) ? 'Sector Name' : (this.selectedDistrict && !this.selectedBlock) ? 'Block Name' : 'District Name',
         clickable: true,
         totalLabel: true
       },
@@ -561,22 +579,27 @@ isLoadingBelow4 = false;
       {
         key: 'average_assessment_score',
         label: 'Avg Assessment Score',
-        align: 'left'
+        align: 'left',
+        average: true,
+        suffix: '%'
       },
       {
         key: 'more_than_eight',
         label: '> 8 Letters (%)',
-        suffix: '%'
+        suffix: '%',
+        average: true
       },
       {
         key: 'four_to_seven',
         label: '4 - 7 Letters (%)',
-        suffix: '%'
+        suffix: '%',
+        average: true
       },
       {
         key: 'less_than_four',
         label: '< 4 Letters (%)',
-        suffix: '%'
+        suffix: '%',
+        average: true
       }
     ]
   };
@@ -611,6 +634,7 @@ isLoadingBelow4 = false;
     }
   };
 }
+
 
   // ─── Row Click → Excel Download ──────────────────────────
     onRowClick(row: any): void {

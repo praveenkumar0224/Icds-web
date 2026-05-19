@@ -133,45 +133,67 @@ set selectedTabIndex(val: number) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.sort) {
-      this.dataSource.sort = this.sort;
-    }
-    // CRITICAL: Check tableConfig first before doing anything
-    if (changes['tableConfig']) {
-      if (this.tableConfig && this.tableConfig.columns && Array.isArray(this.tableConfig.columns)) {
-        this.displayedColumns = this.tableConfig.columns.map(c => c.key);
-      } else {
-        // Reset to empty if invalid
-        this.displayedColumns = [];
-        this.dataSource.data = [];
-        return; // Exit early to prevent further processing
-      }
-    }
+  if (this.sort) {
+    this.dataSource.sort = this.sort;
+  }
 
-    // Only update data if we have valid columns
-    if (changes['tableData'] && this.displayedColumns.length > 0) {
-      this.dataSource.data = this.tableData ?? [];
-    }
-
-    // 🆕 Store original chart data when it changes
-    if (changes['chartConfig'] && this.chartConfig) {
-      this.originalChartData = JSON.parse(JSON.stringify(this.chartConfig));
-    }
-
-    if (changes['tableData'] && this.tableData?.length > 0 && this.chartConfig?.enabled) {
-      this.prepareChartData();
-    }
-
-    // 🆕 Also prepare chart when chartConfig changes
-    if (changes['chartConfig'] && this.chartConfig?.enabled && this.tableData?.length > 0) {
-      this.prepareChartData();
+  // ─── tableConfig changed → rebuild columns ───────────────
+  if (changes['tableConfig']) {
+    if (this.tableConfig?.columns?.length) {
+      // Force new array reference so mat-table re-renders headers
+      this.displayedColumns = [];                                    // ← clear first
+      setTimeout(() => {                                             // ← let DOM clear
+        this.displayedColumns = [...this.tableConfig.columns.map(c => c.key)];
+      }, 0);
+    } else {
+      this.displayedColumns = [];
+      this.dataSource.data = [];
+      return;
     }
   }
+
+  // ─── tableData changed → update rows ────────────────────
+  if (changes['tableData'] && this.displayedColumns.length > 0) {
+    this.dataSource.data = [...(this.tableData ?? [])];             // ← spread forces new ref
+  }
+
+  // ─── chartConfig changed → store original ───────────────
+  if (changes['chartConfig'] && this.chartConfig) {
+    this.originalChartData = JSON.parse(JSON.stringify(this.chartConfig));
+  }
+
+  // ─── tableData changed → rebuild chart ──────────────────
+  if (changes['tableData'] && this.tableData?.length > 0 && this.chartConfig?.enabled) {
+    this.prepareChartData();
+  }
+
+  // ─── chartConfig changed → rebuild chart ────────────────
+  if (changes['chartConfig'] && this.chartConfig?.enabled && this.tableData?.length > 0) {
+    this.prepareChartData();
+  }
+}
 
   applyFilter(event: Event): void {
     const value = (event.target as HTMLInputElement).value || '';
     this.dataSource.filter = value.trim().toLowerCase();
   }
+  
+  getColumnAverage(key: string): string {
+  if (!this.dataSource?.data?.length) return '0';
+  
+  const validRows = this.dataSource.data.filter(row => 
+    row?.[key] != null && row?.[key] !== ''
+  );
+  
+  if (!validRows.length) return '0';
+  
+  const sum = validRows.reduce((acc, row) => {
+    const value = Number(row?.[key]);
+    return acc + (isNaN(value) ? 0 : value);
+  }, 0);
+  
+  return (sum / validRows.length).toFixed(1);
+}
 
   getColumnTotal(key: string): number {
     if (!this.dataSource?.data) return 0;

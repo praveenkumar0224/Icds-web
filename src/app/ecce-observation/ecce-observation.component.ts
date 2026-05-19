@@ -146,11 +146,12 @@ selectedMetric = 'preschool_sessions_held';
       y: {
         beginAtZero: true,
         max: 100,
+        ticks: {
+        stepSize: 25   // ← 0, 25, 50, 75, 100
+      },
         title: { display: true, text: 'Compliance →' }
       },
-      x: {
-        title: { display: true, text: 'Month →' }
-      }
+      
     }
   };
 
@@ -526,11 +527,11 @@ selectedMetric = 'preschool_sessions_held';
     { key: 'slNo',                    label: 'Sl.No',                   sortable: true, align: 'left' },
     { key: 'awcs_available',          label: 'AWCs Available',           align: 'left', total: true },
     { key: 'awcs_observed',           label: 'AWCs Observed',            align: 'left', total: true },
-    { key: 'preschool_sessions_held', label: 'Preschool Sessions Held',  align: 'left', total: true },
-    { key: 'theme_based_teaching',    label: 'Theme Based Teaching (%)', suffix: '%' },
-    { key: 'playkit_usage',           label: 'Playkit Usage (%)',        suffix: '%' },
-    { key: 'workbook_completion',     label: 'Workbook Completion (%)',  suffix: '%' },
-    { key: 'assessment_card_update',  label: 'Assessment Card Update (%)', suffix: '%' },
+    { key: 'preschool_sessions_held', label: 'Preschool Sessions Held (%)',  suffix: '%',average: true  },
+    { key: 'theme_based_teaching',    label: 'Theme Based Teaching (%)', suffix: '%',average: true  },
+    { key: 'playkit_usage',           label: 'Playkit Usage (%)',        suffix: '%',average: true  },
+    { key: 'workbook_completion',     label: 'Workbook Completion (%)',  suffix: '%',average: true  },
+    { key: 'assessment_card_update',  label: 'Assessment Card Update (%)', suffix: '%',average: true  },
   ];
 
   if (this.selectedBlock && this.selectedDistrict) {
