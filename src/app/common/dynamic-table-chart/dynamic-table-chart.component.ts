@@ -178,20 +178,36 @@ set selectedTabIndex(val: number) {
     this.dataSource.filter = value.trim().toLowerCase();
   }
   
-  getColumnAverage(key: string): string {
+  getColumnAverage(col: any): string {
   if (!this.dataSource?.data?.length) return '0';
-  
-  const validRows = this.dataSource.data.filter(row => 
-    row?.[key] != null && row?.[key] !== ''
-  );
-  
+
+  const data = this.dataSource.data;
+
+  // ─── Weighted average (when weightKey is provided) ───────
+  if (col.weightKey) {
+    const totalWeight = data.reduce((acc, row) => {
+      return acc + (Number(row?.[col.weightKey]) || 0);
+    }, 0);
+
+    if (!totalWeight) return '0';
+
+    const weightedSum = data.reduce((acc, row) => {
+      const value  = Number(row?.[col.key])       || 0;
+      const weight = Number(row?.[col.weightKey]) || 0;
+      return acc + (value * weight);
+    }, 0);
+
+    return (weightedSum / totalWeight).toFixed(1);
+  }
+
+  // ─── Simple average (fallback) ───────────────────────────
+  const validRows = data.filter(row => row?.[col.key] != null && row?.[col.key] !== '');
   if (!validRows.length) return '0';
-  
+
   const sum = validRows.reduce((acc, row) => {
-    const value = Number(row?.[key]);
-    return acc + (isNaN(value) ? 0 : value);
+    return acc + (Number(row?.[col.key]) || 0);
   }, 0);
-  
+
   return (sum / validRows.length).toFixed(1);
 }
 

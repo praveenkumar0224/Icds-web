@@ -527,11 +527,11 @@ selectedMetric = 'preschool_sessions_held';
     { key: 'slNo',                    label: 'Sl.No',                   sortable: true, align: 'left' },
     { key: 'awcs_available',          label: 'AWCs Available',           align: 'left', total: true },
     { key: 'awcs_observed',           label: 'AWCs Observed',            align: 'left', total: true },
-    { key: 'preschool_sessions_held', label: 'Preschool Sessions Held (%)',  suffix: '%',average: true  },
-    { key: 'theme_based_teaching',    label: 'Theme Based Teaching (%)', suffix: '%',average: true  },
-    { key: 'playkit_usage',           label: 'Playkit Usage (%)',        suffix: '%',average: true  },
-    { key: 'workbook_completion',     label: 'Workbook Completion (%)',  suffix: '%',average: true  },
-    { key: 'assessment_card_update',  label: 'Assessment Card Update (%)', suffix: '%',average: true  },
+    { key: 'preschool_sessions_held', label: 'Preschool Sessions Held (%)',  suffix: '%',average: true , weightKey: 'awcs_observed'  },
+    { key: 'theme_based_teaching',    label: 'Theme Based Teaching (%)', suffix: '%',average: true , weightKey: 'awcs_observed'  },
+    { key: 'playkit_usage',           label: 'Playkit Usage (%)',        suffix: '%',average: true , weightKey: 'awcs_observed'  },
+    { key: 'workbook_completion',     label: 'Workbook Completion (%)',  suffix: '%',average: true , weightKey: 'awcs_observed'  },
+    { key: 'assessment_card_update',  label: 'Assessment Card Update (%)', suffix: '%',average: true , weightKey: 'awcs_observed'  },
   ];
 
   if (this.selectedBlock && this.selectedDistrict) {
