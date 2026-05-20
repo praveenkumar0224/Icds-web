@@ -581,25 +581,29 @@ isLoadingBelow4 = false;
         label: 'Avg Assessment Score',
         align: 'left',
         average: true,
-        suffix: '%'
+        suffix: '%',
+        weightKey: 'awcs_observed' 
       },
       {
         key: 'more_than_eight',
         label: '> 8 Letters (%)',
         suffix: '%',
-        average: true
+        average: true,
+        weightKey: 'awcs_observed'
       },
       {
         key: 'four_to_seven',
         label: '4 - 7 Letters (%)',
         suffix: '%',
-        average: true
+        average: true,
+        weightKey: 'awcs_observed'
       },
       {
         key: 'less_than_four',
         label: '< 4 Letters (%)',
         suffix: '%',
-        average: true
+        average: true,
+        weightKey: 'awcs_observed'
       }
     ]
   };

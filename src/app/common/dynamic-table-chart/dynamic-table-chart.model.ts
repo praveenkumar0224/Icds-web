@@ -16,7 +16,8 @@ export interface TableColumn {
   align?: Align;
   suffix?: string;
   total?: boolean;  
-  average?: boolean;       
+  average?: boolean;  
+  weightKey?: string;     
   totalLabel?: boolean;     
   percentage?: boolean;
   numeratorKey?: string;     // observed column key
