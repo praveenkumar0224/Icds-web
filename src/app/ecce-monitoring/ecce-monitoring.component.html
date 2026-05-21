@@ -75,77 +75,85 @@
 <div class="metrics-row">
 
   <!-- Card 1: AWCs Observed -->
-  <mat-card class="metric-card metric-card--blue">
+  <mat-card style="background:#E6F1FB; border-left:4px solid #185FA5; border-radius:12px; padding:16px 20px;">
     <div *ngIf="isLoadingAwcsObserved" class="metric-loader">
       <mat-spinner diameter="30"></mat-spinner>
     </div>
     <ng-container *ngIf="!isLoadingAwcsObserved">
-      <div style="color: black; font-size: large; font-weight: 500;">AWC's observed</div>
-      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ awcsObserved?.awcsObserved }}</div>
+      <div style="font-size:13px; font-weight:500; color:#185FA5; text-transform:uppercase; letter-spacing:0.5px;">AWC's observed</div>
+      <div style="font-size:32px; font-weight:700; color:#0C447C; padding-top:8px; line-height:1;">{{ awcsObserved?.awcsObserved }}</div>
     </ng-container>
   </mat-card>
 
   <!-- Card 2: Total Children Assessed -->
-  <mat-card class="metric-card metric-card--light">
+  <mat-card style="background:#E1F5EE; border-left:4px solid #0F6E56; border-radius:12px; padding:16px 20px;">
     <div *ngIf="isLoadingTotalChildren" class="metric-loader">
       <mat-spinner diameter="30"></mat-spinner>
     </div>
     <ng-container *ngIf="!isLoadingTotalChildren">
-      <div style="color: black; font-size: large; font-weight: 500;">Total children</div>
-      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ totalChildrenAssessed?.totalChildrenAssessed|| 0 }}</div>
+      <div style="font-size:13px; font-weight:500; color:#0F6E56; text-transform:uppercase; letter-spacing:0.5px;">Total children</div>
+      <div style="font-size:32px; font-weight:700; color:#085041; padding-top:8px; line-height:1;">{{ totalChildrenAssessed?.totalChildrenAssessed|| 0 }}</div>
     </ng-container>
   </mat-card>
 
   <!-- Card 3: Average Assessment Score -->
-  <mat-card class="metric-card metric-card--light">
+  <mat-card style="background:#FAEEDA; border-left:4px solid #854F0B; border-radius:12px; padding:16px 20px;">
     <div *ngIf="isLoadingAvgScore" class="metric-loader">
       <mat-spinner diameter="30"></mat-spinner>
     </div>
     <ng-container *ngIf="!isLoadingAvgScore">
-      <div style="color: black; font-size: large; font-weight: 500;">Avg assessment score</div>
-      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ averageAssessmentScore?.averageAssessmentScore | number:'1.0-1' }}%</div>
+      <div style="font-size:13px; font-weight:500; color:#854F0B; text-transform:uppercase; letter-spacing:0.5px;">Avg assessment score</div>
+      <div style="font-size:32px; font-weight:700; color:#633806; padding-top:8px; line-height:1;">{{ averageAssessmentScore?.averageAssessmentScore | number:'1.0-1' }}%</div>
     </ng-container>
   </mat-card>
 
   <!-- Card 4: Children Above 8 Letters -->
-  <mat-card class="metric-card metric-card--light">
+  <mat-card style="background:#EEEDFE; border-left:4px solid #534AB7; border-radius:12px; padding:16px 20px;">
     <div *ngIf="isLoadingAbove8" class="metric-loader">
       <mat-spinner diameter="30"></mat-spinner>
     </div>
     <ng-container *ngIf="!isLoadingAbove8">
-      <div style="color: black; font-size: large; font-weight: 500;">% of children identifying more than 8 letters</div>
-      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ childrenAbove8Letters?.percentageAbove8 | number:'1.0-1' }}%</div>
+      <div style="font-size:13px; font-weight:500; color:#534AB7; text-transform:uppercase; letter-spacing:0.5px;">% of children identifying more than 8 letters</div>
+      <div style="font-size:32px; font-weight:700; color:#3C3489; padding-top:8px; line-height:1;">{{ childrenAbove8Letters?.percentageAbove8 | number:'1.0-1' }}%</div>
     </ng-container>
   </mat-card>
 
   <!-- Card 5: Children Below 4 Letters -->
-  <mat-card class="metric-card metric-card--light">
+  <mat-card style="background:#FAECE7; border-left:4px solid #993C1D; border-radius:12px; padding:16px 20px;">
     <div *ngIf="isLoadingBelow4" class="metric-loader">
       <mat-spinner diameter="30"></mat-spinner>
     </div>
     <ng-container *ngIf="!isLoadingBelow4">
-      <div style="color: black; font-size: large; font-weight: 500;">% of children identifying less than 4 words</div>
-      <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ childrenBelow4Letters?.percentageBelow4 | number:'1.0-1' }}%</div>
+      <div style="font-size:13px; font-weight:500; color:#993C1D; text-transform:uppercase; letter-spacing:0.5px;">% of children identifying less than 4 words</div>
+      <div style="font-size:32px; font-weight:700; color:#712B13; padding-top:8px; line-height:1;">{{ childrenBelow4Letters?.percentageBelow4 | number:'1.0-1' }}%</div>
     </ng-container>
   </mat-card>
 
 </div>
 
   <!-- Charts Section -->
-  <div style="display: flex; flex-direction: row; width: 100%; gap: 16px;">
+  <div style="display:flex; flex-direction:row; width:100%; gap:16px; margin-top:16px;">
 
     <!-- Month-wise Trend -->
     <mat-card style="flex: 1;">
-      <mat-card-header class="chart-header">
+      <mat-card-header class="chart-header" style="display:flex; align-items:center;">
         <mat-card-title>{{ labelChanges.monthwiseTrendChart }}</mat-card-title>
+        <span style="flex:1;"></span>
+      <button mat-icon-button
+        (click)="downloadChart('monthwiseChart', 'monthwise-trend.png')"
+        [disabled]="isLoadingMonthwise"
+        matTooltip="Download chart"
+        style="margin-left:8px;">
+        <mat-icon>download</mat-icon>
+      </button>
       </mat-card-header>
       <div *ngIf="isLoadingMonthwise" class="chart-loader">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
         <p>Loading chart data...</p>
       </div>
       <mat-card-content>
-        <div *ngIf="!isLoadingMonthwise" class="chart-container">
-          <canvas baseChart
+        <div *ngIf="!isLoadingMonthwise" style="position:relative; height:420px;">
+          <canvas id="monthwiseChart" baseChart
             [data]="monthwiseTrendChartData"
             [labels]="monthwiseTrendLabels"
             [type]="'bar'"
@@ -158,25 +166,24 @@
 
     <!-- User-wise Trend -->
     <mat-card style="flex: 1;">
-      <mat-card-header class="chart-header">
+      <mat-card-header class="chart-header" style="display:flex; align-items:center;">
         <mat-card-title>{{ labelChanges.userwiseTrendChart }}</mat-card-title>
-        <span class="spacer"></span>
-        <!-- <div class="toggle-group">
-          <div *ngFor="let opt of userwiseToggleOptions"
-            (click)="onUserwiseToggle(opt.value)"
-            [class.active]="selectedUserwiseToggle === opt.value"
-            class="toggle-btn">
-            {{ opt.label }}
-          </div>
-        </div> -->
+        <span style="flex:1;"></span>
+      <button mat-icon-button
+        (click)="downloadChart('userwiseChart', 'userwise-trend.png')"
+        [disabled]="isLoadingUserwise"
+        matTooltip="Download chart"
+        style="margin-left:8px;">
+        <mat-icon>download</mat-icon>
+      </button>
       </mat-card-header>
       <div *ngIf="isLoadingUserwise" class="chart-loader">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
         <p>Loading chart data...</p>
       </div>
       <mat-card-content>
-        <div *ngIf="!isLoadingUserwise" class="chart-container">
-          <canvas baseChart
+        <div *ngIf="!isLoadingUserwise" class="chart-container" style="position:relative; height:420px;">
+          <canvas id="userwiseChart" baseChart
             [data]="userwiseTrendChartData"
             [labels]="userwiseTrendLabels"
             [type]="'bar'"

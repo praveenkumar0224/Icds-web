@@ -4,6 +4,8 @@ import { DashboardServiceService } from '../shared/services/dashboard-service.se
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TableConfig,TableColumn } from '../common/dynamic-table-chart/dynamic-table-chart.model';
+import { Chart } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 
 @Component({
@@ -46,7 +48,7 @@ export class EcceObservationComponent implements OnInit, OnDestroy {
   selectedBlock = '';
   selectedSector = '';
 
-  users: string[] = ['Block Supervisor', 'CDPO', 'DPO'];
+  users: string[] = [];
   selectedUser = 'Block Supervisor';
 
   metricOptions = [
@@ -137,36 +139,59 @@ selectedMetric = 'preschool_sessions_held';
 
   // ─── Shared Chart Options ───────────────────────────────
   groupedBarChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,
-        ticks: {
-        stepSize: 25   // ← 0, 25, 50, 75, 100
-      },
-        title: { display: true, text: 'Compliance →' }
-      },
-      
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+    datalabels: {
+      display: true,
+      anchor: 'end',
+      align: 'end',
+      rotation: -90,           // ← add this line to rotate labels vertical
+      formatter: (value: number) => value > 0 ? value.toFixed(1) + '%' : '',
+      font: { size: 10, weight: 'bold' },
+      color: 'black',
+      clamp: false,
     }
-  };
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      max: 120,                // ← increase from 110 to 120 to give more room for rotated labels
+      ticks: {
+        stepSize: 25,
+        callback: (v: any) => v <= 100 ? v + '%' : ''
+      },
+      title: { display: true, text: 'Compliance →' }
+    }
+  }
+};
+
 
   districtBarChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: false }
-    },
+    legend: { display: false },
+    datalabels: {
+     display: true,
+      anchor: 'end',        // ← center inside the bar
+      align: 'end',         // ← center inside the bar
+      formatter: (value: number) => value > 0 ? value.toFixed(1) + '%' : '',
+      font: { size: 13, weight: 'bold' },
+      color: 'black',  
+      clamp: true,
+    }
+  },
     scales: {
       y: {
-        beginAtZero: true,
-        max: 100,
-        title: { display: true, text: 'Compliance →' }
+      beginAtZero: true,
+      max: 110,                // ← was 100, bars at 100 were clipping the label
+      ticks: {
+        callback: (v: any) => v <= 100 ? v : ''   // ← hides 110 tick
       },
+      title: { display: true, text: 'Compliance →' }
+    },
       x: {
         title: { display: true, text: 'Districts →' }
       }
@@ -214,6 +239,7 @@ selectedMetric = 'preschool_sessions_held';
 
   // ─── Lifecycle ──────────────────────────────────────────
   ngOnInit(): void {
+    Chart.register(ChartDataLabels);
     this.getAccessForThisComponent();
     this.findingYear();
     this.staticCall();
@@ -222,27 +248,37 @@ selectedMetric = 'preschool_sessions_held';
   ngOnDestroy(): void {}
 
   // ─── Access Control ─────────────────────────────────────
+  
   getAccessForThisComponent(): void {
-    switch (this.role) {
-      case 'DPO':
-      case 'District Collector':
-      case 'District Coordinator':
-        this.isDistrictUser = true;
-        break;
-      case 'CDPO':
-        this.isBlockUser = true;
-        break;
-      case 'Block Supervisor':
-        this.isAccess = false;
-        break;
-      case 'Root':
-      case 'Zone Officer':
-        this.isStateUser = true;
-        break;
-      default:
-        this.isAccess = true;
-    }
+  switch (this.role) {
+    case 'DPO':
+    case 'District Collector':
+    case 'District Coordinator':
+      this.isDistrictUser = true;
+      this.users = ['Block Supervisor', 'CDPO', 'DPO'];
+      this.selectedUser = 'Block Supervisor';
+      break;
+    case 'CDPO':
+      this.isBlockUser = true;
+      this.users = ['Block Supervisor', 'CDPO'];
+      this.selectedUser = 'Block Supervisor';
+      break;
+    case 'Block Supervisor':
+      this.isAccess = false;
+      this.users = [];
+      break;
+    case 'Root':
+    case 'Zone Officer':
+      this.isStateUser = true;
+      this.users = ['Block Supervisor', 'CDPO', 'DPO', 'All'];
+      this.selectedUser = 'All';
+      break;
+    default:
+      this.isAccess = true;
+      this.users = ['Block Supervisor', 'CDPO', 'DPO', 'All'];
+      this.selectedUser = 'All';
   }
+} 
 
   // ─── Year Setup ─────────────────────────────────────────
   findingYear(): void {
@@ -293,6 +329,15 @@ selectedMetric = 'preschool_sessions_held';
       hoverBackgroundColor: '#4a6cd8', borderRadius: 6, barThickness: 30,
     }]};
     this.tableData = [];
+  }
+
+  downloadChart(canvasId: string, filename: string): void {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = filename;
+    link.click();
   }
 
   // ─── Load Metrics ────────────────────────────────────────
@@ -380,7 +425,7 @@ selectedMetric = 'preschool_sessions_held';
     this.service.getEcceUserwiseTrend(
       this.selectedYear, this.selectedMonth,
       this.selectedDistrict, this.selectedBlock,
-      this.selectedSector, this.selectedUserwiseToggle
+      this.selectedSector, this.selectedUser
     ).subscribe({
       next: (res) => {
         this.buildUserwiseChart(res?.data || []);

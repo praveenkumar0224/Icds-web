@@ -1313,13 +1313,13 @@ private buildEcceMonitoringUrl(
     districtId?: string,
     blockId?: string,
     sectorId?: string,
-    cadreType?: string
+    selectedUser?: string
   ): Observable<any> {
     const params: string[] = [];
 
     if (month) params.push(`month=${month}`);
     if (year) params.push(`year=${year}`);
-    if (cadreType) params.push(`cadre_type=${cadreType}`);
+    if (selectedUser) params.push(`observation_type=${selectedUser}`);
 
     if (districtId && blockId) {
       params.push(`block_id=${blockId}`);
@@ -1447,14 +1447,14 @@ private buildEcceMonitoringUrl(
   districtId?: string,
   blockId?: string,
   sectorId?: string,
-  cadreType?: string
+  selectedUser?: string
 ): Observable<any> {
   const params: string[] = [];
  
   if (month) params.push(`month=${month}`);
   if (year) params.push(`year=${year}`);
-  if (cadreType) params.push(`cadre_type=${cadreType}`);
- 
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+
   if (districtId && blockId) {
     params.push(`block_id=${blockId}`);
   }
