@@ -139,30 +139,33 @@ selectedMetric = 'preschool_sessions_held';
 
   // ─── Shared Chart Options ───────────────────────────────
   groupedBarChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
-       datalabels: {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+    datalabels: {
       display: true,
       anchor: 'end',
       align: 'end',
+      rotation: -90,           // ← add this line to rotate labels vertical
       formatter: (value: number) => value > 0 ? value.toFixed(1) + '%' : '',
-      font: { size: 9 },
-      color: '#555',
-      clamp: true,
+      font: { size: 10, weight: 'bold' },
+      color: 'black',
+      clamp: false,
     }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 100,           // ← extra headroom so top labels don't clip
-        ticks: { stepSize: 25, callback: (v: any) => v + '%' },
-        title: { display: true, text: 'Compliance →' }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      max: 120,                // ← increase from 110 to 120 to give more room for rotated labels
+      ticks: {
+        stepSize: 25,
+        callback: (v: any) => v <= 100 ? v + '%' : ''
       },
-      
+      title: { display: true, text: 'Compliance →' }
     }
-  };
+  }
+};
 
 
   districtBarChartOptions: ChartConfiguration['options'] = {
@@ -171,21 +174,24 @@ selectedMetric = 'preschool_sessions_held';
     plugins: {
     legend: { display: false },
     datalabels: {
-      display: true,
-      anchor: 'end',
-      align: 'end',
+     display: true,
+      anchor: 'end',        // ← center inside the bar
+      align: 'end',         // ← center inside the bar
       formatter: (value: number) => value > 0 ? value.toFixed(1) + '%' : '',
-      font: { size: 10, weight: 'bold' },
-      color: '#185FA5',
+      font: { size: 13, weight: 'bold' },
+      color: 'black',  
       clamp: true,
     }
   },
     scales: {
       y: {
-        beginAtZero: true,
-        max: 100,
-        title: { display: true, text: 'Compliance →' }
+      beginAtZero: true,
+      max: 110,                // ← was 100, bars at 100 were clipping the label
+      ticks: {
+        callback: (v: any) => v <= 100 ? v : ''   // ← hides 110 tick
       },
+      title: { display: true, text: 'Compliance →' }
+    },
       x: {
         title: { display: true, text: 'Districts →' }
       }
