@@ -78,127 +78,124 @@
     </mat-card>
   </div>
 
-  <!-- Key Metrics Cards -->
-  <div class="metrics-row">
+    <!-- Key Metrics Cards -->
+<div class="metrics-row">
 
-    <mat-card class="metric-card metric-card--blue">
-      <div *ngIf="isLoadingMetrics" class="metric-loader">
-        <mat-spinner diameter="30"></mat-spinner>
+  <mat-card style="background:#E6F1FB; border-left:4px solid #185FA5; border-radius:12px; padding:16px 20px;">
+    <div *ngIf="isLoadingMetrics" class="metric-loader"><mat-spinner diameter="30"></mat-spinner></div>
+    <ng-container *ngIf="!isLoadingMetrics">
+      <div style="font-size:13px; font-weight:500; color:#185FA5; text-transform:uppercase; letter-spacing:0.5px;">Total Observations Conducted</div>
+      <div style="font-size:32px; font-weight:700; color:#0C447C; padding-top:8px; line-height:1;">{{ metricsData?.total_observations_conducted || 0 }}</div>
+    </ng-container>
+  </mat-card>
+
+  <mat-card style="background:#E1F5EE; border-left:4px solid #0F6E56; border-radius:12px; padding:16px 20px;">
+    <div *ngIf="isLoadingMetrics" class="metric-loader"><mat-spinner diameter="30"></mat-spinner></div>
+    <ng-container *ngIf="!isLoadingMetrics">
+      <div style="font-size:13px; font-weight:500; color:#0F6E56; text-transform:uppercase; letter-spacing:0.5px;">Pre School Session Held</div>
+      <div style="font-size:32px; font-weight:700; color:#085041; padding-top:8px; line-height:1;">{{ metricsData?.preschool_session_held | number:'1.0-1' }}<span style="font-size:18px;">%</span></div>
+    </ng-container>
+  </mat-card>
+
+  <mat-card style="background:#FAEEDA; border-left:4px solid #854F0B; border-radius:12px; padding:16px 20px;">
+    <div *ngIf="isLoadingMetrics" class="metric-loader"><mat-spinner diameter="30"></mat-spinner></div>
+    <ng-container *ngIf="!isLoadingMetrics">
+      <div style="font-size:13px; font-weight:500; color:#854F0B; text-transform:uppercase; letter-spacing:0.5px;">Theme Based Teaching</div>
+      <div style="font-size:32px; font-weight:700; color:#633806; padding-top:8px; line-height:1;">{{ metricsData?.theme_based_teaching | number:'1.0-1' }}<span style="font-size:18px;">%</span></div>
+    </ng-container>
+  </mat-card>
+
+  <mat-card style="background:#EEEDFE; border-left:4px solid #534AB7; border-radius:12px; padding:16px 20px;">
+    <div *ngIf="isLoadingMetrics" class="metric-loader"><mat-spinner diameter="30"></mat-spinner></div>
+    <ng-container *ngIf="!isLoadingMetrics">
+      <div style="font-size:13px; font-weight:500; color:#534AB7; text-transform:uppercase; letter-spacing:0.5px;">Playkit Usage</div>
+      <div style="font-size:32px; font-weight:700; color:#3C3489; padding-top:8px; line-height:1;">{{ metricsData?.playkit_usage | number:'1.0-1' }}<span style="font-size:18px;">%</span></div>
+    </ng-container>
+  </mat-card>
+
+  <mat-card style="background:#FAECE7; border-left:4px solid #993C1D; border-radius:12px; padding:16px 20px;">
+    <div *ngIf="isLoadingMetrics" class="metric-loader"><mat-spinner diameter="30"></mat-spinner></div>
+    <ng-container *ngIf="!isLoadingMetrics">
+      <div style="font-size:13px; font-weight:500; color:#993C1D; text-transform:uppercase; letter-spacing:0.5px;">Workbook Completion</div>
+      <div style="font-size:32px; font-weight:700; color:#712B13; padding-top:8px; line-height:1;">{{ metricsData?.workbook_completion | number:'1.0-1' }}<span style="font-size:18px;">%</span></div>
+    </ng-container>
+  </mat-card>
+
+  <mat-card style="background:#FBEAF0; border-left:4px solid #993556; border-radius:12px; padding:16px 20px;">
+    <div *ngIf="isLoadingMetrics" class="metric-loader"><mat-spinner diameter="30"></mat-spinner></div>
+    <ng-container *ngIf="!isLoadingMetrics">
+      <div style="font-size:13px; font-weight:500; color:#993556; text-transform:uppercase; letter-spacing:0.5px;">Assessment Card Update</div>
+      <div style="font-size:32px; font-weight:700; color:#72243E; padding-top:8px; line-height:1;">{{ metricsData?.assessment_card_update | number:'1.0-1' }}<span style="font-size:18px;">%</span></div>
+    </ng-container>
+  </mat-card>
+
+</div>
+  
+
+     <!-- Charts Section -->
+<div style="display:flex; flex-direction:row; width:100%; gap:16px; margin-top:16px;">
+
+  <!-- Month-wise Trend -->
+  <mat-card style="flex:1;">
+    <mat-card-header class="chart-header" style="display:flex; align-items:center;">
+      <mat-card-title>{{ labelChanges.monthwiseTrendChart }}</mat-card-title>
+      <span style="flex:1;"></span>
+      <button mat-icon-button
+        (click)="downloadChart('monthwiseChart', 'monthwise-trend.png')"
+        [disabled]="isLoadingMonthwise"
+        matTooltip="Download chart"
+        style="margin-left:8px;">
+        <mat-icon>download</mat-icon>
+      </button>
+    </mat-card-header>
+    <div *ngIf="isLoadingMonthwise" class="chart-loader">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>Loading chart data...</p>
+    </div>
+    <mat-card-content>
+      <div *ngIf="!isLoadingMonthwise" style="position:relative; height:420px;">
+        <canvas id="monthwiseChart" baseChart
+          [data]="monthwiseTrendChartData"
+          [labels]="monthwiseTrendLabels"
+          [type]="'bar'"
+          [options]="groupedBarChartOptions"
+          [legend]="true">
+        </canvas>
       </div>
-      <ng-container *ngIf="!isLoadingMetrics">
-         <div style="color: black; font-size: large; font-weight: 500;">Total Observations Conducted</div>
-        <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ metricsData?.total_observations_conducted || 0 }}</div>
-      </ng-container>
-    </mat-card>
+    </mat-card-content>
+  </mat-card>
 
-    <mat-card class="metric-card metric-card--light">
-      <div *ngIf="isLoadingMetrics" class="metric-loader">
-        <mat-spinner diameter="30"></mat-spinner>
+  <!-- User-wise Trend -->
+  <mat-card style="flex:1;">
+    <mat-card-header class="chart-header" style="display:flex; align-items:center;">
+      <mat-card-title>{{ labelChanges.userwiseTrendChart }}</mat-card-title>
+      <span style="flex:1;"></span>
+      <button mat-icon-button
+        (click)="downloadChart('userwiseChart', 'userwise-trend.png')"
+        [disabled]="isLoadingUserwise"
+        matTooltip="Download chart"
+        style="margin-left:8px;">
+        <mat-icon>download</mat-icon>
+      </button>
+    </mat-card-header>
+    <div *ngIf="isLoadingUserwise" class="chart-loader">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>Loading chart data...</p>
+    </div>
+    <mat-card-content>
+      <div *ngIf="!isLoadingUserwise" style="position:relative; height:420px;">
+        <canvas id="userwiseChart" baseChart
+          [data]="userwiseTrendChartData"
+          [labels]="userwiseTrendLabels"
+          [type]="'bar'"
+          [options]="groupedBarChartOptions"
+          [legend]="true">
+        </canvas>
       </div>
-      <ng-container *ngIf="!isLoadingMetrics">
-         <div style="color: black; font-size: large; font-weight: 500;">Pre School Session Held</div>
-        <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ metricsData?.preschool_session_held | number:'1.0-1' }}%</div>
-      </ng-container>
-    </mat-card>
+    </mat-card-content>
+  </mat-card>
 
-    <mat-card class="metric-card metric-card--light">
-      <div *ngIf="isLoadingMetrics" class="metric-loader">
-        <mat-spinner diameter="30"></mat-spinner>
-      </div>
-      <ng-container *ngIf="!isLoadingMetrics">
-         <div style="color: black; font-size: large; font-weight: 500;">Theme Based Teaching</div>
-        <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ metricsData?.theme_based_teaching | number:'1.0-1' }}%</div>
-      </ng-container>
-    </mat-card>
-
-    <mat-card class="metric-card metric-card--light">
-      <div *ngIf="isLoadingMetrics" class="metric-loader">
-        <mat-spinner diameter="30"></mat-spinner>
-      </div>
-      <ng-container *ngIf="!isLoadingMetrics">
-        <div style="color: black; font-size: large; font-weight: 500;">Playkit Usage</div>
-        <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ metricsData?.playkit_usage | number:'1.0-1' }}%</div>
-      </ng-container>
-    </mat-card>
-
-    <mat-card class="metric-card metric-card--light">
-      <div *ngIf="isLoadingMetrics" class="metric-loader">
-        <mat-spinner diameter="30"></mat-spinner>
-      </div>
-      <ng-container *ngIf="!isLoadingMetrics">
-        <div style="color: black; font-size: large; font-weight: 500;">Workbook Completion</div>
-        <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ metricsData?.workbook_completion | number:'1.0-1' }}%</div>
-      </ng-container>
-    </mat-card>
-
-    <mat-card class="metric-card metric-card--light">
-      <div *ngIf="isLoadingMetrics" class="metric-loader">
-        <mat-spinner diameter="30"></mat-spinner>
-      </div>
-      <ng-container *ngIf="!isLoadingMetrics">
-        <div style="color: black; font-size: large; font-weight: 500;">Assessment Card Update</div>
-        <div style="color: black; font-size: x-large; font-weight: 700; padding-top : 8px;">{{ metricsData?.assessment_card_update | number:'1.0-1' }}%</div>
-      </ng-container>
-    </mat-card>
-
-  </div>
-
-  <!-- Charts Section -->
-  <div style="display: flex; flex-direction: row;width: 100%; gap: 16px; ">
-   
-      <mat-card style="flex: 1;">
-        <mat-card-header class="chart-header">
-          <mat-card-title>{{ labelChanges.monthwiseTrendChart }}</mat-card-title>
-        </mat-card-header>
-        <div *ngIf="isLoadingMonthwise" class="chart-loader">
-          <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-          <p>Loading chart data...</p>
-        </div>
-        <mat-card-content>
-          <div *ngIf="!isLoadingMonthwise" class="chart-container">
-            <canvas baseChart
-              [data]="monthwiseTrendChartData"
-              [labels]="monthwiseTrendLabels"
-              [type]="'bar'"
-              [options]="groupedBarChartOptions"
-              [legend]="true">
-            </canvas>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- User-wise Trend -->
-       <mat-card style="flex: 1;">
-        <mat-card-header class="chart-header">
-          <mat-card-title>{{ labelChanges.userwiseTrendChart }}</mat-card-title>
-          <span class="spacer"></span>
-          <!-- <div class="toggle-group">
-            <div *ngFor="let opt of userwiseToggleOptions"
-              (click)="onUserwiseToggle(opt.value)"
-              [class.active]="selectedUserwiseToggle === opt.value"
-              class="toggle-btn">
-              {{ opt.label }}
-            </div>
-          </div> -->
-        </mat-card-header>
-        <div *ngIf="isLoadingUserwise" class="chart-loader">
-          <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-          <p>Loading chart data...</p>
-        </div>
-        <mat-card-content>
-          <div *ngIf="!isLoadingUserwise" class="chart-container">
-            <canvas baseChart
-              [data]="userwiseTrendChartData"
-              [labels]="userwiseTrendLabels"
-              [type]="'bar'"
-              [options]="groupedBarChartOptions"
-              [legend]="true">
-            </canvas>
-          </div>
-        </mat-card-content>
-      </mat-card>
-   
-  </div>
+</div>
 
      <div class="metric-filter" *ngIf="isChartView">
   <mat-button-toggle-group 
