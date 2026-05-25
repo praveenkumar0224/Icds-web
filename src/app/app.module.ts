@@ -34,6 +34,7 @@ import { DynamicTableChartComponent } from './common/dynamic-table-chart/dynamic
 import { AccessDeniedComponent } from './shared/access-denied/access-denied.component';
 import { EcceObservationComponent } from './ecce-observation/ecce-observation.component';
 import { EcceMonitoringComponent } from './ecce-monitoring/ecce-monitoring.component';
+import { HcmInspectionComponent } from './hcm-inspection/hcm-inspection.component';
 
 
 
@@ -66,7 +67,8 @@ import { EcceMonitoringComponent } from './ecce-monitoring/ecce-monitoring.compo
      DynamicTableChartComponent,
      AccessDeniedComponent,
      EcceObservationComponent,
-     EcceMonitoringComponent
+     EcceMonitoringComponent,
+     HcmInspectionComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService,

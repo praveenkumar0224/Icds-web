@@ -14,6 +14,7 @@ import { AccessDeniedComponent } from './shared/access-denied/access-denied.comp
 import { observeOn } from 'rxjs';
 import { EcceObservationComponent } from './ecce-observation/ecce-observation.component';
 import { EcceMonitoringComponent } from './ecce-monitoring/ecce-monitoring.component';
+import { HcmInspectionComponent } from './hcm-inspection/hcm-inspection.component';
 
 
 const routes: Routes = [
@@ -25,6 +26,7 @@ const routes: Routes = [
   { path: 'observation-completion', component: ObservationCompletionComponent },
   { path: 'ecce-observation', component: EcceObservationComponent },
   {path: 'ecce-monitoring', component: EcceMonitoringComponent},
+  {path: 'hcm-inspection', component: HcmInspectionComponent},
 
   {
     path: 'access-denied',

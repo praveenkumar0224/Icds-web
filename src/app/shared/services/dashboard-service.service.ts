@@ -1599,6 +1599,137 @@ private buildEcceMonitoringUrl(
   return this.http.get(url, { responseType: 'blob' });
 }
 
+
+     // ─── HCM Inspection Methods ──────────────────────────────────────────────────
+
+getHcmInspectionMetrics(
+  year?: any,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  selectedUser?: string
+): Observable<any> {
+  const params: string[] = [];
+
+  if (month)        params.push(`month=${month}`);
+  if (year)         params.push(`year=${year}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+  if (districtId && blockId) params.push(`block_id=${blockId}`);
+  if (districtId)   params.push(`district_id=${districtId}`);
+
+  const queryString = params.length ? '?' + params.join('&') : '';
+  return this.http.get(`${this.baseUrl}hcm-dashboard/hcm-kpis${queryString}`);
+}
+
+getHcmMonthwiseTrend(
+  year?: any,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  selectedUser?: string,
+  indicator?: string
+): Observable<any> {
+  const params: string[] = [];
+
+  if (month)        params.push(`month=${month}`);
+  if (year)         params.push(`year=${year}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+  if (indicator)    params.push(`metric=${indicator}`);
+  if (districtId && blockId) params.push(`block_id=${blockId}`);
+  if (districtId)   params.push(`district_id=${districtId}`);
+
+  const queryString = params.length ? '?' + params.join('&') : '';
+  return this.http.get(`${this.baseUrl}hcm-dashboard/monthwise${queryString}`);
+}
+
+getHcmUserwiseTrend(
+  year?: any,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  cadreType?: string
+): Observable<any> {
+  const params: string[] = [];
+
+  if (month)      params.push(`month=${month}`);
+  if (year)       params.push(`year=${year}`);
+  if (cadreType)  params.push(`cadre_type=${cadreType}`);
+  if (districtId && blockId) params.push(`block_id=${blockId}`);
+  if (districtId) params.push(`district_id=${districtId}`);
+
+  const queryString = params.length ? '?' + params.join('&') : '';
+  return this.http.get(`${this.baseUrl}hcm-dashboard/userwise-breakdown${queryString}`);
+}
+
+getHcmDistrictwiseTrend(
+  year?: any,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  cadreType?: string
+): Observable<any> {
+  const params: string[] = [];
+
+  if (month)      params.push(`month=${month}`);
+  if (year)       params.push(`year=${year}`);
+  if (cadreType)  params.push(`cadre_type=${cadreType}`);
+  if (districtId && blockId) params.push(`block_id=${blockId}`);
+  if (districtId) params.push(`district_id=${districtId}`);
+
+  const queryString = params.length ? '?' + params.join('&') : '';
+  return this.http.get(`${this.baseUrl}hcm-dashboard/districtwise-trend${queryString}`);
+}
+
+getHcmHierarchicalData(
+  year?: any,
+  month?: string,
+  districtId?: string,
+  blockId?: string,
+  sectorId?: string,
+  selectedUser?: string
+): Observable<any> {
+  const params: string[] = [];
+
+  if (month)        params.push(`month=${month}`);
+  if (year)         params.push(`year=${year}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+  if (districtId && blockId) params.push(`block_id=${blockId}`);
+  if (districtId)   params.push(`district_id=${districtId}`);
+
+  const queryString = params.length ? '?' + params.join('&') : '';
+  return this.http.get(`${this.baseUrl}hcm-dashboard/table-view${queryString}`);
+}
+
+hcmExcelDownload(
+  districtId?: string,
+  year?: any,
+  month?: string,
+  sectorId?: string,
+  blockId?: any,
+  selectedUser?: string
+): Observable<any> {
+  const params: string[] = [];
+
+  if (districtId)   params.push(`district_id=${districtId}`);
+  if (month)        params.push(`month=${month}`);
+  if (year)         params.push(`year=${year}`);
+  if (blockId) {
+    const finalBlockId = typeof blockId === 'object' ? blockId.id : blockId;
+    params.push(`block_id=${encodeURIComponent(finalBlockId)}`);
+  }
+  if (sectorId)     params.push(`sector_id=${sectorId}`);
+  if (selectedUser) params.push(`observation_type=${selectedUser}`);
+
+  const queryString = params.length ? '?' + params.join('&') : '';
+  return this.http.get(
+    `${this.baseUrl}hcm-dashboard/excel${queryString}`,
+    { responseType: 'blob' }
+  );
+}
   postDistrictData(): Observable<any> {
     const token = localStorage?.getItem('access_token');
     // console.log(token, 'token');
