@@ -398,20 +398,36 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
   }
 
   // ─── Load Metrics ────────────────────────────────────────
-  private loadMetrics(): void {
-    this.isLoadingMetrics = true;
-    this.service.getHcmInspectionMetrics(
-      this.selectedYear, this.selectedMonth,
-      this.selectedDistrict, this.selectedBlock,
-      this.selectedSector, this.selectedUser
-    ).subscribe({
-      next: (res) => {
-        this.metricsData = res?.data;
-        this.isLoadingMetrics = false;
-      },
-      error: () => { this.isLoadingMetrics = false; }
-    });
-  }
+    private loadMetrics(): void {
+  this.isLoadingMetrics = true;
+  this.service.getHcmInspectionMetrics(
+    this.selectedYear, this.selectedMonth,
+    this.selectedDistrict, this.selectedBlock,
+    this.selectedSector, this.selectedUser
+  ).subscribe({
+    next: (res) => {
+      const d = res?.data;
+      if (d) {
+        const indicators = [
+          d.stock_match,
+          d.food_storage,
+          d.expired_disposal,
+          d.egg_quality,
+          d.food_quality,
+          d.register_update,   // ← note: API uses register_update (no 'd')
+        ].filter(v => v !== null && v !== undefined);
+
+        const overall = indicators.length
+          ? indicators.reduce((sum, v) => sum + v, 0) / indicators.length
+          : 0;
+
+        this.metricsData = { ...d, overall_compliance: parseFloat(overall.toFixed(2)) };
+      }
+      this.isLoadingMetrics = false;
+    },
+    error: () => { this.isLoadingMetrics = false; }
+  });
+}
 
   // ─── Load Month-wise Trend ───────────────────────────────
   private loadMonthwiseTrend(): void {
