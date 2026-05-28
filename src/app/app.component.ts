@@ -24,7 +24,7 @@ export class AppComponent {
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },
     { path: '/growth-monitoring', icon: 'assessment', title: 'Growth Monitoring' },
     { path: '/ecce-observation', icon: 'child_care', title: 'ECCE Observation' },
-    {path: '/ecce-monitoring', icon: 'child_care', title: 'ECCE Monitoring'},
+    {path: '/ecce-monitoring', icon: 'monitoring', title: 'ECCE Monitoring'},
     {path: '/hcm-inspection', icon: 'home_repair_service', title: 'HCM Inspection'},
 
   ];

@@ -102,11 +102,11 @@ selectedMetric = 'preschool_sessions_held';
   monthwiseTrendChartData: ChartData<'bar'> = {
     labels: [],
     datasets: [
-      { data: [], label: 'Pre School Session', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Theme Based Teaching', backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Playkit Usage', backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Workbook Completion', backgroundColor: '#FF9800', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Assessment Card Update', backgroundColor: '#9C27B0', borderRadius: 4, barThickness: 14 }
+      { data: [], label: 'Pre School Session', backgroundColor: '#5D87FF', borderRadius: 4, },
+      { data: [], label: 'Theme Based Teaching', backgroundColor: '#FF6B6B', borderRadius: 4, },
+      { data: [], label: 'Playkit Usage', backgroundColor: '#4CAF50', borderRadius: 4, },
+      { data: [], label: 'Workbook Completion', backgroundColor: '#FF9800', borderRadius: 4, },
+      { data: [], label: 'Assessment Card Update', backgroundColor: '#9C27B0', borderRadius: 4, }
     ]
   };
 
@@ -115,9 +115,9 @@ selectedMetric = 'preschool_sessions_held';
   userwiseTrendChartData: ChartData<'bar'> = {
     labels: [],
     datasets: [
-      { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'CDPO', backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'DPO', backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
+      { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, },
+      { data: [], label: 'CDPO', backgroundColor: '#FF6B6B', borderRadius: 4, },
+      { data: [], label: 'DPO', backgroundColor: '#4CAF50', borderRadius: 4, },
     ]
   };
 
@@ -147,17 +147,23 @@ selectedMetric = 'preschool_sessions_held';
       display: true,
       anchor: 'end',
       align: 'end',
-      rotation: -90,           // ← add this line to rotate labels vertical
+      rotation: -90,
       formatter: (value: number) => value > 0 ? value.toFixed(1) + '%' : '',
       font: { size: 10, weight: 'bold' },
       color: 'black',
       clamp: false,
     }
   },
+  datasets: {
+    bar: {
+      barPercentage: 0.6,        // ✅ each bar takes 60% of its slot (gap between bars in group)
+      categoryPercentage: 0.8,   // ✅ group takes 80% of category width (gap between groups)
+    }
+  },
   scales: {
     y: {
       beginAtZero: true,
-      max: 120,                // ← increase from 110 to 120 to give more room for rotated labels
+      max: 120,
       ticks: {
         stepSize: 25,
         callback: (v: any) => v <= 100 ? v + '%' : ''
@@ -311,22 +317,22 @@ selectedMetric = 'preschool_sessions_held';
     this.metricsData = null;
     this.monthwiseTrendLabels = [];
     this.monthwiseTrendChartData = { labels: [], datasets: [
-      { data: [], label: 'Pre School Session', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Theme Based Teaching', backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Playkit Usage', backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Workbook Completion', backgroundColor: '#FF9800', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'Assessment Card Update', backgroundColor: '#9C27B0', borderRadius: 4, barThickness: 14 }
+      { data: [], label: 'Pre School Session', backgroundColor: '#5D87FF', borderRadius: 4,},
+      { data: [], label: 'Theme Based Teaching', backgroundColor: '#FF6B6B', borderRadius: 4, },
+      { data: [], label: 'Playkit Usage', backgroundColor: '#4CAF50', borderRadius: 4, },
+      { data: [], label: 'Workbook Completion', backgroundColor: '#FF9800', borderRadius: 4, },
+      { data: [], label: 'Assessment Card Update', backgroundColor: '#9C27B0', borderRadius: 4, }
     ]};
     this.userwiseTrendLabels = [];
     this.userwiseTrendChartData = { labels: [], datasets: [
-      { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'CDPO', backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'DPO', backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
+      { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, },
+      { data: [], label: 'CDPO', backgroundColor: '#FF6B6B', borderRadius: 4, },
+      { data: [], label: 'DPO', backgroundColor: '#4CAF50', borderRadius: 4, },
     ]};
     this.districtwiseTrendLabels = [];
     this.districtwiseTrendChartData = { labels: [], datasets: [{
       data: [], label: 'Compliance %', backgroundColor: '#5D87FF',
-      hoverBackgroundColor: '#4a6cd8', borderRadius: 6, barThickness: 30,
+      hoverBackgroundColor: '#4a6cd8', borderRadius: 6,
     }]};
     this.tableData = [];
   }
@@ -385,35 +391,30 @@ selectedMetric = 'preschool_sessions_held';
               label: 'Pre School Session',
               backgroundColor: '#5D87FF',
               borderRadius: 4,
-              barThickness: 14
             },
             {
               data: data.map(d => parseFloat(d.theme_based_teaching || 0)),
               label: 'Theme Based Teaching',
               backgroundColor: '#FF6B6B',
               borderRadius: 4,
-              barThickness: 14
             },
             {
               data: data.map(d => parseFloat(d.playkit_usage || 0)),
               label: 'Playkit Usage',
               backgroundColor: '#4CAF50',
               borderRadius: 4,
-              barThickness: 14
             },
             {
               data: data.map(d => parseFloat(d.workbook_completion || 0)),
               label: 'Workbook Completion',
               backgroundColor: '#FF9800',
               borderRadius: 4,
-              barThickness: 14
             },
             {
               data: data.map(d => parseFloat(d.assessment_card_update || 0)),
               label: 'Assessment Card Update',
               backgroundColor: '#9C27B0',
               borderRadius: 4,
-              barThickness: 14
             }
           ]
         };
@@ -452,21 +453,18 @@ selectedMetric = 'preschool_sessions_held';
                 label: 'Supervisor',
                 backgroundColor: '#5D87FF',
                 borderRadius: 4,
-                barThickness: 14
               },
               {
                 data: Object.values(data).map((d: any) => parseFloat(d.cdpo || 0)),
                 label: 'CDPO',
                 backgroundColor: '#FF6B6B',
                 borderRadius: 4,
-                barThickness: 14
               },
               {
                 data: Object.values(data).map((d: any) => parseFloat(d.dpo || 0)),
                 label: 'DPO',
                 backgroundColor: '#4CAF50',
                 borderRadius: 4,
-                barThickness: 14
               }
             ]
           };
