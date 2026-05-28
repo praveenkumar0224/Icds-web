@@ -108,7 +108,7 @@
         <mat-card
           style="display:flex; align-items:center; justify-content:center; flex-direction:column; border-radius:7%; background:lightblue; padding:12px; gap:10px; margin-bottom:0px;">
           <div class="status-number" style="font-weight:600; font-size:larger;">
-            {{ stateLevelData?.[0]?.[2]?.count_non_zero_diff || 0 }}
+            {{ stateLevelData?.[0]?.[2]?.count_non_zero_diff || 0 }} / {{ stateLevelData?.[0]?.[2]?.total_count || 0 }}
           </div>
           <div class="status-label" style="font-weight:400; font-size:medium; text-align:center;">
             {{ labelChanges.stateChildDeviation || "-" }}
@@ -391,7 +391,24 @@
   </div>
 
 
-  <app-dynamic-table-chart [loading]="isLoading" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
+    <div style="display: flex; border: 1px solid #000; border-radius: 5px; width: 11%;">
+          <div (click)="onToggleChangeForHierarchicalDeviation(true)"
+            [style.background]="isToggleOnForHierarchical ? '#1976d2' : '#fff'"
+            [style.color]="isToggleOnForHierarchical ? '#fff' : '#000'"
+            style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;">
+            Childrens
+          </div>
+
+          <div (click)="onToggleChangeForHierarchicalDeviation(false)"
+            [style.background]="!isToggleOnForHierarchical ? '#1976d2' : '#fff'"
+            [style.color]="!isToggleOnForHierarchical ? '#fff' : '#000'"
+            style="padding: 6px 16px; cursor: pointer; transition: 0.3s; font-weight: 500;">
+            AWC
+          </div>
+        </div>
+
+
+  <app-dynamic-table-chart  [loading]="isLoadingForHirerarchical || isLoadingHierarchical" [headerConfig]="headerConfig" [tableConfig]="tableConfig"
     [tableData]="tableData" [chartConfig]="chartConfig" (rowClick)="onRowClick($event)">
   </app-dynamic-table-chart>
 
