@@ -124,7 +124,7 @@ set selectedTabIndex(val: number) {
             backgroundColor: this.chartConfig.backgroundColor || '#5D87FF',
             hoverBackgroundColor: this.chartConfig.hoverBackgroundColor || '#4a6cd8',
             borderRadius: this.chartConfig.borderRadius ?? 6,
-            barThickness: this.chartConfig.barThickness ?? 30
+            // barThickness: this.chartConfig.barThickness ?? 30
           }
         ]
       },
