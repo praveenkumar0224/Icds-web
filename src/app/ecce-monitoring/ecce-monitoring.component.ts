@@ -104,8 +104,8 @@ isLoadingBelow4 = false;
   monthwiseTrendChartData: ChartData<'bar'> = {
   labels: [],
   datasets: [
-    { data: [], label: 'Avg Assessment Score', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-    { data: [], label: 'Total Children Assessed', backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
+    { data: [], label: 'Avg Assessment Score', backgroundColor: '#5D87FF', borderRadius: 4 },
+    { data: [], label: 'Total Children Assessed', backgroundColor: '#FF6B6B', borderRadius: 4},
   ]
 };
 
@@ -114,9 +114,9 @@ isLoadingBelow4 = false;
   userwiseTrendChartData: ChartData<'bar'> = {
     labels: [],
     datasets: [
-      { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'CDPO',       backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'DPO',        backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
+      { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4 },
+      { data: [], label: 'CDPO',       backgroundColor: '#FF6B6B', borderRadius: 4 },
+      { data: [], label: 'DPO',        backgroundColor: '#4CAF50', borderRadius: 4 },
     ]
   };
 
@@ -151,6 +151,12 @@ isLoadingBelow4 = false;
       font: { size: 10, weight: 'bold' },
       color: 'black',
       clamp: false,
+    }
+  },
+   datasets: {
+    bar: {
+      barPercentage: 0.6,        // ✅ each bar takes 60% of its slot (gap between bars in group)
+      categoryPercentage: 0.8,   // ✅ group takes 80% of category width (gap between groups)
     }
   },
   scales: {
@@ -317,7 +323,7 @@ isLoadingBelow4 = false;
      this.monthwiseTrendChartData = {
         labels: [],
         datasets: [
-          { data: [], label: 'Avg Assessment Score',     backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
+          { data: [], label: 'Avg Assessment Score',     backgroundColor: '#5D87FF', borderRadius: 4, },
           // { data: [], label: 'Total Children Assessed',  backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
         ]
       };
@@ -325,9 +331,9 @@ isLoadingBelow4 = false;
     this.userwiseTrendChartData = {
       labels: [],
       datasets: [
-        { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-        { data: [], label: 'CDPO',       backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
-        { data: [], label: 'DPO',        backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
+        { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4,},
+        { data: [], label: 'CDPO',       backgroundColor: '#FF6B6B', borderRadius: 4,},
+        { data: [], label: 'DPO',        backgroundColor: '#4CAF50', borderRadius: 4,},
       ]
     };
     this.districtwiseTrendLabels = [];
@@ -440,7 +446,7 @@ isLoadingBelow4 = false;
               label: 'Avg Assessment Score',
               backgroundColor: '#5D87FF',
               borderRadius: 4,
-              barThickness: 14
+             
             },
             // {
             //   data: data.map(d => parseFloat(d.total_children_assessed || 0)),
@@ -487,7 +493,7 @@ isLoadingBelow4 = false;
               label: 'Supervisor',
               backgroundColor: '#5D87FF',
               borderRadius: 4,
-              barThickness: 14
+              
             },
 
             {
@@ -495,7 +501,7 @@ isLoadingBelow4 = false;
               label: 'CDPO',
               backgroundColor: '#FF6B6B',
               borderRadius: 4,
-              barThickness: 14
+              
             },
 
             {
@@ -503,7 +509,6 @@ isLoadingBelow4 = false;
               label: 'DPO',
               backgroundColor: '#4CAF50',
               borderRadius: 4,
-              barThickness: 14
             }
 
           ]
