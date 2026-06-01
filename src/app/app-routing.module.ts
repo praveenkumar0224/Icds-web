@@ -12,6 +12,9 @@ import { GrowthMonitoringComponent } from './growth-monitoring/growth-monitoring
 import { ObservationCompletionComponent } from './observation-completion/observation-completion.component';
 import { AccessDeniedComponent } from './shared/access-denied/access-denied.component';
 import { observeOn } from 'rxjs';
+import { EcceObservationComponent } from './ecce-observation/ecce-observation.component';
+import { EcceMonitoringComponent } from './ecce-monitoring/ecce-monitoring.component';
+import { HcmInspectionComponent } from './hcm-inspection/hcm-inspection.component';
 
 
 const routes: Routes = [
@@ -21,7 +24,10 @@ const routes: Routes = [
   { path: 'attendance', component: AttendanceComponent },
   { path: "growth-monitoring", component: GrowthMonitoringComponent },
   { path: 'observation-completion', component: ObservationCompletionComponent },
- 
+  { path: 'ecce-observation', component: EcceObservationComponent },
+  {path: 'ecce-monitoring', component: EcceMonitoringComponent},
+  {path: 'hcm-inspection', component: HcmInspectionComponent},
+
   {
     path: 'access-denied',
     component: AccessDeniedComponent

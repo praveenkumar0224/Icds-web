@@ -106,15 +106,16 @@
       <ng-template #dataView>
 
         <p class="completion-title">
-          Supervisor observations completed this month
+          Supervisor completed this month
         </p>
 
         <div class="completion-stats">
 
           <!-- Count -->
           <div class="completion-box">
-            <div class="completion-value">
-              {{ supervisorObservationCompletionData?.completedCount}}
+            <div style="font-size: 20px ;font-weight: bold;">
+              {{ supervisorObservationCompletionData?.completedCount}} / 
+              {{ supervisorObservationCompletionData?.totalCount }}
             </div>
             <div class="completion-label">
               Centers observed
@@ -123,9 +124,8 @@
 
           <!-- Percentage -->
           <div class="completion-box">
-            <div class="completion-value">
+            <div style="font-size: 20px ;font-weight: bold;">
               {{ supervisorObservationCompletionData?.completionRate | number:'1.0-0' }}%
-
             </div>
             <div class="completion-label">
               observation Completion%
@@ -152,15 +152,16 @@
       <ng-template #cdpoDatas>
 
         <p class="completion-title">
-          CDPO observations completed this quarter({{cdpoObservationCompletionData?.monthlabel}})
+          CDPO completed this quarter({{cdpoObservationCompletionData?.monthlabel}})
         </p>
 
         <div class="completion-stats">
 
           <!-- Count -->
           <div class="completion-box">
-            <div class="completion-value">
-              {{cdpoObservationCompletionData?.completedCount}}
+            <div style="font-size: 20px ;font-weight: bold;">
+              {{cdpoObservationCompletionData?.completedCount}} /
+              {{cdpoObservationCompletionData?.totalCount}}
             </div>
             <div class="completion-label">
               Centers observed
@@ -169,7 +170,7 @@
 
           <!-- Percentage -->
           <div class="completion-box">
-            <div class="completion-value">
+            <div style="font-size: 20px ;font-weight: bold;">
               {{ cdpoObservationCompletionData?.completionRate | number:'1.0-0' }}%
             </div>
             <div class="completion-label">
@@ -204,8 +205,9 @@
 
           <!-- Count -->
           <div class="completion-box">
-            <div class="completion-value">
-              {{ sectorsObservedByDpoData?.sectors_visited }}
+            <div style="font-size: 20px ;font-weight: bold;">
+              {{ sectorsObservedByDpoData?.sectors_visited }} /
+              {{ sectorsObservedByDpoData?.total_sectors }}
             </div>
             <div class="completion-label">
               Sectors observed
@@ -214,7 +216,7 @@
 
           <!-- Percentage -->
           <div class="completion-box">
-            <div class="completion-value">
+            <div style="font-size: 20px ;font-weight: bold;">
               {{ sectorsObservedByDpoData?.sector_visit_percentage | number:'1.0-0' }}%
             </div>
             <div class="completion-label">
@@ -300,7 +302,7 @@
     </div>
 
     <!-- CDPO -->
-    <div class="completion-card cdpo" *ngIf="isStateUser || isDistrictUser">
+    <div class="completion-card cdpo" *ngIf="(isStateUser && !selectedBlock) || isDistrictUser">
 
       <p class="completion-title"> CDPO active this month</p>
       <div *ngIf="!isLoadingForCDPOActive && cdpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
@@ -324,7 +326,7 @@
 
     </div>
     <!-- DPO -->
-    <div class="completion-card dpo" *ngIf="isStateUser">
+    <div class="completion-card dpo" *ngIf="(isStateUser && !selectedDistrict && !selectedBlock) || isDistrictUser">
 
       <p class="completion-title"> DPO active this month</p>
       <div *ngIf="!isLoadingForDPOActive && dpoActiveData?.comparison == 'greater'" class="triangle-up"></div>
@@ -375,7 +377,7 @@
     </div>
 
     <!-- DPO -->
-    <div class="card dpo" *ngIf="isStateUser || isDistrictUser">
+    <div class="card dpo" *ngIf="(isStateUser && !selectedBlock) || isDistrictUser">
       <h3>DPO completion trends</h3>
       <canvas baseChart [data]="dpoChartData" [type]="chartType" [options]="chartOptions">
       </canvas>

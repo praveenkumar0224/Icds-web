@@ -570,29 +570,29 @@ export class GrowthMonitoringComponent implements OnInit {
   }
 
   private loadHierarchicalData() {
-    this.isLoadingHierarchical = true;
-    this.prepareJson();
-    this.service.getgmHierarchicalDeviation(
-      this.selectedYear,
-      this.selectedMonth,
-      this.selectedDistrict,
-      this.selectedBlock,
-      this.selectedSector,
-      this.selectedDeviationCategory,
-      this.orderBy,
-      this.selectedUser
-    ).subscribe({
-      next: (res) => {
-        this.tableData = res.data.deviation;
-        console.log(this.tableData, "hierarchical data");
-        
-        this.isLoadingHierarchical = false;
-      },
-      error: () => {
-        this.isLoadingHierarchical = false;
-      }
-    });
-  }
+  this.isLoadingHierarchical = true;
+  const type = this.isToggleOnForHierarchical ? 'children' : 'awc';
+  this.prepareJson(type);
+
+  this.service.getgmHierarchicalDeviation(
+    this.selectedYear, this.selectedMonth,
+    this.selectedDistrict, this.selectedBlock,
+    this.selectedSector, this.selectedDeviationCategory,
+    this.isToggleOnForHierarchical ? undefined : this.orderBy,
+    this.selectedUser
+  ).subscribe({
+    next: (res) => {
+      const raw = res.data.deviation || [];
+      // ✅ Add computed deviation_count for both types
+      this.tableData = raw.map((item: any) => ({
+        ...item,
+        deviation_count: (item.total_count || 0) - (item.no_deviation_count || 0)
+      }));
+      this.isLoadingHierarchical = false;
+    },
+    error: () => { this.isLoadingHierarchical = false; }
+  });
+}
 
   private getSupervisorChartTitle(): string {
   const cadre = this.selectedUser; // "Block Supervisor", "DPO", "CDPO"
@@ -618,104 +618,101 @@ export class GrowthMonitoringComponent implements OnInit {
 }
 
 
-  private prepareJson() {
-    this.tableConfig = {
-      enableSearch: false,
-      showFooter: true,
-      columns: []
-    };
-    this.tableData = [];
+   private prepareJson(type: 'awc' | 'children' = 'awc') {
+  this.tableConfig = { enableSearch: false, showFooter: true, columns: [] };
+  this.tableData = [];
 
-   
-    
-    if(this.selectedBlock && this.selectedDistrict){
-      this.headerConfig.title = `Sector wise % of AWC's with deviation  `
+  if (type === 'children') {
+  const levelLabel = this.selectedBlock ? 'Sector' : this.selectedDistrict ? 'Block' : 'District';
+  this.headerConfig.title = `${levelLabel} wise % samples with deviation`;
+
+  this.tableConfig = {
+    enableSearch: true,
+    showFooter: true,
+    columns: [
+      { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+      { key: 'name', label: `${levelLabel} Name`, clickable: true, totalLabel: true },
+      { key: 'total_awc_count', label: 'Total AWC Count', align: 'left', total: true },  // ✅ new column for total AWC count
+      { key: 'total_count', label: 'Total Children', align: 'left', total: true },
+      { key: 'no_deviation_count', label: 'Children with no deviation', align: 'left', total: true },
+      { key: 'deviation_count', label: 'Children deviation count', align: 'left', total: true },  // ✅ was no_deviation_count
+      {
+        key: 'percentage', label: 'Deviation %', suffix: '%', percentage: true,
+        numeratorKey: 'deviation_count',    // ✅ was no_deviation_count
+        denominatorKey: 'total_count', decimals: 2
+      }
+    ]
+  };
+} else {
+    // ── AWC columns ───────────────────────────────────────
+    if (this.selectedBlock && this.selectedDistrict) {
+      this.headerConfig.title = `Sector wise % of AWC's with deviation`;
       this.tableConfig = {
-        enableSearch: true,
-        showFooter: true,
+        enableSearch: true, showFooter: true,
         columns: [
           { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
-          { key: 'name', label: 'Sector  Name', clickable: true, totalLabel: true },
-          { key: 'total_count', label: 'Total AWC', align: 'left', total: true },
-          // { key: 'no_deviation_count', label: 'AWC with no deviation', align: 'left', total: true },
+          { key: 'name', label: 'Sector Name', clickable: true, totalLabel: true },
+           { key: 'total_awc_count', label: 'Total AWC Count', align: 'left', total: true },
+          { key: 'total_count', label: 'AWC Observed', align: 'left', total: true },
           { key: 'no_deviation_count', label: 'AWC deviation count', align: 'left', total: true },
-  
-          {
-            key: 'percentage',
-            label: 'Deviation',
-            suffix: '%',
-            percentage: true,
-            numeratorKey: 'no_deviation_count',
-            denominatorKey: 'total_count',
-            decimals: 2
-          }
+          { key: 'percentage', label: 'Deviation', suffix: '%', percentage: true,
+            numeratorKey: 'no_deviation_count', denominatorKey: 'total_count', decimals: 2 }
         ]
       };
-    }else if (this.selectedDistrict && !this.selectedBlock){
-      this.headerConfig.title = `District wise % of AWC's with deviation  `
+    } else if (this.selectedDistrict && !this.selectedBlock) {
+      this.headerConfig.title = `Block wise % of AWC's with deviation`;
       this.tableConfig = {
-        enableSearch: true,
-        showFooter: true,
+        enableSearch: true, showFooter: true,
         columns: [
           { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
-          { key: 'name', label: 'Block  Name', clickable: true, totalLabel: true },
-          { key: 'total_count', label: 'Total AWC', align: 'left', total: true },
-          // { key: 'no_deviation_count', label: 'AWC with no deviation', align: 'left', total: true },
+          { key: 'name', label: 'Block Name', clickable: true, totalLabel: true },
+           { key: 'total_awc_count', label: 'Total AWC Count', align: 'left', total: true },
+          { key: 'total_count', label: 'AWC Observed', align: 'left', total: true },
           { key: 'no_deviation_count', label: 'AWC deviation count', align: 'left', total: true },
-  
-          {
-            key: 'percentage',
-            label: 'Deviation',
-            suffix: '%',
-            percentage: true,
-            numeratorKey: 'no_deviation_count',
-            denominatorKey: 'total_count',
-            decimals: 2
-          }
+          { key: 'percentage', label: 'Deviation', suffix: '%', percentage: true,
+            numeratorKey: 'no_deviation_count', denominatorKey: 'total_count', decimals: 2 }
         ]
       };
     } else {
-    // ✅ State level — no district selected
-    this.headerConfig.title = `District wise % of AWC's with deviation`;
-    this.tableConfig = {
-      enableSearch: true,
-      showFooter: true,
-      columns: [
-        { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
-        { key: 'name', label: 'District Name', clickable: true, totalLabel: true },
-        { key: 'total_count', label: 'Total AWC', align: 'left', total: true },
-        { key: 'no_deviation_count', label: 'AWC deviation count', align: 'left', total: true },
-        { key: 'percentage', label: 'Deviation', suffix: '%', percentage: true,
-          numeratorKey: 'no_deviation_count', denominatorKey: 'total_count', decimals: 2 }
-      ]
-    };
+      this.headerConfig.title = `District wise % of AWC's with deviation`;
+      this.tableConfig = {
+        enableSearch: true, showFooter: true,
+        columns: [
+          { key: 'slNo', label: 'Sl.No', sortable: true, align: 'left' },
+          { key: 'name', label: 'District Name', clickable: true, totalLabel: true },
+          { key: 'total_awc_count', label: 'Total AWC Count', align: 'left', total: true },
+          { key: 'total_count', label: 'AWC Observed', align: 'left', total: true },
+          { key: 'no_deviation_count', label: 'AWC deviation count', align: 'left', total: true },
+          { key: 'percentage', label: 'Deviation', suffix: '%', percentage: true,
+            numeratorKey: 'no_deviation_count', denominatorKey: 'total_count', decimals: 2 }
+        ]
+      };
+    }
   }
-  
 
-    this.chartConfig = {
-      enabled: true,
-      enableSort: true,
-      labelColumnKey: 'name',
-      dataColumnKey: 'percentage',
-      chartLabel: 'Month Completion %',
-      // backgroundColor: 'rgb(202, 245, 247)',
-      chartFileName: 'supervisor-observation.png',
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            min: 0,
-            max: 100,
-            title: {
-              display: true,
-              text: '% completion'
-            }
-          }
-        }
+  this.chartConfig = {
+    enabled: true,
+    enableSort: true,
+    labelColumnKey: 'name',
+    dataColumnKey: 'percentage',
+    chartLabel: type === 'children' ? 'Children Deviation %' : 'AWC Deviation %',
+    chartFileName: 'deviation.png',
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      datasets: {
+      bar: {
+        maxBarThickness: 20,   // ✅ controls bar width
+        barPercentage: 0.5,    // ✅ 50% of available slot
+        categoryPercentage: 0.6
       }
-    };
-  }
+    },
+      scales: {
+        y: { min: 0, max: 100, title: { display: true, text: '% deviation' } }
+      }
+    }
+  };
+}
 
   private loadAwwSupervisorData() {
     this.isLoadingAwwSupervisor = true;
@@ -1058,73 +1055,78 @@ export class GrowthMonitoringComponent implements OnInit {
     }
   }
 
-  onRowClick(row: any): void {
-    console.log(row, "row data");
+    onRowClick(row: any): void {
+  console.log(row, "row data");
 
-    const year = this.selectedYear;
-    const month = this.selectedMonth;
+  const year = this.selectedYear;
+  const month = this.selectedMonth;
 
-    if (this.sectorData.length >= 1) {
-      console.log("sector is working");
-      this.service
-        .GMlineTableExcelDownload(
-          undefined,
-          year,
-          month,
-          row,
-          undefined,
-          this.selectedUser
-        )
-        .subscribe({
-          next: (res: Blob) => {
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `Sector_Report_${row.sector_name}_${month}-${year}.xlsx`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: (err) => console.error("Sector API error:", err),
-        });
-    } else if (this.blockData.length >= 1) {
-      console.log("block is working");
-      this.service
-        .GMlineTableExcelDownload(
-          undefined,
-          year,
-          month,
-          undefined,
-          row,
-          this.selectedUser
-        )
-        .subscribe({
-          next: (res: Blob) => {
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `Block_Report_${row.block_name}_${month}-${year}.xlsx`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: (err) => console.error("Block API error:", err),
-        });
-    } else if (this.districtData.length >= 1) {
-      console.log("district is working");
-      this.service
-        .GMlineTableExcelDownload(row, year, month, undefined, undefined, this.selectedUser)
-        .subscribe({
-          next: (res: Blob) => {
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `District_Report_${row.district_name}_${month}-${year}.xlsx`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: (err) => console.error("District API error:", err),
-        });
-    }
+  if (this.selectedBlock && this.selectedDistrict) {
+    // Sector level — block is selected
+    console.log("sector is working");
+    this.service
+      .GMlineTableExcelDownload(
+        undefined,
+        year,
+        month,
+        row?.id,
+        undefined,
+        this.selectedUser
+      )
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Sector_Report_${row.name}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error("Sector API error:", err),
+      });
+
+  } else if (this.selectedDistrict && !this.selectedBlock) {
+    // Block level — district is selected but no block
+    console.log("block is working");
+    this.service
+      .GMlineTableExcelDownload(
+        undefined,
+        year,
+        month,
+        undefined,
+        row,
+        this.selectedUser
+      )
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Block_Report_${row.name}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error("Block API error:", err),
+      });
+
+  } else {
+    // District level — nothing selected
+    console.log("district is working");
+    this.service
+      .GMlineTableExcelDownload(row?.id, year, month, undefined, undefined, this.selectedUser)
+      .subscribe({
+        next: (res: Blob) => {
+          const url = window.URL.createObjectURL(res);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `District_Report_${row.name}_${month}-${year}.xlsx`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: (err) => console.error("District API error:", err),
+      });
   }
+}
 
   // Event handlers
   toggleView(): void {
@@ -1432,68 +1434,35 @@ export class GrowthMonitoringComponent implements OnInit {
   }
 
   onToggleChangeForHierarchicalDeviation(value: boolean): void {
-    this.isLoadingForHirerarchical = true
-    this.isToggleOnForHierarchical = value;
-    if (value === true) {
-      if (this.selectedDistrict && !this.selectedBlock) {
-        this.labelChanges.barchart = "Block wise % samples with deviation";
-      } else if (this.selectedBlock && this.selectedDistrict) {
-        this.labelChanges.barchart = "Sector wise % samples with deviation";
-      } else {
-        this.labelChanges.barchart = "District wise % samples with deviation";
-      }
+  this.isLoadingForHirerarchical = true;
+  this.isToggleOnForHierarchical = value;
+  const type = value ? 'children' : 'awc';
 
-      this.service
-        .getgmHierarchicalDeviation(
-          this.selectedYear,
-          this.selectedMonth,
-          this.selectedDistrict,
-          this.selectedBlock,
-          this.selectedSector,
-          this.selectedDeviationCategory
-        )
-        .subscribe({
-          next: (response) => {
-            console.log("Deviation data (Samples):", response);
-            this.createDistrictBarChart(response?.data || []);
-            this.isLoadingForHirerarchical = false
-          },
-          error: (err) => {
-            console.error("Error fetching deviation data:", err);
-          },
-        });
-    } else {
-      if (this.selectedDistrict && !this.selectedBlock) {
-        this.labelChanges.barchart = "Block wise % AWC's with deviation";
-      } else if (this.selectedBlock && this.selectedDistrict) {
-        this.labelChanges.barchart = "Sector wise % AWC's with deviation";
-      } else {
-        this.labelChanges.barchart = "District wise % AWC's with deviation";
-      }
+  this.prepareJson(type);
+  this.tableData = [];
 
-      this.service
-        .getgmHierarchicalDeviation(
-          this.selectedYear,
-          this.selectedMonth,
-          this.selectedDistrict,
-          this.selectedBlock,
-          this.selectedSector,
-          this.selectedDeviationCategory,
-          this.orderBy
-        )
-        .subscribe({
-          next: (response) => {
-            console.log("Deviation data (AWCs):", response);
-            this.createDistrictBarChart(response?.data || []);
-            this.isLoadingForHirerarchical = false
-          },
-          error: (err) => {
-            console.error("Error fetching deviation data:", err);
-          },
-        });
+  this.service.getgmHierarchicalDeviation(
+    this.selectedYear, this.selectedMonth,
+    this.selectedDistrict, this.selectedBlock,
+    this.selectedSector, this.selectedDeviationCategory,
+    value ? undefined : this.orderBy,
+    this.selectedUser
+  ).subscribe({
+    next: (response) => {
+      const raw = response?.data?.deviation || [];
+      // ✅ Add computed deviation_count
+      this.tableData = raw.map((item: any) => ({
+        ...item,
+        deviation_count: (item.total_count || 0) - (item.no_deviation_count || 0)
+      }));
+      this.isLoadingForHirerarchical = false;
+    },
+    error: (err) => {
+      console.error('Error fetching deviation data:', err);
+      this.isLoadingForHirerarchical = false;
     }
-  }
-
+  });
+}
   clearFilters(): void {
     // Check if any filter is currently selected
     const filtersApplied =

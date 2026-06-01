@@ -23,7 +23,9 @@ export class AppComponent {
     { path: '/observation-completion', icon: 'visibility', title: 'Observation Completion' },
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },
     { path: '/growth-monitoring', icon: 'assessment', title: 'Growth Monitoring' },
-
+    { path: '/ecce-observation', icon: 'child_care', title: 'ECCE Observation' },
+    {path: '/ecce-monitoring', icon: 'monitoring', title: 'ECCE Monitoring'},
+    // {path: '/hcm-inspection', icon: 'home_repair_service', title: 'HCM Inspection'},
 
   ];
   filteredLinks: any[] = [];

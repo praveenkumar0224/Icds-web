@@ -39,8 +39,9 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
   }
+  @Output() tabChange = new EventEmitter<number>();
 
-  selectedTabIndex = 0;
+  // selectedTabIndex = 0;
 
   dataSource = new MatTableDataSource<any>([]);
   displayedColumns: string[] = [];
@@ -77,6 +78,17 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
     }
   };
 
+  private _selectedTabIndex = 0;
+
+  get selectedTabIndex(): number {
+  return this._selectedTabIndex;
+}
+
+set selectedTabIndex(val: number) {
+  this._selectedTabIndex = val;
+  this.tabChange.emit(val);
+}
+
   prepareChartData(): void {
     if (!this.chartConfig || !this.tableData?.length) return;
 
@@ -112,7 +124,7 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
             backgroundColor: this.chartConfig.backgroundColor || '#5D87FF',
             hoverBackgroundColor: this.chartConfig.hoverBackgroundColor || '#4a6cd8',
             borderRadius: this.chartConfig.borderRadius ?? 6,
-            barThickness: this.chartConfig.barThickness ?? 30
+            // barThickness: this.chartConfig.barThickness ?? 30
           }
         ]
       },
@@ -121,45 +133,83 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.sort) {
-      this.dataSource.sort = this.sort;
-    }
-    // CRITICAL: Check tableConfig first before doing anything
-    if (changes['tableConfig']) {
-      if (this.tableConfig && this.tableConfig.columns && Array.isArray(this.tableConfig.columns)) {
-        this.displayedColumns = this.tableConfig.columns.map(c => c.key);
-      } else {
-        // Reset to empty if invalid
-        this.displayedColumns = [];
-        this.dataSource.data = [];
-        return; // Exit early to prevent further processing
-      }
-    }
+  if (this.sort) {
+    this.dataSource.sort = this.sort;
+  }
 
-    // Only update data if we have valid columns
-    if (changes['tableData'] && this.displayedColumns.length > 0) {
-      this.dataSource.data = this.tableData ?? [];
-    }
-
-    // 🆕 Store original chart data when it changes
-    if (changes['chartConfig'] && this.chartConfig) {
-      this.originalChartData = JSON.parse(JSON.stringify(this.chartConfig));
-    }
-
-    if (changes['tableData'] && this.tableData?.length > 0 && this.chartConfig?.enabled) {
-      this.prepareChartData();
-    }
-
-    // 🆕 Also prepare chart when chartConfig changes
-    if (changes['chartConfig'] && this.chartConfig?.enabled && this.tableData?.length > 0) {
-      this.prepareChartData();
+  // ─── tableConfig changed → rebuild columns ───────────────
+  if (changes['tableConfig']) {
+    if (this.tableConfig?.columns?.length) {
+      // Force new array reference so mat-table re-renders headers
+      this.displayedColumns = [];                                    // ← clear first
+      setTimeout(() => {                                             // ← let DOM clear
+        this.displayedColumns = [...this.tableConfig.columns.map(c => c.key)];
+      }, 0);
+    } else {
+      this.displayedColumns = [];
+      this.dataSource.data = [];
+      return;
     }
   }
+
+  // ─── tableData changed → update rows ────────────────────
+  if (changes['tableData'] && this.displayedColumns.length > 0) {
+    this.dataSource.data = [...(this.tableData ?? [])];             // ← spread forces new ref
+  }
+
+  // ─── chartConfig changed → store original ───────────────
+  if (changes['chartConfig'] && this.chartConfig) {
+    this.originalChartData = JSON.parse(JSON.stringify(this.chartConfig));
+  }
+
+  // ─── tableData changed → rebuild chart ──────────────────
+  if (changes['tableData'] && this.tableData?.length > 0 && this.chartConfig?.enabled) {
+    this.prepareChartData();
+  }
+
+  // ─── chartConfig changed → rebuild chart ────────────────
+  if (changes['chartConfig'] && this.chartConfig?.enabled && this.tableData?.length > 0) {
+    this.prepareChartData();
+  }
+}
 
   applyFilter(event: Event): void {
     const value = (event.target as HTMLInputElement).value || '';
     this.dataSource.filter = value.trim().toLowerCase();
   }
+  
+  getColumnAverage(col: any): string {
+  if (!this.dataSource?.data?.length) return '0';
+
+  const data = this.dataSource.data;
+
+  // ─── Weighted average (when weightKey is provided) ───────
+  if (col.weightKey) {
+    const totalWeight = data.reduce((acc, row) => {
+      return acc + (Number(row?.[col.weightKey]) || 0);
+    }, 0);
+
+    if (!totalWeight) return '0';
+
+    const weightedSum = data.reduce((acc, row) => {
+      const value  = Number(row?.[col.key])       || 0;
+      const weight = Number(row?.[col.weightKey]) || 0;
+      return acc + (value * weight);
+    }, 0);
+
+    return (weightedSum / totalWeight).toFixed(1);
+  }
+
+  // ─── Simple average (fallback) ───────────────────────────
+  const validRows = data.filter(row => row?.[col.key] != null && row?.[col.key] !== '');
+  if (!validRows.length) return '0';
+
+  const sum = validRows.reduce((acc, row) => {
+    return acc + (Number(row?.[col.key]) || 0);
+  }, 0);
+
+  return (sum / validRows.length).toFixed(1);
+}
 
   getColumnTotal(key: string): number {
     if (!this.dataSource?.data) return 0;

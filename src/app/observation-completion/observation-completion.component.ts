@@ -295,7 +295,7 @@ export class ObservationCompletionComponent implements OnInit {
         this.loadAllDashboardData();
       }
   
-      console.log(this.user, this.role);
+      console.log(this.user , "user betaaa", this.role , "role betaaa");
     }
   }
   getAccessForthisComponent(): void {
@@ -330,19 +330,37 @@ export class ObservationCompletionComponent implements OnInit {
     console.log(this.isStateUser, "isStateUser");
 
   }
-  get visibleRoles(): any {
-    // State view → show all
-    if (this.isStateUser) {
-      return this.toggleUsers;
-    }
+   get visibleRoles(): any {
+        // State view
+        if (this.isStateUser) {
+          // District + Block both selected → hide DPO
+          if (this.selectedDistrict && this.selectedBlock) {
+            return this.toggleUsers.filter(r => r !== 'DPO');
+          }
+          return this.toggleUsers;
+        }
 
-    // Non-state view
-    if (this.role === 'DPO') {
-      return this.toggleUsers.filter(r => r !== 'DPO');
-    }
-    if (this.role === 'CDPO') {
-      return this.toggleUsers.filter(r => r !== 'DPO' && r !== 'CDPO');
-    }
+        // Non-state view
+           if (this.role === 'DPO') {
+            // Block selected → hide toggle entirely
+            if (this.selectedBlock) {
+              return this.toggleUsers.filter(r => r !== 'DPO');
+            }
+            // No block selected (district prefilled or not) → show Block Supervisor + CDPO
+            return this.toggleUsers
+          }
+        if (this.role === 'CDPO') {
+          return this.toggleUsers.filter(r => r !== 'DPO' && r !== 'CDPO');
+        }
+
+        if (this.role === 'District Collector' || this.role === 'District Coordinator') {
+            if (this.selectedBlock) {
+              // Block selected → hide DPO from toggle
+              return this.toggleUsers.filter(r => r !== 'DPO');
+            }
+              return this.toggleUsers
+          }
+
   }
 
   findingYear(): void {
@@ -420,6 +438,7 @@ export class ObservationCompletionComponent implements OnInit {
       this.getAwcObservedBySupervisor();
       this.callSupervisorActive();
       this.callCDPOActive();
+      this.callDPOActive();
       this.getSectorsObservedByDPO();
       this.getAwcObservedQuarterByDPO();
       this.getAwcObservedQuarterByCDPO();
@@ -501,6 +520,7 @@ export class ObservationCompletionComponent implements OnInit {
         const percent = Math.round(
           this.supervisorActiveData?.presentMonthActiveRate || 0
         );
+        const actualNumber = this.supervisorActiveData?.activeSupervisorsPresentMonth || 0;
 
         setTimeout(() => {
           if (this.supervisorChart) {
@@ -509,7 +529,7 @@ export class ObservationCompletionComponent implements OnInit {
 
           this.supervisorChart = new Chart(
             'supervisorChart',
-            this.buildHalfDoughnut(percent)
+            this.buildHalfDoughnut(percent, actualNumber)
           );
           console.log(this.supervisorChart);
         });
@@ -542,6 +562,8 @@ export class ObservationCompletionComponent implements OnInit {
             this.cdpoActiveData?.presentMonthActiveRate || 0
           );
 
+          const actualNumber = this.cdpoActiveData?.activeSupervisorsPresentMonth || 0;
+
           setTimeout(() => {
             if (this.CDPOChart) {
               this.CDPOChart.destroy();
@@ -549,7 +571,7 @@ export class ObservationCompletionComponent implements OnInit {
 
             this.CDPOChart = new Chart(
               'CDPOChart',
-              this.buildHalfDoughnut(percent)
+              this.buildHalfDoughnut(percent, actualNumber)
             );
             console.log(this.CDPOChart);
           });
@@ -633,6 +655,9 @@ export class ObservationCompletionComponent implements OnInit {
           const percent = Math.round(
             this.dpoActiveData?.presentMonthActiveRate || 0
           );
+
+          const actualNumber = this.dpoActiveData?.activeSupervisorsPresentMonth || 0;
+          
           console.log(this.isLoadingForDPOActive, "isLoadingForDPOActive");
           setTimeout(() => {
             if (this.DPOChart) {
@@ -641,7 +666,7 @@ export class ObservationCompletionComponent implements OnInit {
 
             this.DPOChart = new Chart(
               'DPOChart',
-              this.buildHalfDoughnut(percent)
+              this.buildHalfDoughnut(percent, actualNumber)
             );
             console.log(this.DPOChart);
           });
@@ -745,34 +770,42 @@ export class ObservationCompletionComponent implements OnInit {
         }
       });
   }
-  buildHalfDoughnut(percent: number) {
-    return {
-      type: 'doughnut' as const,
-      data: {
-        datasets: [
-          {
-            data: [percent, 100 - percent],
-            backgroundColor: [
-              '#5DA5DA',
-              '#F4A6B8'
-            ],
-            borderWidth: 0
+    buildHalfDoughnut(percent: number, actualNumber: number) {
+  return {
+    type: 'doughnut' as const,
+    data: {
+      datasets: [
+        {
+          data: [percent, 100 - percent],
+          backgroundColor: ['#5DA5DA', '#F4A6B8'],
+          borderWidth: 0
+        }
+      ]
+    },
+    options: {
+      aspectRatio: 2,
+      circumference: 180,
+      rotation: -90,
+      cutout: '70%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            title: () => '',
+            label: (context) => {
+              if (context.dataIndex === 0) {
+                return `  Active: ${actualNumber}`;
+              } else {
+                return `  Inactive: ${100 - percent}%`;
+              }
+            }
           }
-        ]
-      },
-      options: {
-        aspectRatio: 2,
-        circumference: 180,
-
-        rotation: -90,
-        cutout: '70%',
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false }
         }
       }
-    };
-  }
+    }
+  };
+}
 
   getAwcObservedQuarterByCDPO(): void {
     this.isLoadingForDPOActive = true;
@@ -861,6 +894,7 @@ export class ObservationCompletionComponent implements OnInit {
       .subscribe({
         next: (res) => {
           // Sort quarters in correct order
+          this.isLoadingForDPOActive = false;
           const formattedData = res?.data?.formattedData || [];
 
           const labels = formattedData.map((item: any) => item.label);

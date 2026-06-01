@@ -32,6 +32,9 @@ import { AuthInterceptor } from './auth.interceptor';
 import { ObservationCompletionComponent } from './observation-completion/observation-completion.component';
 import { DynamicTableChartComponent } from './common/dynamic-table-chart/dynamic-table-chart.component';
 import { AccessDeniedComponent } from './shared/access-denied/access-denied.component';
+import { EcceObservationComponent } from './ecce-observation/ecce-observation.component';
+import { EcceMonitoringComponent } from './ecce-monitoring/ecce-monitoring.component';
+import { HcmInspectionComponent } from './hcm-inspection/hcm-inspection.component';
 
 
 
@@ -62,7 +65,10 @@ import { AccessDeniedComponent } from './shared/access-denied/access-denied.comp
      GrowthMonitoringComponent,
      ObservationCompletionComponent,
      DynamicTableChartComponent,
-     AccessDeniedComponent
+     AccessDeniedComponent,
+     EcceObservationComponent,
+     EcceMonitoringComponent,
+     HcmInspectionComponent
    
   ],
   providers: [AuthService, NotificationService,CoursesService,DashboardServiceService,

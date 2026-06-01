@@ -114,6 +114,10 @@
                                     <ng-container *ngIf="col.percentage">
                                         <strong>{{ getPercentageTotal(col) }}{{ col.suffix || '' }}</strong>
                                     </ng-container>
+
+                                    <ng-container *ngIf="col.average">
+                                        <strong>{{ getColumnAverage(col) }}{{ col.suffix || '' }}</strong>
+                                    </ng-container>
                                 </td>
                             </ng-container>
 
