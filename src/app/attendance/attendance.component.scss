@@ -57,7 +57,7 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .page-title {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 600;
     }
   }
@@ -183,7 +183,7 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         position: relative;
         width: 100%;
         max-width: 100%; // Ensures it doesn't overflow
-        height: 200px;
+        height: 300px;
         overflow-x: auto;
 
         .toggle-btn {
@@ -199,7 +199,7 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
 
       mat-card-title {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 600;
         color: $text-color;
       }
@@ -226,7 +226,7 @@ $shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       width: 100%;
 
       mat-card-title {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 600;
       }
 

@@ -131,7 +131,7 @@ isLoadingBelow4 = false;
         backgroundColor: '#5D87FF',
         hoverBackgroundColor: '#4a6cd8',
         borderRadius: 6,
-        barThickness: 30,
+        barThickness: 40,
       }
     ]
   };
@@ -323,7 +323,7 @@ isLoadingBelow4 = false;
      this.monthwiseTrendChartData = {
         labels: [],
         datasets: [
-          { data: [], label: 'Avg Assessment Score',     backgroundColor: '#5D87FF', borderRadius: 4, },
+          { data: [], label: 'Avg Assessment Score',     backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 40 },
           // { data: [], label: 'Total Children Assessed',  backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 14 },
         ]
       };
@@ -331,9 +331,9 @@ isLoadingBelow4 = false;
     this.userwiseTrendChartData = {
       labels: [],
       datasets: [
-        { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4,},
-        { data: [], label: 'CDPO',       backgroundColor: '#FF6B6B', borderRadius: 4,},
-        { data: [], label: 'DPO',        backgroundColor: '#4CAF50', borderRadius: 4,},
+        { data: [], label: 'Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 40},
+        { data: [], label: 'CDPO',       backgroundColor: '#FF6B6B', borderRadius: 4, barThickness: 40},
+        { data: [], label: 'DPO',        backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 40},
       ]
     };
     this.districtwiseTrendLabels = [];
@@ -345,7 +345,7 @@ isLoadingBelow4 = false;
         backgroundColor: '#5D87FF',
         hoverBackgroundColor: '#4a6cd8',
         borderRadius: 6,
-        barThickness: 30,
+        barThickness: 40,
       }]
     };
     this.tableData = [];
@@ -446,7 +446,7 @@ isLoadingBelow4 = false;
               label: 'Avg Assessment Score',
               backgroundColor: '#5D87FF',
               borderRadius: 4,
-             
+              barThickness: 40,
             },
             // {
             //   data: data.map(d => parseFloat(d.total_children_assessed || 0)),
@@ -493,7 +493,7 @@ isLoadingBelow4 = false;
               label: 'Supervisor',
               backgroundColor: '#5D87FF',
               borderRadius: 4,
-              
+              barThickness: 40,
             },
 
             {
@@ -501,7 +501,7 @@ isLoadingBelow4 = false;
               label: 'CDPO',
               backgroundColor: '#FF6B6B',
               borderRadius: 4,
-              
+              barThickness: 40,
             },
 
             {
@@ -509,6 +509,7 @@ isLoadingBelow4 = false;
               label: 'DPO',
               backgroundColor: '#4CAF50',
               borderRadius: 4,
+              barThickness: 40,
             }
 
           ]
@@ -542,7 +543,7 @@ isLoadingBelow4 = false;
         backgroundColor: '#5D87FF',
         hoverBackgroundColor: '#4a6cd8',
         borderRadius: 6,
-        barThickness: 30,
+        barThickness: 40,
       }]
     };
   }

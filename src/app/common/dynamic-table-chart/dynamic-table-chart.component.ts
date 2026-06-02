@@ -153,7 +153,7 @@ set selectedTabIndex(val: number) {
   }
 
   // ─── tableData changed → update rows ────────────────────
-  if (changes['tableData'] && this.displayedColumns.length > 0) {
+  if (changes['tableData']) {
     this.dataSource.data = [...(this.tableData ?? [])];             // ← spread forces new ref
   }
 
