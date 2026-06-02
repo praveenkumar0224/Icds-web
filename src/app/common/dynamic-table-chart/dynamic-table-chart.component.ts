@@ -21,7 +21,7 @@ import * as FileSaver from 'file-saver';
   templateUrl: './dynamic-table-chart.component.html',
   styleUrls: ['./dynamic-table-chart.component.scss']
 })
-export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
+export class DynamicTableChartComponent implements OnChanges, AfterViewInit {
 
   @Input() loading = false;
   @Input() headerConfig!: HeaderConfig;
@@ -56,6 +56,7 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: true },
+      datalabels: { display: false },
       tooltip: {
         callbacks: {
           label: (context: any) => {
@@ -70,7 +71,7 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function(value: any) {
+          callback: function (value: any) {
             return value + '%';
           }
         }
@@ -81,13 +82,13 @@ export class DynamicTableChartComponent implements OnChanges,AfterViewInit {
   private _selectedTabIndex = 0;
 
   get selectedTabIndex(): number {
-  return this._selectedTabIndex;
-}
+    return this._selectedTabIndex;
+  }
 
-set selectedTabIndex(val: number) {
-  this._selectedTabIndex = val;
-  this.tabChange.emit(val);
-}
+  set selectedTabIndex(val: number) {
+    this._selectedTabIndex = val;
+    this.tabChange.emit(val);
+  }
 
   prepareChartData(): void {
     if (!this.chartConfig || !this.tableData?.length) return;
@@ -96,7 +97,7 @@ set selectedTabIndex(val: number) {
     const dataKey = this.chartConfig.dataColumnKey || 'value';
 
     // Extract labels and data from tableData
-    const labels = this.tableData.map(row => 
+    const labels = this.tableData.map(row =>
       String(row[labelKey] || '').toUpperCase()
     );
 
@@ -111,7 +112,15 @@ set selectedTabIndex(val: number) {
       values: [...values]
     };
 
-    // Build chart config
+    // Merge default options with user-provided options
+    const mergedOptions = { ...this.barChartOptions, ...(this.chartConfig.options || {}) };
+    // Ensure datalabels are hidden even if plugins were overridden
+    mergedOptions.plugins = {
+      ...this.barChartOptions.plugins,
+      ...(this.chartConfig.options?.plugins || {}),
+      datalabels: { display: false } // Always hide datalabels as per requirement
+    };
+
     this.chartConfig = {
       ...this.chartConfig,
       labels: labels,
@@ -124,96 +133,95 @@ set selectedTabIndex(val: number) {
             backgroundColor: this.chartConfig.backgroundColor || '#5D87FF',
             hoverBackgroundColor: this.chartConfig.hoverBackgroundColor || '#4a6cd8',
             borderRadius: this.chartConfig.borderRadius ?? 6,
-            // barThickness: this.chartConfig.barThickness ?? 30
           }
         ]
       },
-      options: this.chartConfig.options || this.barChartOptions
+      options: mergedOptions
     };
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-  if (this.sort) {
-    this.dataSource.sort = this.sort;
-  }
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
 
-  // ─── tableConfig changed → rebuild columns ───────────────
-  if (changes['tableConfig']) {
-    if (this.tableConfig?.columns?.length) {
-      // Force new array reference so mat-table re-renders headers
-      this.displayedColumns = [];                                    // ← clear first
-      setTimeout(() => {                                             // ← let DOM clear
-        this.displayedColumns = [...this.tableConfig.columns.map(c => c.key)];
-      }, 0);
-    } else {
-      this.displayedColumns = [];
-      this.dataSource.data = [];
-      return;
+    // ─── tableConfig changed → rebuild columns ───────────────
+    if (changes['tableConfig']) {
+      if (this.tableConfig?.columns?.length) {
+        // Force new array reference so mat-table re-renders headers
+        this.displayedColumns = [];                                    // ← clear first
+        setTimeout(() => {                                             // ← let DOM clear
+          this.displayedColumns = [...this.tableConfig.columns.map(c => c.key)];
+        }, 0);
+      } else {
+        this.displayedColumns = [];
+        this.dataSource.data = [];
+        return;
+      }
+    }
+
+    // ─── tableData changed → update rows ────────────────────
+    if (changes['tableData']) {
+      this.dataSource.data = [...(this.tableData ?? [])];             // ← spread forces new ref
+    }
+
+    // ─── chartConfig changed → store original ───────────────
+    if (changes['chartConfig'] && this.chartConfig) {
+      this.originalChartData = JSON.parse(JSON.stringify(this.chartConfig));
+    }
+
+    // ─── tableData changed → rebuild chart ──────────────────
+    if (changes['tableData'] && this.tableData?.length > 0 && this.chartConfig?.enabled) {
+      this.prepareChartData();
+    }
+
+    // ─── chartConfig changed → rebuild chart ────────────────
+    if (changes['chartConfig'] && this.chartConfig?.enabled && this.tableData?.length > 0) {
+      this.prepareChartData();
     }
   }
-
-  // ─── tableData changed → update rows ────────────────────
-  if (changes['tableData'] && this.displayedColumns.length > 0) {
-    this.dataSource.data = [...(this.tableData ?? [])];             // ← spread forces new ref
-  }
-
-  // ─── chartConfig changed → store original ───────────────
-  if (changes['chartConfig'] && this.chartConfig) {
-    this.originalChartData = JSON.parse(JSON.stringify(this.chartConfig));
-  }
-
-  // ─── tableData changed → rebuild chart ──────────────────
-  if (changes['tableData'] && this.tableData?.length > 0 && this.chartConfig?.enabled) {
-    this.prepareChartData();
-  }
-
-  // ─── chartConfig changed → rebuild chart ────────────────
-  if (changes['chartConfig'] && this.chartConfig?.enabled && this.tableData?.length > 0) {
-    this.prepareChartData();
-  }
-}
 
   applyFilter(event: Event): void {
     const value = (event.target as HTMLInputElement).value || '';
     this.dataSource.filter = value.trim().toLowerCase();
   }
-  
+
   getColumnAverage(col: any): string {
-  if (!this.dataSource?.data?.length) return '0';
+    if (!this.dataSource?.data?.length) return '0';
 
-  const data = this.dataSource.data;
+    const data = this.dataSource.data;
 
-  // ─── Weighted average (when weightKey is provided) ───────
-  if (col.weightKey) {
-    const totalWeight = data.reduce((acc, row) => {
-      return acc + (Number(row?.[col.weightKey]) || 0);
+    // ─── Weighted average (when weightKey is provided) ───────
+    if (col.weightKey) {
+      const totalWeight = data.reduce((acc, row) => {
+        return acc + (Number(row?.[col.weightKey]) || 0);
+      }, 0);
+
+      if (!totalWeight) return '0';
+
+      const weightedSum = data.reduce((acc, row) => {
+        const value = Number(row?.[col.key]) || 0;
+        const weight = Number(row?.[col.weightKey]) || 0;
+        return acc + (value * weight);
+      }, 0);
+
+      return (weightedSum / totalWeight).toFixed(1);
+    }
+
+    // ─── Simple average (fallback) ───────────────────────────
+    const validRows = data.filter(row => row?.[col.key] != null && row?.[col.key] !== '');
+    if (!validRows.length) return '0';
+
+    const sum = validRows.reduce((acc, row) => {
+      return acc + (Number(row?.[col.key]) || 0);
     }, 0);
 
-    if (!totalWeight) return '0';
-
-    const weightedSum = data.reduce((acc, row) => {
-      const value  = Number(row?.[col.key])       || 0;
-      const weight = Number(row?.[col.weightKey]) || 0;
-      return acc + (value * weight);
-    }, 0);
-
-    return (weightedSum / totalWeight).toFixed(1);
+    return (sum / validRows.length).toFixed(1);
   }
-
-  // ─── Simple average (fallback) ───────────────────────────
-  const validRows = data.filter(row => row?.[col.key] != null && row?.[col.key] !== '');
-  if (!validRows.length) return '0';
-
-  const sum = validRows.reduce((acc, row) => {
-    return acc + (Number(row?.[col.key]) || 0);
-  }, 0);
-
-  return (sum / validRows.length).toFixed(1);
-}
 
   getColumnTotal(key: string): number {
     if (!this.dataSource?.data) return 0;
-    
+
     return this.dataSource.data.reduce((sum, row) => {
       const value = Number(row?.[key]);
       return sum + (isNaN(value) ? 0 : value);
@@ -264,8 +272,8 @@ set selectedTabIndex(val: number) {
     if (type === 'number') {
       // Sort by value
       sorted = combined.sort((a, b) => {
-        return order === 'asc' 
-          ? a.value - b.value 
+        return order === 'asc'
+          ? a.value - b.value
           : b.value - a.value;
       });
     } else {
@@ -311,7 +319,7 @@ set selectedTabIndex(val: number) {
 
   handleDownloadChart(): void {
     const canvas = this.barChartRef?.nativeElement;
-    
+
     if (!canvas) {
       console.warn('Chart canvas not found.');
       return;

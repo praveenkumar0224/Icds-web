@@ -114,7 +114,7 @@
           <!-- Count -->
           <div class="completion-box">
             <div style="font-size: 20px ;font-weight: bold;">
-              {{ supervisorObservationCompletionData?.completedCount}} / 
+              {{ supervisorObservationCompletionData?.completedCount}} /
               {{ supervisorObservationCompletionData?.totalCount }}
             </div>
             <div class="completion-label">
@@ -230,7 +230,7 @@
     </div>
 
     <!-- Supervisor -->
-    <div class="completion-card supervisor"  *ngIf="isBlockUser">
+    <div class="completion-card supervisor" *ngIf="isBlockUser">
       <p class="completion-title">Supervisor active this month</p>
 
       <div *ngIf="
@@ -384,14 +384,11 @@
     </div>
 
 
-    <div class="card dpo"  *ngIf="isBlockUser">
+    <div class="card dpo" *ngIf="isBlockUser">
       <h3>Unvisited AWC count by Supervisor</h3>
-    
-      <canvas
-        baseChart
-        [data]="barChartUnVisitedAwcCountSupervisor"
-        [options]="barChartUnVisitedAwcCountSupervisorOptions"
-        [type]="'bar'">
+
+      <canvas baseChart [data]="barChartUnVisitedAwcCountSupervisor"
+        [options]="barChartUnVisitedAwcCountSupervisorOptions" [type]="'bar'">
       </canvas>
     </div>
 

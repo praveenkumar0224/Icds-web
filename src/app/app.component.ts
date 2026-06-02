@@ -24,8 +24,8 @@ export class AppComponent {
     { path: '/attendance', icon: 'event_note', title: 'Attendance' },
     { path: '/growth-monitoring', icon: 'assessment', title: 'Growth Monitoring' },
     { path: '/ecce-observation', icon: 'child_care', title: 'ECCE Observation' },
-    {path: '/ecce-monitoring', icon: 'monitoring', title: 'ECCE Monitoring'},
-    // {path: '/hcm-inspection', icon: 'home_repair_service', title: 'HCM Inspection'},
+    { path: '/ecce-monitoring', icon: 'monitoring', title: 'ECCE Monitoring' },
+    { path: '/hcm-inspection', icon: 'home_repair_service', title: 'HCM Inspection' },
 
   ];
   filteredLinks: any[] = [];
@@ -82,7 +82,7 @@ export class AppComponent {
   }
   getRole(role: string): void {
     console.log(role, "user role");
-    
+
     if (role) {
       // Reset all flags
       this.isDistrictUser = false;

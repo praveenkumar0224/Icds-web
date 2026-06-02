@@ -79,6 +79,11 @@ export class AttendanceComponent implements OnInit {
             text: 'Attendance %'
           }
         }
+      },
+      datasets: {
+        bar: {
+          barThickness: 40
+        }
       }
     }
   };
