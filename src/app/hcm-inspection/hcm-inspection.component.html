@@ -247,16 +247,29 @@
     <span style="font-size:13px; font-weight:600; color:#666; text-transform:uppercase; letter-spacing:1px;">District-wise Analysis</span>
   </div>
 
-  <!-- Indicator toggle for chart view -->
-  <div class="metric-filter" *ngIf="isChartView" style="margin-bottom:12px;">
-    <mat-button-toggle-group
-      [value]="selectedIndicator"
-      (change)="onIndicatorChange($event.value)">
-      <mat-button-toggle *ngFor="let opt of indicatorOptions" [value]="opt.value">
-        {{ opt.label }}
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
+    <!-- Filters row for table: Indicator toggle (chart view) + User-type toggle (always visible) -->
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:12px;">
+
+      <!-- Indicator toggle — only in chart view -->
+      <mat-button-toggle-group *ngIf="isChartView"
+        [value]="selectedIndicator"
+        (change)="onIndicatorChange($event.value)">
+        <mat-button-toggle *ngFor="let opt of indicatorOptions" [value]="opt.value">
+          {{ opt.label }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <!-- User-type toggle — always shown for the table -->
+      <mat-button-toggle-group
+        style="margin-left:auto;"
+        [value]="selectedTableUserType"
+        (change)="onTableUserTypeChange($event.value)">
+        <mat-button-toggle value="Block Supervisor">Block Supervisor</mat-button-toggle>
+        <mat-button-toggle value="CDPO">CDPO</mat-button-toggle>
+        <mat-button-toggle value="DPO">DPO</mat-button-toggle>
+      </mat-button-toggle-group>
+
+    </div>
 
   <!-- Dynamic Table + Chart -->
   <app-dynamic-table-chart
