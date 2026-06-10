@@ -51,6 +51,8 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
   selectedBlock = '';
   selectedSector = '';
 
+  selectedTableUserType = 'Block Supervisor';
+
   users: string[] = [];
   selectedUser = 'Block Supervisor';
 
@@ -129,9 +131,9 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
   userwiseTrendChartData: ChartData<'bar'> = {
     labels: [],
     datasets: [
-      { data: [], label: 'Block Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'CDPO',             backgroundColor: '#FFA500', borderRadius: 4, barThickness: 14 },
-      { data: [], label: 'DPO',              backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
+      { data: [], label: 'Block Supervisor', backgroundColor: '#5D87FF', borderRadius: 4},
+      { data: [], label: 'CDPO',             backgroundColor: '#FFA500', borderRadius: 4},
+      { data: [], label: 'DPO',              backgroundColor: '#4CAF50', borderRadius: 4},
     ]
   };
 
@@ -177,34 +179,44 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
   };
 
   // ─── Grouped Bar Chart Options ──────────────────────────
-  groupedBarChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
-      datalabels: {
-        display: true,
-        anchor: 'end',
-        align: 'end',
-        rotation: -90,
-        formatter: (value: number) => value > 0 ? value.toFixed(1) + '%' : '',
-        font: { size: 10, weight: 'bold' },
-        color: 'black',
-        clamp: false,
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 120,
-        ticks: {
-          stepSize: 25,
-          callback: (v: any) => v <= 100 ? v + '%' : ''
-        },
-        title: { display: true, text: 'Compliance →' }
-      }
+   groupedBarChartOptions: ChartConfiguration['options'] = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+    datalabels: {
+      display: true,
+      anchor: 'end',
+      align: 'end',
+      rotation: -90,
+      formatter: (value: number) => value > 0 ? value.toFixed(1) + '%' : '',
+      font: { size: 10, weight: 'bold' },
+      color: 'black',
+      clamp: false,
     }
-  };
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      max: 120,
+      ticks: {
+        stepSize: 25,
+        callback: (v: any) => v <= 100 ? v + '%' : ''
+      },
+      title: { display: true, text: 'Compliance →' }
+    },
+    x: {
+      ticks: { maxRotation: 45 }
+    }
+  },
+  // ↓ Controls bar width and spacing
+  datasets: {
+    bar: {
+      categoryPercentage: 0.5,   // fraction of category slot used by the group (0.5 = 50% → more gap between groups)
+      barPercentage: 0.6,        // fraction of group slot used by each bar (0.6 = thinner bars with gap between them)
+    }
+  }
+};
 
   // ─── District Bar Chart Options ─────────────────────────
   districtBarChartOptions: ChartConfiguration['options'] = {
@@ -367,9 +379,9 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
     this.userwiseTrendChartData = {
       labels: [],
       datasets: [
-        { data: [], label: 'Block Supervisor', backgroundColor: '#5D87FF', borderRadius: 4, barThickness: 14 },
-        { data: [], label: 'CDPO',             backgroundColor: '#FFA500', borderRadius: 4, barThickness: 14 },
-        { data: [], label: 'DPO',              backgroundColor: '#4CAF50', borderRadius: 4, barThickness: 14 },
+        { data: [], label: 'Block Supervisor', backgroundColor: '#5D87FF', borderRadius: 4 },
+        { data: [], label: 'CDPO',             backgroundColor: '#FFA500', borderRadius: 4 },
+        { data: [], label: 'DPO',              backgroundColor: '#4CAF50', borderRadius: 4},
       ]
     };
     this.districtwiseTrendLabels = [];
@@ -504,21 +516,21 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
         label: 'Block Supervisor',
         backgroundColor: '#5D87FF',
         borderRadius: 4,
-        barThickness: 14
+        // barThickness: 14
       },
       {
         data: keys.map(k => data[k].cdpo ?? 0),
         label: 'CDPO',
         backgroundColor: '#FFA500',
         borderRadius: 4,
-        barThickness: 14
+        // barThickness: 14
       },
       {
         data: keys.map(k => data[k].dpo ?? 0),
         label: 'DPO',
         backgroundColor: '#4CAF50',
         borderRadius: 4,
-        barThickness: 14
+        // barThickness: 14
       }
     ]
   };
@@ -564,10 +576,11 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
   // ─── Load Hierarchical Table Data ────────────────────────
   private loadHierarchicalData(): void {
   this.isLoading = true;
+   const userFilter = this.selectedTableUserType || this.selectedUser;
   this.service.getHcmHierarchicalData(
     this.selectedYear, this.selectedMonth,
     this.selectedDistrict, this.selectedBlock,
-    this.selectedSector, this.selectedUser
+    this.selectedSector,userFilter
   ).subscribe({
     next: (res) => {
       const raw = res?.data || [];                          // ← direct array, not data.formattedData
@@ -612,6 +625,11 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
     };
   }
 
+  onTableUserTypeChange(value: string): void {
+  this.selectedTableUserType = value;
+  this.loadHierarchicalData();
+}
+
   // ─── View Toggle ─────────────────────────────────────────
   onViewToggle(tabIndex: any): void {
     this.isChartView = tabIndex === 1;
@@ -630,7 +648,7 @@ export class HcmInspectionComponent implements OnInit, OnDestroy {
 
     const commonColumns: TableColumn[] = [
       { key: 'slNo',               label: 'Sl.No',                    sortable: true, align: 'left' },
-      { key: 'total_inspections',  label: 'Total Inspections',         align: 'left', total: true },
+      { key: 'total_inspections',  label: 'Total AWC`s',         align: 'left', total: true },
       { key: 'awcs_inspected',     label: 'AWCs Inspected',            align: 'left', total: true },
       { key: 'overall_compliance', label: 'Overall Compliance (%)',    suffix: '%', average: true, weightKey: 'awcs_inspected' },
       { key: 'stock_match',        label: 'Stock Match (%)',           suffix: '%', average: true, weightKey: 'awcs_inspected' },
