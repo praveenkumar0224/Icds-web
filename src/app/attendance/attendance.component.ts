@@ -82,7 +82,10 @@ export class AttendanceComponent implements OnInit {
       },
       datasets: {
         bar: {
-          barThickness: 40
+          borderRadius: 6,
+          barThickness: 28,
+          categoryPercentage: 0.6,
+          barPercentage: 0.7
         }
       }
     }
